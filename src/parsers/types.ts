@@ -59,6 +59,8 @@ export interface ParseResult {
   /** Totals printed on the statement itself (e.g. "Total Debit"/"Total Credit"), in centavos. */
   statementTotals?: { debit?: number; credit?: number };
   transactions: Transaction[];
+  /** Set when the user turned on "Clean up": rows removed because they didn't change the balance. */
+  cleanedUp?: { removed: number };
   /** statement-level problems: unplaced text, missing balances, totals mismatches, etc.
    *  Row-level problems live on each Transaction (`flags`, `balanceIssue`). */
   warnings: string[];

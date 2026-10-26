@@ -1,6 +1,8 @@
 // Converter UI wiring. Everything runs in the browser: the PDF, its password and the parsed
 // transactions are never sent over the network. Heavy libraries (pdf.js, SheetJS) load lazily.
+import { formatPeriod } from "../lib/dates.ts";
 import { formatMoney } from "../lib/money.ts";
+import { cleanUp, countUnchanged } from "../lib/cleanUp.ts";
 import { exportBaseName, summarize, type Summary } from "../lib/summary.ts";
 import {
   filterCounts,
@@ -45,6 +47,8 @@ const states: Record<State, HTMLElement> = {
 
 let file: File | null = null;
 let result: ParseResult | null = null;
+/** The statement exactly as parsed; `result` may be its cleaned-up copy. */
+let original: ParseResult | null = null;
 
 const peso = (centavos: number) =>
   centavos < 0 ? `−₱${formatMoney(-centavos)}` : `₱${formatMoney(centavos)}`;
@@ -65,6 +69,8 @@ function showError(message: string) {
 function reset() {
   file = null;
   result = null;
+  original = null;
+  setCleanup(false);
   fileInput.value = "";
   passwordInput.value = "";
   setPasswordVisible(false);
@@ -201,7 +207,10 @@ async function convert(password?: string) {
     const parser = detectParser(pages);
     if (!parser) return fail(t.errors.unsupported);
 
-    result = parser.parse(pages);
+    original = parser.parse(pages);
+    result = original;
+    setCleanup(false);
+    el("cleanup").hidden = countUnchanged(original) === 0;
     passwordInput.value = ""; // don't keep the password around once it's been used
     render(result);
     setState("done");
@@ -242,27 +251,57 @@ function h<K extends keyof HTMLElementTagNameMap>(tag: K, className = "", text =
   return node;
 }
 
-function render(res: ParseResult) {
+function render(res: ParseResult, { keepView = false } = {}) {
   const s = summarize(res);
   const period =
-    res.periodStart && res.periodEnd
-      ? fill(r.period, { start: res.periodStart, end: res.periodEnd })
-      : "";
+    res.periodStart && res.periodEnd ? formatPeriod(res.periodStart, res.periodEnd) : "";
   el("results-period").textContent = period;
   el("done-summary").textContent = fill(s.count === 1 ? t.doneSummaryOne : t.doneSummary, {
-    n: s.count,
+    source: t.sources[res.source],
     period,
-  }).replace(/ · $/, "");
+    n: s.count,
+  })
+    .replace(" ·  · ", " · ")
+    .trim();
+  el("view-all-text").textContent = plural(r.viewAll, s.count);
+  renderStatus(res);
 
-  view = { filter: "all", month: "", search: "", page: 1 };
-  el<HTMLInputElement>("tx-search").value = "";
+  if (keepView) {
+    view.page = 1;
+  } else {
+    view = { filter: "all", month: "", search: "", page: 1 };
+    el<HTMLInputElement>("tx-search").value = "";
+  }
 
   renderOverview(res, s);
-  renderVerify(res, s);
   renderReview(res);
   renderMonths(s);
   renderTable();
   results.hidden = false;
+}
+
+/** One-line verdict on the done card. Only says "matches" when it's true. */
+function renderStatus(res: ParseResult) {
+  const st = r.status;
+  const review = res.transactions.filter(needsReview).length;
+  let ok: boolean | null;
+  let text: string;
+  if (res.checks.totalsMatchStatement === false) {
+    ok = false;
+    text = st.totalsOff;
+  } else if (res.checks.runningBalanceOk === false || review > 0) {
+    ok = false;
+    text = plural(st.gaps, review);
+  } else if (res.checks.runningBalanceOk || res.checks.totalsMatchStatement) {
+    ok = true;
+    text = st.ok;
+  } else {
+    ok = null;
+    text = st.none;
+  }
+  const box = el("done-status");
+  box.className = `done-status ${ok === null ? "is-na" : ok ? "is-ok" : "is-warn"}`;
+  el("done-status-text").textContent = text;
 }
 
 function renderOverview(res: ParseResult, s: Summary) {
@@ -282,73 +321,6 @@ function renderOverview(res: ParseResult, s: Summary) {
   el("bar-out").style.width = `${(s.moneyOut / max) * 100}%`;
   el("ov-in-count").textContent = plural(o.count, s.countIn);
   el("ov-out-count").textContent = plural(o.count, s.countOut);
-}
-
-type Verdict = { ok: boolean | null; text: string };
-
-function verdict(statement: number | undefined, calculated: number | undefined): Verdict {
-  const v = r.verify;
-  if (statement === undefined || calculated === undefined) return { ok: null, text: v.notShown };
-  return statement === calculated
-    ? { ok: true, text: v.match }
-    : { ok: false, text: fill(v.off, { amount: peso(Math.abs(calculated - statement)) }) };
-}
-
-function renderVerify(res: ParseResult, s: Summary) {
-  const v = r.verify;
-  const expectedClosing =
-    res.openingBalance !== undefined ? res.openingBalance + s.moneyIn - s.moneyOut : undefined;
-  const withBalance = res.transactions.filter((t) => t.balance !== undefined).length;
-  const gaps = s.balanceUnchanged + s.balanceDifferent;
-  const money = (c: number | undefined) => (c === undefined ? v.notShown : peso(c));
-
-  const rows: [string, string, string, string, Verdict][] = [
-    [
-      v.credits,
-      v.creditsSub,
-      money(res.statementTotals?.credit),
-      peso(s.moneyIn),
-      verdict(res.statementTotals?.credit, s.moneyIn),
-    ],
-    [
-      v.debits,
-      v.debitsSub,
-      money(res.statementTotals?.debit),
-      peso(s.moneyOut),
-      verdict(res.statementTotals?.debit, s.moneyOut),
-    ],
-    [
-      v.ending,
-      v.endingSub,
-      money(res.closingBalance),
-      money(expectedClosing),
-      verdict(res.closingBalance, expectedClosing),
-    ],
-    [
-      v.running,
-      v.runningSub,
-      plural(v.runningStatement, withBalance),
-      fill(v.runningCalc, { ok: withBalance - gaps }),
-      res.checks.runningBalanceOk === null
-        ? { ok: null, text: v.notShown }
-        : gaps === 0
-          ? { ok: true, text: v.match }
-          : { ok: false, text: plural(v.gaps, gaps) },
-    ],
-  ];
-  el("verify-body").replaceChildren(
-    ...rows.map(([label, sub, statement, calculated, result]) => {
-      const tr = h("tr");
-      const th = h("th");
-      th.scope = "row";
-      th.append(h("span", "cell-main", label), h("span", "cell-sub", sub));
-      const status = h("td");
-      const kind = result.ok === null ? "na" : result.ok ? "ok" : "warn";
-      status.append(h("span", `pill pill-${kind}`, `${result.ok ? "✓ " : ""}${result.text}`));
-      tr.append(th, h("td", "num", statement), h("td", "num", calculated), status);
-      return tr;
-    }),
-  );
 }
 
 function renderReview(res: ParseResult) {
@@ -540,6 +512,42 @@ el("review-show").addEventListener("click", () => {
   focusTable();
 });
 
+// ---- clean up --------------------------------------------------------------------
+
+const cleanupToggle = el<HTMLInputElement>("cleanup-toggle");
+const infoBtn = el<HTMLButtonElement>("cleanup-info-btn");
+const infoTip = el<HTMLParagraphElement>("cleanup-info");
+
+function setCleanup(on: boolean) {
+  cleanupToggle.checked = on;
+}
+
+// Off by default. When on, rows that didn't change the balance are removed from the overview,
+// table and downloads (the Excel Summary sheet records how many were removed).
+cleanupToggle.addEventListener("change", () => {
+  if (!original) return;
+  result = cleanupToggle.checked ? cleanUp(original) : original;
+  render(result, { keepView: true });
+});
+
+function showInfo(show: boolean) {
+  infoTip.hidden = !show;
+  infoBtn.setAttribute("aria-expanded", String(show));
+}
+infoBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  showInfo(Boolean(infoTip.hidden));
+});
+document.addEventListener("click", (e) => {
+  if (!infoTip.hidden && !infoTip.contains(e.target as Node)) showInfo(false);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !infoTip.hidden) {
+    showInfo(false);
+    infoBtn.focus();
+  }
+});
+
 // ---- downloads ----------------------------------------------------------------
 
 function saveBlob(blob: Blob, name: string) {
@@ -554,36 +562,30 @@ function saveBlob(blob: Blob, name: string) {
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 
-type Format = "xlsx" | "csv";
-const formatInputs = document.querySelectorAll<HTMLInputElement>('input[name="format"]');
-const selectedFormat = (): Format =>
-  document.querySelector<HTMLInputElement>('input[name="format"]:checked')?.value === "csv"
-    ? "csv"
-    : "xlsx";
-for (const input of formatInputs) {
-  input.addEventListener("change", () => {
-    el("download-ext").textContent = `.${selectedFormat()}`;
-  });
-}
-
-el("download-btn").addEventListener("click", async () => {
+el("download-xlsx").addEventListener("click", async () => {
   if (!result) return;
   try {
-    if (selectedFormat() === "csv") {
-      const { toCsv } = await import("../export/toCsv.ts");
-      saveBlob(
-        new Blob([toCsv(result)], { type: "text/csv;charset=utf-8" }),
-        `${exportBaseName(result)}.csv`,
-      );
-    } else {
-      const { toXlsx } = await import("../export/toXlsx.ts");
-      saveBlob(
-        new Blob([toXlsx(result).slice().buffer], {
-          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        }),
-        `${exportBaseName(result)}.xlsx`,
-      );
-    }
+    const { toXlsx } = await import("../export/toXlsx.ts");
+    saveBlob(
+      new Blob([toXlsx(result).slice().buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      }),
+      `${exportBaseName(result)}.xlsx`,
+    );
+  } catch (err) {
+    console.error("Download failed:", err);
+    showError(t.errors.generic);
+  }
+});
+
+el("download-csv").addEventListener("click", async () => {
+  if (!result) return;
+  try {
+    const { toCsv } = await import("../export/toCsv.ts");
+    saveBlob(
+      new Blob([toCsv(result)], { type: "text/csv;charset=utf-8" }),
+      `${exportBaseName(result)}.csv`,
+    );
   } catch (err) {
     console.error("Download failed:", err);
     showError(t.errors.generic);

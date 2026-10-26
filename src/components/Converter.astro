@@ -164,46 +164,79 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
     </div>
 
     <!-- 4. Done -->
-    <div id="state-done" class="panel-state" hidden>
-      <span class="done-check" aria-hidden="true">
-        ✓
-      </span>
-      <p class="done-title" id="done-title" tabindex="-1">
-        {t.converted}
-      </p>
-      <p id="done-summary" class="panel-hint"></p>
-
-      <div class="download-row">
-        <fieldset class="format-toggle">
-          <legend class="visually-hidden">{r.format}</legend>
-          <label>
-            <input type="radio" name="format" value="xlsx" checked />
-            <span>{r.formatXlsx}</span>
-          </label>
-          <label>
-            <input type="radio" name="format" value="csv" />
-            <span>{r.formatCsv}</span>
-          </label>
-        </fieldset>
-        <button type="button" id="download-btn" class="btn-primary">
-          {r.download}{" "}
-          <span class="file-tag" id="download-ext">
-            .xlsx
-          </span>
+    <div id="state-done" class="panel-state done" hidden>
+      <div class="done-head">
+        <span class="done-check" aria-hidden="true">
+          ✓
+        </span>
+        <div class="done-heading">
+          <p class="done-title" id="done-title" tabindex="-1">
+            {t.converted}
+          </p>
+          <p id="done-summary" class="done-sub"></p>
+        </div>
+        <button type="button" id="reset" class="btn-secondary btn-small" data-action="reset">
+          {r.convertAnother}
         </button>
       </div>
 
-      <p class="done-links">
-        <button type="button" id="view-transactions" class="btn-link">
-          {r.viewTransactions} <span aria-hidden="true">↓</span>
-        </button>
-        <span class="dot" aria-hidden="true">
-          ·
-        </span>
-        <button type="button" id="reset" class="btn-link" data-action="reset">
-          {r.convertAnother}
-        </button>
+      <p id="done-status" class="done-status">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
+          <path
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 3 5 6v5c0 4.4 3 8.4 7 9.5 4-1.1 7-5.1 7-9.5V6l-7-3Zm-2.5 9 2 2 4-4"
+          ></path>
+        </svg>
+        <span id="done-status-text"></span>
       </p>
+
+      <div class="done-downloads">
+        <button type="button" id="download-xlsx" class="btn-primary">
+          <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
+            <path
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 4v11m-5-5 5 5 5-5M5 20h14"
+            ></path>
+          </svg>
+          {r.downloadXlsx} <span class="ext">.xlsx</span>
+        </button>
+        <button type="button" id="download-csv" class="btn-secondary">
+          {r.downloadCsv}
+        </button>
+      </div>
+
+      <div class="done-foot">
+        <button type="button" id="view-transactions" class="view-all">
+          <span id="view-all-text"></span>
+          <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
+            <path
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m6 9 6 6 6-6"
+            ></path>
+          </svg>
+        </button>
+        <p class="done-privacy">
+          <svg aria-hidden="true" viewBox="0 0 24 24" width="14" height="14">
+            <path
+              fill="currentColor"
+              d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5Zm-3 8V7a3 3 0 0 1 6 0v3H9Z"
+            ></path>
+          </svg>
+          {r.privacyDone}
+        </p>
+      </div>
     </div>
 
     <p id="error" class="error" role="alert"></p>
@@ -266,31 +299,6 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
       </div>
     </div>
 
-    <!-- Cross-check -->
-    <section class="block" aria-labelledby="verify-heading">
-      <div class="block-head">
-        <h3 id="verify-heading">{r.verify.heading}</h3>
-        <p>{r.verify.intro}</p>
-      </div>
-      <div class="table-wrap">
-        <table class="verify-table">
-          <thead>
-            <tr>
-              <th scope="col">{r.verify.check}</th>
-              <th scope="col" class="num">
-                {r.verify.onStatement}
-              </th>
-              <th scope="col" class="num">
-                {r.verify.calculated}
-              </th>
-              <th scope="col">{r.verify.result}</th>
-            </tr>
-          </thead>
-          <tbody id="verify-body"></tbody>
-        </table>
-      </div>
-    </section>
-
     <!-- Rows to review -->
     <div id="review" class="review" role="note" hidden>
       <div class="review-text">
@@ -341,6 +349,40 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
         <h3 id="tx-heading" tabindex="-1">
           {r.table.heading}
         </h3>
+        <div id="cleanup" class="cleanup" hidden>
+          <label class="cleanup-check">
+            <input type="checkbox" id="cleanup-toggle" />
+            <span>{r.cleanup.label}</span>
+          </label>
+          <button
+            type="button"
+            id="cleanup-info-btn"
+            class="info-btn"
+            aria-label={r.cleanup.infoLabel}
+            aria-expanded="false"
+            aria-controls="cleanup-info"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16">
+              <circle
+                cx="12"
+                cy="12"
+                r="9"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+              ></circle>
+              <path
+                d="M12 11v5M12 8h.01"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              ></path>
+            </svg>
+          </button>
+          <p id="cleanup-info" class="info-tip" role="tooltip" hidden>
+            {r.cleanup.info}
+          </p>
+        </div>
       </div>
       <div class="tx-toolbar">
         <div class="segmented" role="group" aria-label={r.table.filterLabel}>

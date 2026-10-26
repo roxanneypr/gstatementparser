@@ -32,3 +32,19 @@ function isValidDate(y: number, m: number, d: number): boolean {
   const daysInMonth = new Date(Date.UTC(y, m, 0)).getUTCDate();
   return d <= daysInMonth;
 }
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** "2026-09-21", "2026-10-18" -> "Sep 21 – Oct 18, 2026" (year shown once when it's the same). */
+export function formatPeriod(start: string, end: string): string {
+  const parse = (iso: string) => {
+    const [y, m, d] = iso.split("-").map(Number);
+    return { y: y ?? 0, m: MONTHS[(m ?? 1) - 1] ?? "", d: d ?? 0 };
+  };
+  const a = parse(start);
+  const b = parse(end);
+  if (start === end) return `${a.m} ${a.d}, ${a.y}`;
+  return a.y === b.y
+    ? `${a.m} ${a.d} – ${b.m} ${b.d}, ${b.y}`
+    : `${a.m} ${a.d}, ${a.y} – ${b.m} ${b.d}, ${b.y}`;
+}

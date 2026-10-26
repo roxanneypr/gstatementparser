@@ -43,9 +43,10 @@ it's cleared after converting.
 ## Step 3: Download Excel or CSV
 
 When it's done, you'll see **Your spreadsheet is ready** with the number of transactions and the
-statement period. Choose **Excel** or **CSV**, then press **Download**.
+statement period, and a quick check against your statement. Press **Download Excel** or
+**Download CSV**.
 
-![The finished step: "Your spreadsheet is ready", 34 transactions from 2026-03-01 to 2026-04-30, an Excel or CSV choice and a Download button.](./images/gcash-statement-to-excel-guide/3-ready.png)
+![The finished step: "Your spreadsheet is ready", 34 transactions from 2026-03-01 to 2026-04-30, a "Checked against your statement" note, and Download Excel and Download CSV buttons.](./images/gcash-statement-to-excel-guide/3-ready.png)
 
 The Excel workbook has two sheets:
 
@@ -58,19 +59,13 @@ The CSV opens in Excel, Google Sheets, Numbers and most accounting tools.
 
 ## Step 4: Check the results against your PDF
 
-Press **View transactions** (or scroll down) to see the statement details. Use them to make sure everything was
+Press **View all transactions** (or scroll down) to see the statement details. Use them to make sure everything was
 read correctly before you rely on the spreadsheet.
 
 **Overview.** Money in and money out for the whole period, the net, and your starting and ending
 balance.
 
 ![Overview card showing the net amount, starting balance to ending balance, and money in and money out with bars and transaction counts.](./images/gcash-statement-to-excel-guide/4-overview.png)
-
-**Cross-check with your PDF.** The totals printed at the end of your statement, next to the totals
-calculated from every row. A **✓ Match** on total credit and total debit means every amount was read
-correctly.
-
-![Cross-check table comparing "On your statement" with "Calculated" for total credit, total debit, ending balance and running balance.](./images/gcash-statement-to-excel-guide/5-cross-check.png)
 
 **Rows to review.** Sometimes a statement lists a transaction but its running balance doesn't
 change, or changes by a different amount. WalletToExcel keeps GCash's figures exactly as printed
@@ -81,6 +76,8 @@ the GCash app.
 
 **Transactions.** Every row, 20 per page. Filter by **Money in**, **Money out** or **Needs review**,
 pick a month, or search by description or reference number to find a row from your PDF quickly.
+Turn on **Clean up** to leave out transactions that didn't change your balance; it also applies to
+your download.
 
 ![The transactions table filtered to "Money in", showing date and time, description with reference number, amount, balance and status for each row.](./images/gcash-statement-to-excel-guide/7-transactions.png)
 

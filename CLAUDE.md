@@ -148,6 +148,7 @@ interface ParseResult {
   openingBalance?: number;
   closingBalance?: number;
   statementTotals?: { debit?: number; credit?: number }; // totals printed on the statement
+  cleanedUp?: { removed: number }; // set when the user turned on "Clean up" (see below)
   transactions: Transaction[];
   // Statement-level problems only (unplaced text, missing balances, totals mismatch, ...).
   // Row-level problems live on each Transaction (`flags`, `balanceIssue`).
@@ -169,6 +170,11 @@ interface StatementParser {
   parse(pages: PageText[]): ParseResult;
 }
 ```
+
+**Clean up (opt-in, off by default):** a checkbox above the transactions removes rows whose
+balance didn't change (`balanceIssue.kind === "unchanged"`) from the view, totals and downloads
+(`src/lib/cleanUp.ts`); the Excel Summary sheet records how many were removed. The done card's
+status line only says "Every running balance matches" when that is true.
 
 **Never alter the statement's figures.** A `balanceIssue` describes a gap; it doesn't "fix" it. Real
 GCash statements do contain such gaps (e.g. a payment listed while the balance stays the same),

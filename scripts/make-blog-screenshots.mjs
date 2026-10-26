@@ -47,7 +47,6 @@ try {
   await page.locator("#done-title").blur();
   await shot("#panel", "3-ready");
   await shot(".overview", "4-overview");
-  await shot(".block:has(#verify-body)", "5-cross-check");
   await shot("#review", "6-review");
   await page.click('[data-filter="in"]');
   await shot(".block:has(#tx-body)", "7-transactions");

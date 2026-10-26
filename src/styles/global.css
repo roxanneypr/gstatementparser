@@ -599,9 +599,7 @@ button {
   color: var(--green);
   font-size: 1.2rem;
 }
-#state-done {
-  max-width: 480px;
-}
+
 .error:empty {
   display: none;
 }
@@ -794,14 +792,12 @@ button {
   overflow: hidden;
   background: var(--bg);
 }
-.verify-table,
 .months-table,
 .tx-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
 }
-.verify-table thead th,
 .months-table thead th,
 .tx-table thead th {
   background: var(--subtle);
@@ -815,8 +811,6 @@ button {
   padding: 11px 16px;
   white-space: nowrap;
 }
-.verify-table td,
-.verify-table tbody th,
 .months-table td,
 .months-table tbody th,
 .tx-table td {
@@ -830,7 +824,6 @@ button {
 tbody tr:last-child > * {
   border-bottom: 0;
 }
-.verify-table .num,
 .months-table .num,
 .tx-table .num {
   text-align: right;
@@ -838,7 +831,6 @@ tbody tr:last-child > * {
   white-space: nowrap;
   color: var(--text);
 }
-.verify-table tbody th .cell-main,
 .months-table tbody th {
   font-weight: 500;
   color: var(--text);
@@ -1084,8 +1076,6 @@ tbody tr:last-child > * {
   .ov-card {
     padding: 22px 20px;
   }
-  .verify-table,
-  .verify-table tbody,
   .months-table,
   .months-table tbody,
   .tx-table,
@@ -1102,7 +1092,6 @@ tbody tr:last-child > * {
   .segmented button {
     flex: none;
   }
-  .verify-table thead,
   .tx-table thead,
   .months-table thead {
     position: absolute;
@@ -1110,38 +1099,6 @@ tbody tr:last-child > * {
     height: 1px;
     overflow: hidden;
     clip: rect(0 0 0 0);
-  }
-  .verify-table tbody tr {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 4px 12px;
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--line);
-  }
-  .verify-table tbody tr:last-child {
-    border-bottom: 0;
-  }
-  .verify-table tbody tr > * {
-    padding: 0;
-    border: 0;
-  }
-  .verify-table tbody td.num {
-    grid-column: 1 / -1;
-    display: flex;
-    justify-content: space-between;
-    color: var(--body);
-  }
-  .verify-table tbody td.num:nth-of-type(1)::before {
-    content: "On statement";
-    color: var(--muted);
-  }
-  .verify-table tbody td.num:nth-of-type(2)::before {
-    content: "Calculated";
-    color: var(--muted);
-  }
-  .verify-table tbody td:last-child {
-    grid-row: 1;
-    grid-column: 2;
   }
   .months-table tbody tr {
     display: grid;
@@ -1850,96 +1807,218 @@ main.page-top {
   }
 }
 
-/* ---- done state: one download, format toggle ---- */
-.download-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 24px;
-}
-.format-toggle {
-  display: inline-flex;
-  gap: 2px;
-  margin: 0;
-  padding: 3px;
-  min-width: 0;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--subtle);
-}
-.format-toggle label {
+/* ---- clean up (above transactions) ---- */
+.cleanup {
   position: relative;
-  cursor: pointer;
-}
-.format-toggle input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  margin: 0;
-  cursor: pointer;
-}
-.format-toggle span {
   display: inline-flex;
   align-items: center;
-  min-height: 40px;
-  padding: 0 18px;
-  border-radius: 999px;
-  font-size: 0.9375rem;
+  gap: 2px;
+}
+.cleanup-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 2px;
+  font-size: 0.875rem;
   font-weight: 500;
-  color: var(--muted);
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-.format-toggle label:hover span {
   color: var(--text);
+  cursor: pointer;
 }
-.format-toggle input:checked + span {
-  background: var(--bg);
-  color: var(--text);
-  box-shadow:
-    0 1px 2px rgb(16 18 20 / 8%),
-    0 0 0 1px var(--line-strong);
+.cleanup-check input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--ink);
+  cursor: pointer;
 }
-.format-toggle input:focus-visible + span {
+.cleanup-check:has(input:focus-visible) {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
-#download-btn {
-  min-width: 170px;
-  min-height: 46px;
+.info-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted);
 }
-.done-links {
+.info-btn:hover,
+.info-btn[aria-expanded="true"] {
+  color: var(--text);
+  background: var(--subtle);
+}
+.info-tip,
+.block-head .info-tip {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 3;
+  width: max-content;
+  max-width: 240px;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.45;
+  box-shadow: var(--shadow);
+}
+
+/* ---- done state: same card width as the upload step, content spread across it ---- */
+.panel[data-state="done"] {
+  align-items: stretch;
+  justify-content: flex-start;
+  text-align: left;
+}
+#state-done {
+  max-width: none;
+  align-items: stretch;
+}
+.done-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.done .done-check {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  margin: 0;
+  font-size: 1.25rem;
+}
+.done-heading {
+  flex: 1;
+  min-width: 0;
+}
+.done .done-title {
+  font-size: clamp(1.25rem, 3vw, 1.6rem);
+  letter-spacing: -0.03em;
+}
+.done-sub {
+  margin: 4px 0 0;
+  font-size: 0.9375rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.btn-small {
+  flex: none;
+  min-height: 40px;
+  padding: 8px 16px;
+  font-size: 0.875rem;
+}
+.done-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 28px 0 0;
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+.done-status svg {
+  flex: none;
+}
+.done-status.is-ok {
+  background: var(--green-tint);
+  color: var(--green);
+}
+.done-status.is-warn {
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  box-shadow: inset 0 0 0 1px var(--warn-line);
+}
+.done-status.is-na {
+  background: var(--subtle);
+  color: var(--muted);
+}
+.done-downloads {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  margin-top: 20px;
+}
+.done-downloads button {
+  min-height: 56px;
+  border-radius: var(--radius);
+  font-size: 1rem;
+}
+.done-downloads .btn-primary {
+  gap: 10px;
+  font-weight: 600;
+}
+.done-downloads .btn-secondary {
+  padding: 0 28px;
+}
+.done-downloads .ext {
+  font-weight: 400;
+  font-size: 0.875rem;
+  opacity: 0.6;
+}
+.done-foot {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  gap: 2px 6px;
-  margin: 18px 0 0;
-  font-size: 0.875rem;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
 }
-.done-links .btn-link {
-  font-size: inherit;
-  padding: 6px 4px;
-}
-.done-links #view-transactions {
+.view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--text);
-  font-weight: 500;
 }
-.done-links .dot {
-  color: var(--faint);
+.view-all svg {
+  transition: transform 0.15s;
 }
-@media (max-width: 479px) {
-  .download-row {
+.view-all:hover svg {
+  transform: translateY(2px);
+}
+.done-privacy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+@media (max-width: 559px) {
+  .done-head {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px;
+  }
+  .done .done-check {
+    width: 44px;
+    height: 44px;
+  }
+  .done-head .btn-small {
+    grid-column: 2;
+    justify-self: start;
+  }
+  .done-status {
+    margin-top: 20px;
+    align-items: flex-start;
+  }
+  .done-downloads {
+    grid-template-columns: 1fr;
+  }
+  .done-foot {
     flex-direction: column;
-    align-items: stretch;
-  }
-  .format-toggle {
-    align-self: center;
-  }
-  #download-btn {
-    width: 100%;
+    align-items: flex-start;
   }
 }

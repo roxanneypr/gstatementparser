@@ -90,6 +90,14 @@ function summarySheet(result: ParseResult): WorkSheet {
     [text("Total out (debits)"), peso(s.moneyOut)],
     [text("Net"), peso(s.net)],
     [text("Transactions"), { t: "n", v: s.count }],
+    ...(result.cleanedUp
+      ? [
+          [
+            text("Removed by clean-up (balance didn't change)"),
+            { t: "n", v: result.cleanedUp.removed } as CellObject,
+          ],
+        ]
+      : []),
     [],
     [text("Checks")],
     [text("Totals match the statement"), text(yesNo(result.checks.totalsMatchStatement))],

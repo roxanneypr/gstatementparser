@@ -114,6 +114,22 @@ describe("toXlsx", () => {
     expect(monthRow?.slice(1)).toEqual([12505, 2983.5, 9521.5]);
   });
 
+  it("records clean-up in the Summary sheet", () => {
+    const cleaned = { ...withBalanceGap(), cleanedUp: { removed: 1 } };
+    const rows = utils.sheet_to_json<unknown[]>(
+      read(toXlsx(cleaned), { type: "array" }).Sheets.Summary!,
+      { header: 1, raw: true },
+    );
+    expect(rows.find((r) => r[0] === "Removed by clean-up (balance didn't change)")?.[1]).toBe(1);
+    // ...and not when clean-up wasn't used
+    expect(rows.length).toBeGreaterThan(0);
+    const plain = utils.sheet_to_json<unknown[]>(
+      read(toXlsx(withBalanceGap()), { type: "array" }).Sheets.Summary!,
+      { header: 1 },
+    );
+    expect(plain.some((r) => String(r[0]).startsWith("Removed by clean-up"))).toBe(false);
+  });
+
   it("converts dates to Excel serials", () => {
     expect(excelDate("1900-03-01")).toBe(61);
     expect(excelDate("2026-03-14")).toBe(46095);

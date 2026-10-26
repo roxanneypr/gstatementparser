@@ -61,7 +61,7 @@ test("one button: choose a protected PDF, enter the password, download — nothi
   await expect(page.locator("#done-title")).toBeFocused();
   await expect(page.locator("#error")).toBeEmpty();
   await expect(page.locator("#done-summary")).toHaveText(
-    "9 transactions · 2026-03-01 to 2026-03-31",
+    "GCash · Mar 1 – Mar 31, 2026 · 9 transactions",
   );
   await expect(page.locator("#pdf-password")).toHaveValue(""); // password not kept
   await expect(page.locator("#ov-in")).toHaveText("+₱12,505.00");
@@ -69,10 +69,13 @@ test("one button: choose a protected PDF, enter the password, download — nothi
   await expect(page.locator("#ov-net")).toHaveText("+₱9,521.50");
   await expect(page.locator("#ov-opening")).toHaveText("₱1,500.00");
   await expect(page.locator("#ov-closing")).toHaveText("₱11,021.50");
-  // Cross-check: statement totals shown next to calculated ones, all matching.
-  await expect(page.locator("#verify-body tr")).toHaveCount(4);
-  await expect(page.locator("#verify-body .pill-ok")).toHaveCount(4);
-  await expect(page.locator("#verify-body tr").first()).toContainText("₱12,505.00");
+  // Checked against the statement: everything matches, and it says so.
+  await expect(page.locator("#done-status")).toHaveClass(/is-ok/);
+  await expect(page.locator("#done-status-text")).toHaveText(
+    "Checked against your statement. Every running balance matches.",
+  );
+  await expect(page.locator("#view-all-text")).toHaveText("View all 9 transactions");
+  await expect(page.locator("#cleanup")).toBeHidden(); // nothing to clean up
   await expect(page.locator("#review")).toBeHidden();
   await expect(page.locator("#months")).toBeHidden(); // single month
   await expect(page.locator("#tx-body tr")).toHaveCount(9);
@@ -80,16 +83,13 @@ test("one button: choose a protected PDF, enter the password, download — nothi
   await expect(page.locator("#tx-range")).toHaveText("1–9 of 9");
   await expect(page.locator("#pager-buttons button")).toHaveCount(0);
 
-  await expect(page.locator("#download-ext")).toHaveText(".xlsx"); // Excel is the default
-  const [xlsx] = await Promise.all([page.waitForEvent("download"), page.click("#download-btn")]);
+  const [xlsx] = await Promise.all([page.waitForEvent("download"), page.click("#download-xlsx")]);
   expect(xlsx.suggestedFilename()).toBe("gcash-statement_2026-03-01_to_2026-03-31.xlsx");
   const wb = read(readFileSync((await xlsx.path())!));
   expect(wb.SheetNames).toEqual(["Transactions", "Summary"]);
   expect(utils.sheet_to_json(wb.Sheets.Transactions!)).toHaveLength(9);
 
-  await page.getByRole("radio", { name: "CSV" }).check();
-  await expect(page.locator("#download-ext")).toHaveText(".csv");
-  const [csv] = await Promise.all([page.waitForEvent("download"), page.click("#download-btn")]);
+  const [csv] = await Promise.all([page.waitForEvent("download"), page.click("#download-csv")]);
   expect(csv.suggestedFilename()).toBe("gcash-statement_2026-03-01_to_2026-03-31.csv");
   const text = readFileSync((await csv.path())!, "utf8");
   expect(text.charCodeAt(0)).toBe(0xfeff);
@@ -119,8 +119,11 @@ test("asks for the password again if it's left empty", async ({ page }) => {
 
 test("points out balance gaps without changing the figures", async ({ page }) => {
   await page.setInputFiles("#pdf-file", pdf("balance-gap"));
-  await expect(page.locator("#verify-body .pill-warn")).toHaveCount(1);
-  await expect(page.locator("#verify-body tr").nth(3)).toContainText("2 gaps");
+  // Never claims "every balance matches" when it doesn't.
+  await expect(page.locator("#done-status")).toHaveClass(/is-warn/);
+  await expect(page.locator("#done-status-text")).toHaveText(
+    "Checked against your statement. 2 rows need a look.",
+  );
   await expect(page.locator("#review")).toBeVisible();
   await expect(page.locator("#review-title")).toHaveText("2 rows need a look");
   await expect(page.locator("#review-body")).toContainText(
@@ -231,11 +234,11 @@ test("try a sample statement: runs the real converter on the bundled FAKE PDF", 
   await page.getByRole("button", { name: "Try a sample statement" }).click();
   await expect(page.locator("#state-done")).toBeVisible();
   await expect(page.locator("#done-summary")).toHaveText(
-    "34 transactions · 2026-03-01 to 2026-04-30",
+    "GCash · Mar 1 – Apr 30, 2026 · 34 transactions",
   );
   await expect(page.locator("#review-title")).toHaveText("1 row needs a look");
   await expect(page.locator("#months-body tr")).toHaveCount(2);
-  await page.getByRole("button", { name: "View transactions" }).click();
+  await page.getByRole("button", { name: "View all 34 transactions" }).click();
   await expect(page.locator("#tx-heading")).toBeFocused();
   // The only extra request is a same-origin GET for the sample file; nothing is sent.
   const origin = new URL(page.url()).origin;
@@ -281,4 +284,41 @@ test("home page: header Convert button jumps to the converter and keeps results"
   await page.locator(".nav-cta").click();
   await expect(page).toHaveURL(/\/#convert$/);
   await expect(page.locator("#choose-btn")).toBeVisible();
+});
+
+test("clean up (off by default) removes rows that didn't change the balance, incl. downloads", async ({
+  page,
+}) => {
+  await page.setInputFiles("#pdf-file", pdf("two-months-gaps"));
+  await expect(page.locator("#state-done")).toBeVisible();
+  const toggle = page.locator("#cleanup-toggle");
+  await expect(page.locator("#cleanup")).toBeVisible();
+  await expect(toggle).not.toBeChecked();
+  await expect(page.locator("#tx-range")).toHaveText("1–20 of 45");
+
+  // The info icon explains it in one line; Escape closes it.
+  await page.getByRole("button", { name: "What does clean up do?" }).click();
+  await expect(page.locator("#cleanup-info")).toHaveText(
+    "Removes transactions that didn't change your balance.",
+  );
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#cleanup-info")).toBeHidden();
+
+  await toggle.check();
+  await expect(page.locator("#tx-range")).toHaveText("1–20 of 42");
+  await expect(page.locator("#done-summary")).toContainText("42 transactions");
+  await expect(page.locator("#done-status")).toHaveClass(/is-ok/);
+  await page.fill("#tx-search", "Balance unchanged");
+  await page.fill("#tx-search", "");
+  await expect(page.locator("#tx-body tr.flagged")).toHaveCount(0);
+
+  const [xlsx] = await Promise.all([page.waitForEvent("download"), page.click("#download-xlsx")]);
+  const wb = read(readFileSync((await xlsx.path())!));
+  expect(utils.sheet_to_json(wb.Sheets.Transactions!)).toHaveLength(42);
+  const summary = utils.sheet_to_json<unknown[]>(wb.Sheets.Summary!, { header: 1 });
+  expect(summary.find((r) => String(r[0]).startsWith("Removed by clean-up"))?.[1]).toBe(3);
+
+  // Turning it off brings every row back.
+  await toggle.uncheck();
+  await expect(page.locator("#tx-range")).toHaveText("1–20 of 45");
 });

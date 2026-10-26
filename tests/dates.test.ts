@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseDateTime } from "../src/lib/dates.ts";
+import { formatPeriod, parseDateTime } from "../src/lib/dates.ts";
 
 describe("parseDateTime", () => {
   it.each([
@@ -19,4 +19,12 @@ describe("parseDateTime", () => {
       expect(parseDateTime(input)).toBeNull();
     },
   );
+});
+
+describe("formatPeriod", () => {
+  it("shows the year once within a year, twice across years", () => {
+    expect(formatPeriod("2026-09-21", "2026-10-18")).toBe("Sep 21 – Oct 18, 2026");
+    expect(formatPeriod("2025-12-21", "2026-01-18")).toBe("Dec 21, 2025 – Jan 18, 2026");
+    expect(formatPeriod("2026-03-01", "2026-03-01")).toBe("Mar 1, 2026");
+  });
 });
