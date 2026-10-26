@@ -244,11 +244,12 @@ test("try a sample statement: runs the real converter on the bundled FAKE PDF", 
   expect(problems).toEqual([]);
 });
 
-test("home page: no header Convert button (it would wipe results); example output shown", async ({
+test("home page: header Convert button jumps to the converter and keeps results", async ({
   page,
   isMobile,
 }) => {
-  await expect(page.locator(".nav-cta")).toHaveCount(0);
+  const cta = page.locator(".nav-cta");
+  await expect(cta).toHaveAttribute("href", "#convert");
   await expect(page.locator(".example tbody tr")).toHaveCount(4);
   // "Drag and drop" only makes sense with a mouse.
   if (isMobile) await expect(page.locator(".drag-hint")).toBeHidden();
@@ -258,6 +259,21 @@ test("home page: no header Convert button (it would wipe results); example outpu
   const viewport = page.viewportSize();
   expect(box && viewport && box.y + box.height <= viewport.height).toBe(true);
 
+  // Idle: focuses the main button. After converting: no reload, results stay.
+  await cta.click();
+  await expect(page.locator("#choose-btn")).toBeFocused();
+  await page.setInputFiles("#pdf-file", pdf("two-months"));
+  await expect(page.locator("#state-done")).toBeVisible();
+  await page.locator("#tx-heading").scrollIntoViewIfNeeded();
+  await cta.click();
+  await expect(page.locator("#done-title")).toBeFocused();
+  await expect(page.locator("#results")).toBeVisible();
+  await expect(page.locator("#tx-range")).toHaveText("1–20 of 45");
+
+  // Other pages link to the converter on the home page.
   await page.goto("/about");
-  await expect(page.locator(".nav-cta")).toHaveCount(1);
+  await expect(page.locator(".nav-cta")).toHaveAttribute("href", "/#convert");
+  await page.locator(".nav-cta").click();
+  await expect(page).toHaveURL(/\/#convert$/);
+  await expect(page.locator("#choose-btn")).toBeVisible();
 });

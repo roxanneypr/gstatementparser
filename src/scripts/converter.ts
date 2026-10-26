@@ -82,6 +82,20 @@ for (const btn of panel.querySelectorAll<HTMLButtonElement>('[data-action="reset
 
 chooseBtn.addEventListener("click", () => fileInput.click());
 
+// Header "Convert PDF" on this page: bring the converter into view without reloading, and put
+// focus on whatever the next step is (choose a file, enter the password, or download).
+for (const link of document.querySelectorAll<HTMLAnchorElement>('a.nav-cta[href="#convert"]')) {
+  link.addEventListener("click", (e) => {
+    e.preventDefault();
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    panel.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+    const state = panel.dataset.state;
+    const target =
+      state === "password" ? passwordInput : state === "done" ? el("done-title") : chooseBtn;
+    target.focus({ preventScroll: true });
+  });
+}
+
 // "Try a sample statement": loads a FAKE statement shipped with the site (same-origin GET,
 // no user data involved) and runs it through the exact same converter.
 const SAMPLE_URL = "/sample/sample-gcash-statement.pdf";

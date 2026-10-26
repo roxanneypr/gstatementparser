@@ -211,6 +211,8 @@ Never store the password (no localStorage, no URL params).
 - The converter card shows an "Example output" (sample rows in real statement wording, never
   invented labels like "Buy Load" unless verified) and a "Try a sample statement" button that runs
   the real converter on the FAKE `public/sample/sample-gcash-statement.pdf`.
+- Header "Convert PDF" button on every page. On the home page it is an in-page anchor (`#convert`)
+  that scrolls to and focuses the converter; it must never reload the page (that wipes results).
 - Mobile first: the main button must be visible without scrolling at 360×500 (Facebook in-app
   browser); "drag and drop" copy only on devices with a mouse. Don't promise "no limits" (a paid
   tier is on the roadmap); say "Free to use".

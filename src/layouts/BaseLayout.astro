@@ -46,21 +46,16 @@ const year = new Date().getFullYear();
           <img src="/favicon.svg" alt="" width="26" height="26" />
           <span>{SITE_NAME}</span>
         </a>
-        {
-          /* No "Convert PDF" on the home page: the converter is right there, and linking to "/"
-             would reload the page and wipe a finished conversion. */
-          !flush && (
-            <nav aria-label="Main">
-              <ul>
-                <li>
-                  <a class="nav-cta" href="/">
-                    {t.nav.convert}
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          )
-        }
+        <nav aria-label="Main">
+          <ul>
+            <li>
+              {/* An in-page anchor on the home page (no reload, so a finished conversion is kept). */}
+              <a class="nav-cta" href={flush ? "#convert" : "/#convert"}>
+                {t.nav.convert}
+              </a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </header>
     <main id="main" class:list={["container", { "page-top": !flush }]}>

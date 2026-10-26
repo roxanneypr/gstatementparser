@@ -365,6 +365,7 @@ button {
 /* ---- converter card ---- */
 .converter {
   margin: 40px auto 0;
+  scroll-margin-top: 80px; /* clear the sticky header */
 }
 .panel {
   max-width: 760px;
