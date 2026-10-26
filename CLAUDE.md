@@ -96,15 +96,42 @@ github.com/KazeFreeze/gcash-pdf-parser. If any code is adapted from it, keep its
 ## Data model
 
 ```ts
+// Source of truth: src/parsers/types.ts (keep this section in sync with it).
+
+interface TextItem {
+  str: string;
+  x: number;
+  y: number; // baseline, measured from the TOP of the page (grows downward)
+  width: number;
+  height: number;
+  fontName?: string;
+}
+
+interface PageText {
+  pageNumber: number;
+  width: number;
+  height: number;
+  items: TextItem[];
+}
+
 interface Transaction {
   date: string; // ISO date, e.g. "2026-03-14"
-  time?: string; // "13:05" if available
+  time?: string; // "13:05" (24-hour) if available
   description: string;
   referenceNo?: string;
   debit: number; // centavos, >= 0
   credit: number; // centavos, >= 0
-  balance?: number; // centavos, running balance if shown
+  balance?: number; // centavos, running balance exactly as printed
   raw?: string; // original line(s), for debugging / flagged rows
+  flags?: string[]; // problems READING this row (missing date, ambiguous amounts, ...)
+  balanceIssue?: BalanceIssue; // set when this row's balance doesn't follow from the previous row
+}
+
+interface BalanceIssue {
+  // "unchanged": balance stayed the same despite the transaction;
+  // "different": balance moved by a different amount than the transaction.
+  kind: "unchanged" | "different";
+  difference: number; // centavos: balance − (previous balance + credit − debit)
 }
 
 interface ParseResult {
@@ -116,7 +143,17 @@ interface ParseResult {
   openingBalance?: number;
   closingBalance?: number;
   transactions: Transaction[];
-  warnings: string[]; // unparsed lines, reconciliation mismatches, etc.
+  // Statement-level problems only (unplaced text, missing balances, totals mismatch, ...).
+  // Row-level problems live on each Transaction (`flags`, `balanceIssue`).
+  warnings: string[];
+  checks: ReconciliationChecks;
+}
+
+// Each check is `null` when the statement doesn't give enough information to run it.
+interface ReconciliationChecks {
+  totalsMatchStatement: boolean | null; // parsed sums = statement's "Total Debit"/"Total Credit"
+  runningBalanceOk: boolean | null; // every row: previous balance + credit − debit = balance
+  openingToClosingOk: boolean | null; // opening + credits − debits = closing
 }
 
 interface StatementParser {
@@ -126,6 +163,10 @@ interface StatementParser {
   parse(pages: PageText[]): ParseResult;
 }
 ```
+
+**Never alter the statement's figures.** A `balanceIssue` describes a gap; it doesn't "fix" it. Real
+GCash statements do contain such gaps (e.g. a payment listed while the balance stays the same),
+so the UI shows them as rows to review, and the exports add a "Balance check" column.
 
 The parser registry exists so we can add Maya, BPI, BDO, SeaBank, etc. later without touching the UI.
 
@@ -140,8 +181,11 @@ The parser registry exists so we can add Maya, BPI, BDO, SeaBank, etc. later wit
 5. Skip repeated page headers/footers and summary lines.
 6. Parse money into integer centavos. Parse dates into ISO.
 7. **Reconciliation check:** if opening/closing balances or running balances are available, verify
-   `opening + credits − debits = closing` and that each running balance follows from the previous one.
-   Add a warning for every mismatch and highlight the row in the preview.
+   `opening + credits − debits = closing`, that parsed totals match the statement's own totals, and
+   that each running balance follows from the previous one. Record results in `checks`; record each
+   running-balance gap as a `balanceIssue` on the row (highlighted in the preview, labelled in the
+   exports). Totals matching while balances don't usually means the extraction is right and the gap
+   is in the statement itself.
 
 The exact GCash layout is NOT known in advance. Before writing the parser, ask the user to place a real
 statement in `samples/private/` and run a debug script that dumps text items with coordinates to the
