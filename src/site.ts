@@ -3,8 +3,9 @@
 export const SITE_NAME = "WalletToExcel";
 /** What the product does, in the words people search for. Used in titles, schema and copy. */
 export const SITE_TAGLINE = "GCash Statement to Excel";
-// Set PUBLIC_CONTACT_EMAIL at build time (see astro.config.mjs; production deploys require it).
-export const CONTACT_EMAIL: string = import.meta.env.PUBLIC_CONTACT_EMAIL ?? "hello@example.com";
+// Defined in astro.config.mjs (default hello@wallettoexcel.com; PUBLIC_CONTACT_EMAIL overrides).
+export const CONTACT_EMAIL: string =
+  import.meta.env.PUBLIC_CONTACT_EMAIL ?? "hello@wallettoexcel.com";
 
 export const strings = {
   en: {

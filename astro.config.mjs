@@ -5,10 +5,11 @@ import { defineConfig } from "astro/config";
 const PLACEHOLDER_SITE = "https://example.com";
 const PLACEHOLDER_EMAIL = "hello@example.com";
 
-// Production domain: used for canonical URLs, OG tags, robots.txt and the sitemap.
-// Set SITE_URL (e.g. https://your-project.pages.dev until a custom domain is ready).
-const SITE = (process.env.SITE_URL ?? PLACEHOLDER_SITE).replace(/\/$/, "");
-const CONTACT_EMAIL = process.env.PUBLIC_CONTACT_EMAIL ?? PLACEHOLDER_EMAIL;
+// Production domain (canonical URLs, OG tags, robots.txt, sitemap) and public contact email.
+// These are public values, so they live in the code; SITE_URL / PUBLIC_CONTACT_EMAIL env vars can
+// override them (e.g. a preview domain).
+const SITE = (process.env.SITE_URL ?? "https://wallettoexcel.com").replace(/\/$/, "");
+const CONTACT_EMAIL = process.env.PUBLIC_CONTACT_EMAIL ?? "hello@wallettoexcel.com";
 
 /**
  * Launch guard: a production deploy (Cloudflare Workers Builds or Pages on the `main` branch, or
@@ -21,8 +22,8 @@ const isProductionDeploy =
   (process.env.CF_PAGES === "1" && process.env.CF_PAGES_BRANCH === "main");
 if (isProductionDeploy) {
   const problems = [];
-  if (SITE === PLACEHOLDER_SITE) problems.push("SITE_URL is not set");
-  if (CONTACT_EMAIL === PLACEHOLDER_EMAIL) problems.push("PUBLIC_CONTACT_EMAIL is not set");
+  if (SITE === PLACEHOLDER_SITE) problems.push("SITE_URL is a placeholder");
+  if (CONTACT_EMAIL === PLACEHOLDER_EMAIL) problems.push("PUBLIC_CONTACT_EMAIL is a placeholder");
   if (problems.length) {
     throw new Error(`Launch check failed: ${problems.join(", ")}. See README → Deployment.`);
   }

@@ -78,17 +78,12 @@ and clean URLs; `public/_headers` sets the CSP and security headers.
 1. Cloudflare dashboard → **Workers & Pages** → the `wallettoexcel` Worker → **Settings → Build**:
    - Git repository: `roxanneypr/gstatementparser`, production branch `main`
    - Build command: `npm run build` · Deploy command: `npx wrangler deploy`
-2. **Settings → Build → Variables and secrets** (build-time variables, not the runtime ones):
+2. **Domain and contact email** are set in code (`astro.config.mjs`): `https://wallettoexcel.com` and
+   `hello@wallettoexcel.com`. Build variables `SITE_URL` / `PUBLIC_CONTACT_EMAIL` (Settings → Build →
+   Variables and secrets) override them, e.g. for a preview domain. Node comes from `.nvmrc`.
 
-   | Variable               | Value                       | Notes                                         |
-   | ---------------------- | --------------------------- | --------------------------------------------- |
-   | `SITE_URL`             | `https://wallettoexcel.com` | Canonical URLs, OG tags, sitemap, robots.txt. |
-   | `PUBLIC_CONTACT_EMAIL` | `hello@wallettoexcel.com`   | Shown in the footer, privacy and about pages. |
-   | `NODE_VERSION`         | `24`                        | Matches `.nvmrc`.                             |
-
-   **Launch guard:** builds of `main` fail until `SITE_URL` and `PUBLIC_CONTACT_EMAIL` are set to
-   real values (a failed build leaves the previous deployment live). Other branches aren't blocked.
-   Run the same check locally with `LAUNCH_CHECK=1 SITE_URL=… PUBLIC_CONTACT_EMAIL=… npm run build`.
+   **Launch guard:** builds of `main` fail if either is ever set back to a placeholder
+   (`example.com`); a failed build leaves the previous deployment live.
 
 3. Every push to `main` deploys to production.
 4. Check a config change without deploying: `npm run build && npx wrangler deploy --dry-run`.
