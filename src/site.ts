@@ -9,7 +9,7 @@ export const CONTACT_EMAIL: string = import.meta.env.PUBLIC_CONTACT_EMAIL ?? "he
 export const strings = {
   en: {
     skipToContent: "Skip to content",
-    nav: { converter: "Converter", guides: "Guides" },
+    nav: { converter: "Converter", guides: "Guides", convert: "Convert PDF" },
     footer: {
       disclaimer:
         "Independent tool. Not affiliated with, endorsed by, or sponsored by GCash, G-Xchange, Inc., or Mynt.",
@@ -20,10 +20,10 @@ export const strings = {
     },
     converter: {
       heading: "Convert your statement",
-      chooseFile: "Click here to convert a PDF",
-      orDrag: "or drop your GCash statement PDF here",
+      chooseFile: "Choose your GCash PDF",
+      orDrag: "or drag and drop it here",
       privacyNote: "Processed on your device. Nothing is uploaded.",
-      passwordPrompt: "This PDF is password-protected. Enter its password to continue.",
+      passwordPrompt: "This statement is password-protected.",
       password: "PDF password",
       showPassword: "Show",
       hidePassword: "Hide",
@@ -31,7 +31,7 @@ export const strings = {
       unlock: "Unlock and convert",
       chooseDifferent: "Choose a different file",
       converting: "Reading your statement…",
-      converted: "Converted",
+      converted: "Your spreadsheet is ready",
       doneSummary: "{n} transactions · {period}",
       doneSummaryOne: "1 transaction · {period}",
       errors: {
@@ -53,7 +53,7 @@ export const strings = {
         moneyIn: "Money in",
         moneyOut: "Money out",
         net: "Net",
-        downloadXlsx: "Download Excel (.xlsx)",
+        downloadXlsx: "Download Excel",
         downloadCsv: "Download CSV",
         sheetsTip:
           "Using Google Sheets? Open sheets.google.com, then File → Import → Upload, and choose the downloaded file.",

@@ -1,51 +1,57 @@
 // Renders public/og-image.png (1200x630 social share image) from HTML.
 //   node scripts/make-og-image.mjs
-// Uses the site's own colours (not GCash brand colours) and fake numbers only.
+// Uses the site's own look (not GCash brand colours) and fake numbers only.
 import { chromium } from "@playwright/test";
-
 import { readFileSync } from "node:fs";
 
-const font = (weight) =>
-  `@font-face { font-family: Poppins; font-weight: ${weight}; src: url(data:font/woff2;base64,${readFileSync(
-    `public/fonts/poppins-latin-${weight}-normal.woff2`,
-  ).toString("base64")}) format("woff2"); }`;
-
+const inter = readFileSync("public/fonts/inter-latin-wght-normal.woff2").toString("base64");
 const icon = `data:image/svg+xml;base64,${readFileSync("public/favicon.svg").toString("base64")}`;
 
+const rows = [
+  ["Mar 01", "Payment", "−150.00", ""],
+  ["Mar 02", "Received", "", "+2,500.00"],
+  ["Mar 03", "Transfer", "−1,000.00", ""],
+  ["Mar 04", "Refund", "", "+5.00"],
+  ["Mar 05", "Payment", "−85.50", ""],
+  ["Mar 10", "Payment", "−349.00", ""],
+];
+
 const html = /* html */ `<!doctype html><html><head><meta charset="utf-8"><style>
-  ${font(400)} ${font(600)}
+  @font-face { font-family: Inter; font-weight: 100 900; src: url(data:font/woff2;base64,${inter}) format("woff2"); }
   * { box-sizing: border-box; margin: 0; }
-  body { width: 1200px; height: 630px; font-family: Poppins, -apple-system, "Segoe UI", Roboto, sans-serif;
-    background: #f1f0ef; color: #16201b; display: flex; align-items: center; padding: 72px; gap: 56px; }
+  body { width: 1200px; height: 630px; font-family: Inter, sans-serif; font-feature-settings: "cv11", "ss01";
+    background: #fff; color: #0b0d0e; display: flex; align-items: center; padding: 0 80px; gap: 64px;
+    position: relative; overflow: hidden; -webkit-font-smoothing: antialiased; }
+  body::before { content: ""; position: absolute; inset: 0;
+    background-image: linear-gradient(to right, #ececee 1px, transparent 1px), linear-gradient(to bottom, #ececee 1px, transparent 1px);
+    background-size: 48px 32px; -webkit-mask-image: radial-gradient(ellipse 60% 70% at 75% 50%, #000 10%, transparent 70%); }
+  .text, .sheet { position: relative; }
   .text { flex: 1; }
-  .logo { display: flex; align-items: center; gap: 12px; margin: 0 0 28px; font-size: 30px; font-weight: 600; color: #1b1d21; }
-  .mark { width: 40px; height: 40px; }
-  h1 { font-size: 56px; white-space: nowrap; line-height: 1.1; font-weight: 600; letter-spacing: -1px; }
-  p { font-size: 28px; color: #4d5a53; margin-top: 20px; line-height: 1.3; }
-  .badge { display: inline-block; margin-top: 36px; background: #4359c9; color: #fff; font-size: 26px;
-    font-weight: 600; padding: 14px 24px; border-radius: 999px; }
-  .sheet { width: 440px; background: #fff; border: 2px solid #d5ddd8; border-radius: 18px; overflow: hidden;
-    box-shadow: 0 18px 40px rgba(22,32,27,.12); font-size: 20px; }
-  .row { display: grid; grid-template-columns: 0.8fr 1.3fr 1.3fr; border-top: 1px solid #e3e9e5; }
-  .row div { padding: 14px 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .row div:last-child { text-align: right; font-variant-numeric: tabular-nums; }
-  .head { background: #4359c9; color: #fff; font-weight: 700; border-top: 0; }
-  .in { color: #1a7f4b; font-weight: 600; }
+  .logo { display: flex; align-items: center; gap: 12px; font-size: 28px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 40px; }
+  .logo img { width: 40px; height: 40px; }
+  h1 { font-size: 64px; line-height: 1.04; font-weight: 600; letter-spacing: -0.045em; }
+  h1 span { color: #a1a6ab; display: block; }
+  .pill { display: inline-flex; align-items: center; gap: 10px; margin-top: 36px; padding: 10px 18px; border: 1px solid #dfe1e4;
+    border-radius: 999px; font-size: 22px; color: #3d4247; background: #fff; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 4px #effaf3; }
+  .sheet { width: 440px; background: #fff; border: 1px solid #dfe1e4; border-radius: 22px; overflow: hidden; font-size: 19px;
+    box-shadow: 0 1px 2px rgb(16 18 20 / 4%), 0 12px 32px -12px rgb(16 18 20 / 14%), 0 40px 80px -40px rgb(16 18 20 / 20%); }
+  .bar { height: 14px; background: #16a34a; }
+  .row { display: grid; grid-template-columns: 92px 1fr 150px; border-top: 1px solid #ececee; font-variant-numeric: tabular-nums; }
+  .row div { padding: 15px 18px; white-space: nowrap; }
+  .row div:last-child { text-align: right; }
+  .head { color: #6b7177; font-size: 14px; letter-spacing: .04em; text-transform: uppercase; background: #fafafa; border-top: 0; }
+  .in { color: #15803d; font-weight: 600; }
 </style></head><body>
   <div class="text">
-    <p class="logo"><img class="mark" src="${icon}" alt="">WalletToExcel</p>
-    <h1>GCash Statement<br>to Excel</h1>
-    <p>Convert your transaction history PDF to Excel or CSV in seconds. Free.</p>
-    <span class="badge">🔒 Private: nothing is uploaded</span>
+    <p class="logo"><img src="${icon}" alt="">WalletToExcel</p>
+    <h1>GCash statement to Excel, <span>in seconds.</span></h1>
+    <p class="pill"><span class="dot"></span>Private by design. Nothing is uploaded.</p>
   </div>
-  <div class="sheet" aria-hidden="true">
+  <div class="sheet">
+    <div class="bar"></div>
     <div class="row head"><div>Date</div><div>Description</div><div>Amount</div></div>
-    <div class="row"><div>Mar 1</div><div>Payment</div><div>−₱150.00</div></div>
-    <div class="row"><div>Mar 2</div><div>Received</div><div class="in">+₱2,500.00</div></div>
-    <div class="row"><div>Mar 3</div><div>Transfer</div><div>−₱1,000.00</div></div>
-    <div class="row"><div>Mar 4</div><div>Refund</div><div class="in">+₱5.00</div></div>
-    <div class="row"><div>Mar 5</div><div>Payment</div><div>−₱85.50</div></div>
-    <div class="row"><div>Mar 10</div><div>Payment</div><div>−₱349.00</div></div>
+    ${rows.map(([d, desc, out, inn]) => `<div class="row"><div>${d}</div><div>${desc}</div><div class="${inn ? "in" : ""}">${inn ? "+₱" + inn.slice(1) : "−₱" + out.slice(1)}</div></div>`).join("")}
   </div>
 </body></html>`;
 

@@ -32,12 +32,11 @@ const schema = [
   },
 ];
 
+// Line icons (24px grid, stroked).
 const icons = {
-  private:
-    "M12 1 3 5v6c0 5.6 3.8 10.7 9 12 5.2-1.3 9-6.4 9-12V5l-9-4Zm0 6a3 3 0 0 1 3 3v1h1v6H8v-6h1v-1a3 3 0 0 1 3-3Zm0 2a1 1 0 0 0-1 1v1h2v-1a1 1 0 0 0-1-1Z",
-  accurate:
-    "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.4 14.4-4-4 1.4-1.4 2.6 2.6 5.6-5.6 1.4 1.4-7 7Z",
-  free: "M20 7h-2.2A3 3 0 0 0 12 3.8 3 3 0 0 0 6.2 7H4a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1Zm-5-2a1 1 0 1 1 0 2h-2V6a1 1 0 0 1 2-1ZM9 5a1 1 0 0 1 2 1v1H9a1 1 0 0 1 0-2Zm2 15H6v-8h5v8Zm0-10H5V9h6v1Zm7 10h-5v-8h5v8Zm1-10h-6V9h6v1Z",
+  private: "M12 3 5 6v5c0 4.4 3 8.4 7 9.5 4-1.1 7-5.1 7-9.5V6l-7-3Zm-2.5 9 2 2 4-4",
+  accurate: "M4 19V5m0 14h16M8 15l3-3 3 2 5-6",
+  free: "M3 7h18v10H3zM3 11h18M8 7v10m8-10v10",
 };
 ---
 
@@ -45,59 +44,73 @@ const icons = {
   title="GCash Statement to Excel – Free & Private | WalletToExcel"
   description="Convert your GCash transaction history PDF to Excel or CSV in seconds. Free, and private: your statement is processed on your device and never uploaded."
   schema={schema}
+  flush
 >
-  <div class="hero">
-    <h1>Convert your GCash statement to Excel</h1>
+  <div class="hero-wrap">
+    <p class="badge-pill">
+      <span class="badge-dot" aria-hidden="true"></span>Private by design. Nothing leaves your
+      device.
+    </p>
+    <h1>
+      GCash statement to Excel, <span class="soft">in seconds.</span>
+    </h1>
     <p class="lead">
-      Turn your GCash Transaction History PDF into a clean Excel or CSV file. Free, and processed
-      entirely on your device.
+      Turn your GCash Transaction History PDF into a clean, checked spreadsheet. Free, no sign-up,
+      and processed entirely in your browser.
     </p>
   </div>
 
   <Converter />
 
   <div class="features">
-    <section class="feature" aria-labelledby="f-private">
-      <span class="feature-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="28" height="28">
-          <path fill="currentColor" d={icons.private}></path>
-        </svg>
-      </span>
-      <h2 id="f-private">Private</h2>
-      <p>
-        Your PDF is read right here in your browser. It's never uploaded, and nothing is saved after
-        you close the page.
-      </p>
-    </section>
-    <section class="feature" aria-labelledby="f-accurate">
-      <span class="feature-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="28" height="28">
-          <path fill="currentColor" d={icons.accurate}></path>
-        </svg>
-      </span>
-      <h2 id="f-accurate">Accurate</h2>
-      <p>
-        Every row is checked against your statement's totals and running balance. Anything that
-        doesn't add up is pointed out, never changed.
-      </p>
-    </section>
-    <section class="feature" aria-labelledby="f-free">
-      <span class="feature-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="28" height="28">
-          <path fill="currentColor" d={icons.free}></path>
-        </svg>
-      </span>
-      <h2 id="f-free">Free</h2>
-      <p>No sign-up and no limits. Download Excel or CSV and open it in Excel or Google Sheets.</p>
-    </section>
+    {[
+      {
+        id: "f-private",
+        icon: icons.private,
+        title: "Private by default",
+        text: "Your PDF is read in your browser. It's never uploaded, and nothing is saved after you close the page.",
+      },
+      {
+        id: "f-accurate",
+        icon: icons.accurate,
+        title: "Checked, not guessed",
+        text: "Every row is reconciled against the statement's totals and running balance. Gaps are pointed out, never changed.",
+      },
+      {
+        id: "f-free",
+        icon: icons.free,
+        title: "Ready for Excel and Sheets",
+        text: "Real dates, peso amounts, filters and a monthly summary. Free, with no sign-up and no limits.",
+      },
+    ].map((f) => (
+      <section class="feature" aria-labelledby={f.id}>
+        <span class="feature-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18">
+            <path
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d={f.icon}
+            />
+          </svg>
+        </span>
+        <h2 id={f.id}>{f.title}</h2>
+        <p>{f.text}</p>
+      </section>
+    ))}
   </div>
 
   <section class="section" aria-labelledby="how-it-works">
-    <h2 id="how-it-works">How it works</h2>
-    <ol class="cards">
-      <li class="card">
+    <div class="section-head">
+      <span class="eyebrow">How it works</span>
+      <h2 id="how-it-works">From wallet to spreadsheet in three steps</h2>
+    </div>
+    <ol class="steps">
+      <li>
         <span class="step-num" aria-hidden="true">
-          1
+          01
         </span>
         <h3>Get your PDF from GCash</h3>
         <p>
@@ -105,90 +118,106 @@ const icons = {
           {downloadGuide && (
             <>
               {" "}
-              See <a href={guideUrl(downloadGuide.id)}>how to download your GCash history</a>.
+              See <a href={guideUrl(downloadGuide.id)}>how to download it</a>.
             </>
           )}
         </p>
       </li>
-      <li class="card">
+      <li>
         <span class="step-num" aria-hidden="true">
-          2
+          02
         </span>
-        <h3>Choose it and enter the password</h3>
-        <p>Click the button above, pick the PDF, and type the password that came with it.</p>
+        <h3>Choose it and unlock it</h3>
+        <p>Pick the PDF above and type the password that came with it. It stays on your device.</p>
       </li>
-      <li class="card">
+      <li>
         <span class="step-num" aria-hidden="true">
-          3
+          03
         </span>
         <h3>Download Excel or CSV</h3>
-        <p>
-          Check the summary and preview, then download a workbook with a monthly summary, or a CSV.
-        </p>
+        <p>Review the totals and checks, then download a workbook with a monthly summary.</p>
       </li>
     </ol>
   </section>
 
   <section class="section" aria-labelledby="who">
-    <h2 id="who">Who it's for</h2>
-    <ul class="ticks">
+    <div class="section-head">
+      <span class="eyebrow">Who it's for</span>
+      <h2 id="who">Built for people who track every peso</h2>
+    </div>
+    <ul class="audience">
       <li>
-        <strong>Freelancers</strong> tracking client payments received through GCash
+        <span>
+          <strong>Freelancers</strong> tracking client payments received through GCash
+        </span>
       </li>
       <li>
-        <strong>Online sellers</strong> reconciling orders and payouts
+        <span>
+          <strong>Online sellers</strong> reconciling orders and payouts
+        </span>
       </li>
       <li>
-        <strong>Small business owners</strong> keeping simple books
+        <span>
+          <strong>Small business owners</strong> keeping simple books
+        </span>
       </li>
       <li>
-        <strong>Bookkeepers</strong> who need clean data instead of retyping PDFs
+        <span>
+          <strong>Bookkeepers</strong> who need clean data instead of retyping PDFs
+        </span>
       </li>
       <li>
-        <strong>Anyone budgeting</strong> who wants to see where their money goes
+        <span>
+          <strong>Anyone budgeting</strong> who wants to see where their money goes
+        </span>
       </li>
       <li>
-        <strong>Anyone who values privacy</strong>: your statement stays on your device
+        <span>
+          <strong>Privacy-minded users</strong> who won't upload a bank statement
+        </span>
       </li>
     </ul>
   </section>
 
-  <section class="section faq" aria-labelledby="faq">
-    <h2 id="faq">Frequently asked questions</h2>
-    {faq.map((f) => (
-      <details>
-        <summary>
-          <h3>{f.question}</h3>
-        </summary>
-        <p>{f.answer}</p>
-      </details>
-    ))}
-    <p class="hint">
-      More help in the <a href="/guides">GCash statement guides</a>
-      {guides.length > 0 && (
-        <>
-          , including{" "}
-          {guides.slice(0, 2).map((g, i) => (
-            <>
-              {i > 0 && " and "}
-              <a href={guideUrl(g.id)}>{g.data.title}</a>
-            </>
-          ))}
-        </>
-      )}
-      .
-    </p>
-  </section>
-
-  <section class="section tint-panel" aria-labelledby="need-more">
-    <div>
-      <h2 id="need-more">Need another bank or e-wallet?</h2>
+  <section class="section faq-layout" aria-labelledby="faq">
+    <div class="section-head">
+      <span class="eyebrow">FAQ</span>
+      <h2 id="faq">Questions, answered</h2>
       <p>
-        We're planning support for more statements. Tell us which one you'd like to convert next.
+        More help in the <a href="/guides">GCash statement guides</a>
+        {guides.length > 0 && (
+          <>
+            , including{" "}
+            {guides.slice(0, 2).map((g, i) => (
+              <>
+                {i > 0 && " and "}
+                <a href={guideUrl(g.id)}>{g.data.title}</a>
+              </>
+            ))}
+          </>
+        )}
+        .
       </p>
     </div>
-    <a class="btn-primary" href={`mailto:${CONTACT_EMAIL}?subject=Statement%20request`}>
-      Contact us
+    <div class="faq">
+      {faq.map((f) => (
+        <details>
+          <summary>
+            <h3>{f.question}</h3>
+          </summary>
+          <p>{f.answer}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <section class="section cta-band" aria-labelledby="need-more">
+    <div>
+      <h2 id="need-more">Using another wallet or bank?</h2>
+      <p>Maya, BPI, BDO and more are on the roadmap. Tell us which statement you need next.</p>
+    </div>
+    <a class="btn-primary btn-light" href={`mailto:${CONTACT_EMAIL}?subject=Statement%20request`}>
+      Request a bank
     </a>
   </section>
 </BaseLayout>

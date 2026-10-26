@@ -3,6 +3,7 @@ import { strings } from "../site.ts";
 
 const t = strings.en.converter;
 const r = t.results;
+const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7 1.5V9h5.5L13 3.5Z";
 ---
 
 <section class="converter" aria-labelledby="converter-heading">
@@ -13,6 +14,20 @@ const r = t.results;
   <div id="panel" class="panel" data-state="idle">
     <!-- 1. Choose a file -->
     <div id="state-idle" class="panel-state">
+      <div class="flow-art" aria-hidden="true">
+        <span class="art-wallet"></span>
+        <svg class="art-arrow" viewBox="0 0 24 24" width="22" height="22">
+          <path
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M5 12h14m-5-5 5 5-5 5"
+          ></path>
+        </svg>
+        <span class="art-sheet"></span>
+      </div>
       <input
         id="pdf-file"
         class="visually-hidden"
@@ -26,10 +41,10 @@ const r = t.results;
       </button>
       <p class="panel-hint">{t.orDrag}</p>
       <p class="panel-privacy">
-        <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15">
           <path
             fill="currentColor"
-            d="M12 1 3 5v6c0 5.6 3.8 10.7 9 12 5.2-1.3 9-6.4 9-12V5l-9-4Zm-1.4 15.4-3.5-3.5 1.4-1.4 2.1 2.1 5.3-5.3 1.4 1.4-6.7 6.7Z"
+            d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5Zm-3 8V7a3 3 0 0 1 6 0v3H9Z"
           ></path>
         </svg>
         {t.privacyNote}
@@ -39,7 +54,10 @@ const r = t.results;
     <!-- 2. Password (only when the PDF asks for one) -->
     <form id="state-password" class="panel-state panel-form" novalidate hidden>
       <p class="file-chip">
-        <span aria-hidden="true">📄</span> <span class="file-name"></span>
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15">
+          <path fill="currentColor" d={fileIcon}></path>
+        </svg>
+        <span class="file-name"></span>
       </p>
       <p id="password-prompt" class="panel-prompt">
         {t.passwordPrompt}
@@ -47,7 +65,7 @@ const r = t.results;
       <label for="pdf-password" class="visually-hidden">
         {t.password}
       </label>
-      <div class="password-row">
+      <div class="password-field">
         <input
           id="pdf-password"
           type="password"
@@ -60,7 +78,7 @@ const r = t.results;
         <button
           type="button"
           id="toggle-password"
-          class="btn-secondary"
+          class="password-toggle"
           aria-controls="pdf-password"
           aria-pressed="false"
         >
@@ -86,19 +104,25 @@ const r = t.results;
 
     <!-- 4. Done -->
     <div id="state-done" class="panel-state" hidden>
+      <span class="done-check" aria-hidden="true">
+        ✓
+      </span>
       <p class="done-title" id="done-title" tabindex="-1">
-        <span class="done-check" aria-hidden="true">
-          ✓
-        </span>
-        {t.converted} <span class="file-name"></span>
+        {t.converted}
       </p>
       <p id="done-summary" class="panel-hint"></p>
+      <p class="file-chip">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15">
+          <path fill="currentColor" d={fileIcon}></path>
+        </svg>
+        <span class="file-name"></span>
+      </p>
       <div class="downloads">
         <button type="button" id="download-xlsx" class="btn-primary">
-          {r.downloadXlsx}
+          {r.downloadXlsx} <span class="file-tag">XLSX</span>
         </button>
         <button type="button" id="download-csv" class="btn-secondary">
-          {r.downloadCsv}
+          {r.downloadCsv} <span class="file-tag">CSV</span>
         </button>
       </div>
       <p class="hint">{r.sheetsTip}</p>
@@ -112,8 +136,10 @@ const r = t.results;
   </div>
 
   <div id="results" class="results" hidden>
-    <h2 id="results-heading">{r.detailsHeading}</h2>
-    <p id="results-period" class="muted"></p>
+    <div class="results-head">
+      <h2 id="results-heading">{r.detailsHeading}</h2>
+      <p id="results-period" class="muted tabular"></p>
+    </div>
 
     <dl class="stats">
       <div>
@@ -143,7 +169,7 @@ const r = t.results;
     </section>
 
     <h3>{r.previewHeading}</h3>
-    <p id="preview-note" class="muted"></p>
+    <p id="preview-note" class="muted hint"></p>
     <div class="table-wrap">
       <table class="preview">
         <thead>

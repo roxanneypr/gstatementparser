@@ -212,7 +212,9 @@ Never store the password (no localStorage, no URL params).
 - Footer: disclaimer (not affiliated with GCash), link to privacy page, contact email.
 - Languages: English first; keep UI strings in one object so Filipino/Taglish can be added later.
 - Accessible: labels on inputs, keyboard usable, good contrast.
-- Light theme only (minimal, light design; no dark mode).
+- Light theme only (no dark mode). Design direction: minimal, premium fintech. Inter (self-hosted),
+  near-black ink and black pill buttons, one accent (spreadsheet green), hairline dividers, generous
+  whitespace, and a subtle "wallet → spreadsheet" motif. No GCash brand colours.
 
 ## SEO requirements
 

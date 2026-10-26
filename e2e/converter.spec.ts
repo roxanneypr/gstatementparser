@@ -41,7 +41,7 @@ test("one button: choose a protected PDF, enter the password, download — nothi
   page,
 }) => {
   const { requests, problems } = watch(page);
-  await expect(page.locator("#choose-btn")).toHaveText("Click here to convert a PDF");
+  await expect(page.locator("#choose-btn")).toHaveText("Choose your GCash PDF");
   await choose(page, pdf("protected"));
 
   // The PDF asks for a password, so the panel asks for one.

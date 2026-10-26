@@ -137,6 +137,6 @@ node scripts/make-og-image.mjs     # public/og-image.png (1200x630 share image)
 
 - [pdf.js](https://github.com/mozilla/pdf.js) (Apache-2.0)
 - [SheetJS Community Edition](https://sheetjs.com) (Apache-2.0), installed from the SheetJS CDN
-- [Poppins](https://github.com/itfoundry/Poppins) font (SIL OFL 1.1, see `public/fonts/OFL.txt`), self-hosted
+- [Inter](https://github.com/rsms/inter) font (SIL OFL 1.1, see `public/fonts/OFL.txt`), self-hosted
 
 Not affiliated with, endorsed by, or sponsored by GCash, G-Xchange, Inc., or Mynt.
