@@ -231,8 +231,9 @@ Taglish, e.g. "gcash transaction history to excel", "how to download gcash trans
 
 - Title example: "GCash Statement to Excel – Free & Private | WalletToExcel" (keyword first, brand last).
 - The converter is above the fold, but the page also has real crawlable text below it:
-  why it's private/accurate (feature columns), who it's for, and an FAQ section in plain HTML.
-  (No "How it works" section, guides or about page: removed by product decision, 2026-10-26.)
+  why it's private/accurate (feature columns) and an FAQ section in plain HTML.
+  (No "How it works" or "Who it's for" sections, guides or about page: removed by product
+  decision, 2026-10-26.)
 - JSON-LD: `WebApplication` (name, url, applicationCategory: "FinanceApplication",
   operatingSystem: "Any", offers price 0 PHP) and `FAQPage` for the FAQ.
 - The core content must be in the static HTML, never injected only by JavaScript.

@@ -1354,39 +1354,6 @@ tbody tr:last-child > * {
   border: 1px solid var(--line-strong);
   color: var(--text);
 }
-.audience {
-  display: grid;
-  gap: 0 64px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-@media (min-width: 760px) {
-  .audience {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-.audience li {
-  display: flex;
-  gap: 12px;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--line);
-  font-size: 0.9375rem;
-  color: var(--muted);
-}
-.audience li::before {
-  content: "";
-  flex: none;
-  width: 6px;
-  height: 6px;
-  margin-top: 9px;
-  border-radius: 50%;
-  background: var(--green-bright);
-}
-.audience strong {
-  color: var(--text);
-  font-weight: 600;
-}
 .faq-layout {
   display: grid;
   gap: 24px;
