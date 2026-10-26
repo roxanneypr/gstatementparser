@@ -25,7 +25,10 @@ createServer((req, res) => {
   let p = decodeURIComponent(new URL(req.url, "http://x").pathname);
   let file = join(root, p);
   if (p.endsWith("/")) file = join(file, "index.html");
-  else if (!existsSync(file) && existsSync(file + ".html")) file += ".html";
+  // Like Cloudflare Pages: "/blog" serves blog.html even when a blog/ folder also exists.
+  else if (existsSync(file + ".html") && (!existsSync(file) || statSync(file).isDirectory())) {
+    file += ".html";
+  }
   if (!existsSync(file) || statSync(file).isDirectory()) {
     res.writeHead(404, { ...headers, "Content-Type": "text/html; charset=utf-8" });
     return res.end(

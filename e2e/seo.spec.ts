@@ -61,3 +61,33 @@ test.describe("SEO", () => {
     expect(res.headers()["content-type"]).toBe("image/png");
   });
 });
+
+test.describe("content", () => {
+  test("home has a compact 4-question FAQ, collapsed, with FAQPage data", async ({ page }) => {
+    await page.goto("/");
+    const items = page.locator(".faq details");
+    await expect(items).toHaveCount(4);
+    for (const d of await items.all()) expect(await d.getAttribute("open")).toBeNull();
+    const types = await page.$$eval('script[type="application/ld+json"]', (s) =>
+      s.map((x) => JSON.parse(x.textContent ?? "{}")["@type"]),
+    );
+    expect(types).toContain("FAQPage");
+    await expect(page.locator('.faq a[href="/blog/gcash-statement-to-excel-guide"]')).toHaveCount(
+      1,
+    );
+  });
+
+  test("published blog: listed, linked from the footer, images have alt text", async ({ page }) => {
+    await page.goto("/");
+    await page.locator('footer a[href="/blog"]').click();
+    await expect(page).toHaveURL(/\/blog$/);
+    await page.locator(".post-card").first().click();
+    await expect(page.locator("h1")).toHaveText("GCash Statement to Excel: Step-by-Step Guide");
+    const images = page.locator(".prose img");
+    expect(await images.count()).toBeGreaterThanOrEqual(5);
+    for (const img of await images.all()) {
+      expect((await img.getAttribute("alt"))?.length ?? 0).toBeGreaterThan(20);
+    }
+    await expect(page.locator(".draft-banner")).toHaveCount(0);
+  });
+});

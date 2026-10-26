@@ -135,6 +135,7 @@ Improve the home page title/description if it gets impressions but few clicks.
 ```bash
 node scripts/make-og-image.mjs     # public/og-image.png (1200x630 share image)
 node scripts/make-sample-pdf.mjs   # public/sample/sample-gcash-statement.pdf ("Try a sample statement"; FAKE data)
+npm run build && node scripts/make-blog-screenshots.mjs   # blog screenshots from the FAKE sample
 ```
 
 ## Credits

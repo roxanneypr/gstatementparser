@@ -2,77 +2,101 @@
 title: "GCash Statement to Excel: Step-by-Step Guide"
 description: "Convert your GCash transaction history PDF to an Excel file in under a minute, on your own device. What you get and how to read the accuracy checks."
 publishedDate: 2026-10-26
-draft: true
-related:
-  - how-to-download-gcash-transaction-history
-  - open-gcash-statement-in-google-sheets
+draft: false
+related: []
 ---
 
 <!-- Search intent: "gcash statement to excel", "convert gcash pdf to excel". -->
-<!-- Reviewer: screenshots must use the fake sample statement, never real data. -->
+<!-- Screenshots: made from the FAKE sample statement only (node scripts/make-blog-screenshots.mjs). -->
 
 This guide shows how to turn your GCash Transaction History PDF into an Excel file with the free
 [GCash statement converter](/). It works on phones and computers, and your statement is processed
 on your device. Nothing is uploaded.
 
+Want to see it first? Press **Try a sample statement** on the [converter](/) to run it on a
+made-up statement. All the screenshots below come from that sample.
+
 ## What you need
 
-- Your GCash Transaction History PDF. Don't have it yet? See
-  [how to download your GCash transaction history](/blog/how-to-download-gcash-transaction-history).
-- The PDF's password. See the [GCash statement password guide](/blog/gcash-statement-pdf-password).
-- A modern browser such as Chrome, Safari, Edge or Firefox.
+- Your GCash Transaction History PDF, requested from the GCash app.
+- The password that came with the PDF. GCash statements are password-protected.
+- A modern browser such as Chrome, Safari, Edge or Firefox, on your phone or computer.
 
 ## Step 1: Choose your PDF
 
-Open the [converter](/) and tap **Choose your GCash PDF**, or drag the file onto the box on a computer.
+Open the [converter](/) and press **Choose your GCash PDF**. On a computer you can also drag the
+file onto the box.
+
+![The converter card with the "Choose your GCash PDF" button, an example of the output, and the note "Processed on your device. Nothing is uploaded."](./images/gcash-statement-to-excel-guide/1-choose.png)
 
 ## Step 2: Enter the password
 
 GCash statements are password-protected, so you'll be asked for the password. Type it and press
-**Unlock and convert**. If it's wrong, you'll be asked to try again. The password is only used to
-open the file on your device, and it's cleared after converting.
+**Unlock and convert**. Use **Show** to check what you typed. If it's wrong, you'll be asked to try
+again.
 
-## Step 3: Check the results
+The password is only used to open the file on your device. It's never sent anywhere or saved, and
+it's cleared after converting.
 
-You'll see:
+![The password step: the file name, a password field with a Show button, and the "Unlock and convert" button.](./images/gcash-statement-to-excel-guide/2-password.png)
 
-- **Overview:** net (money in − money out), starting and ending balance, and money in and out.
-- **Cross-check with your PDF:** the totals printed on your statement next to the calculated
-  ones (total credit, total debit, ending balance and running balance), each with a ✓ Match or
-  the difference.
-- **Rows to review:** transactions where the statement's running balance doesn't follow (for
-  example, the balance didn't change after a payment). Your data is kept exactly as GCash printed
-  it. Press **Show rows to review** to see just those rows.
-- **By month:** money in and out per month, if the statement covers more than one month.
-- **Transactions:** every row, 20 per page, with filters (money in, money out, needs review), a
-  month picker, and search by description or reference number.
+## Step 3: Download Excel or CSV
 
-## Step 4: Download Excel or CSV
+When it's done, you'll see **Your spreadsheet is ready** with the number of transactions and the
+statement period. Press **Download Excel** or **Download CSV**.
 
-Press **Download Excel**. The workbook has two sheets:
+![The finished step: "Your spreadsheet is ready", 34 transactions from 2026-03-01 to 2026-04-30, with Download Excel and Download CSV buttons.](./images/gcash-statement-to-excel-guide/3-ready.png)
+
+The Excel workbook has two sheets:
 
 | Sheet        | What's in it                                                                                                           |
 | ------------ | ---------------------------------------------------------------------------------------------------------------------- |
 | Transactions | Date, time, description, reference no., debit, credit, balance, balance check, notes, with filters and a frozen header |
 | Summary      | Period, starting and ending balance, totals, accuracy checks, and money in/out per month                               |
 
-Prefer CSV? Press **Download CSV**. It opens in Excel, Google Sheets, Numbers and most accounting tools.
+The CSV opens in Excel, Google Sheets, Numbers and most accounting tools.
+
+## Step 4: Check the results against your PDF
+
+Below the download buttons you'll find the statement details. Use them to make sure everything was
+read correctly before you rely on the spreadsheet.
+
+**Overview.** Money in and money out for the whole period, the net, and your starting and ending
+balance.
+
+![Overview card showing the net amount, starting balance to ending balance, and money in and money out with bars and transaction counts.](./images/gcash-statement-to-excel-guide/4-overview.png)
+
+**Cross-check with your PDF.** The totals printed at the end of your statement, next to the totals
+calculated from every row. A **✓ Match** on total credit and total debit means every amount was read
+correctly.
+
+![Cross-check table comparing "On your statement" with "Calculated" for total credit, total debit, ending balance and running balance.](./images/gcash-statement-to-excel-guide/5-cross-check.png)
+
+**Rows to review.** Sometimes a statement lists a transaction but its running balance doesn't
+change, or changes by a different amount. WalletToExcel keeps GCash's figures exactly as printed
+and points those rows out. Press **Show rows to review** to see only them, then compare them with
+the GCash app.
+
+![A highlighted note saying "1 row needs a look", explaining that the statement's running balance doesn't follow, with a "Show rows to review" button.](./images/gcash-statement-to-excel-guide/6-review.png)
+
+**Transactions.** Every row, 20 per page. Filter by **Money in**, **Money out** or **Needs review**,
+pick a month, or search by description or reference number to find a row from your PDF quickly.
+
+![The transactions table filtered to "Money in", showing date and time, description with reference number, amount, balance and status for each row.](./images/gcash-statement-to-excel-guide/7-transactions.png)
 
 ## Step 5: Open it
 
 - **Excel:** open the downloaded file.
-- **Google Sheets:** File → Import → Upload. See
-  [opening your GCash statement in Google Sheets](/blog/open-gcash-statement-in-google-sheets).
+- **Google Sheets:** go to sheets.google.com, then **File → Import → Upload**, and choose the
+  downloaded file. If you upload the Excel file, you get both sheets.
 
 ## Troubleshooting
 
-- **Asked for a password**: type the password that came with your statement, then press
-  **Unlock and convert**. If it says "Wrong password", check uppercase letters and spaces.
-- **"This PDF has no readable text"**: screenshots and scanned images can't be converted. Use the
+- **Asked for a password:** type the password that came with your statement, then press
+  **Unlock and convert**. If it says "Wrong password", check uppercase letters and extra spaces.
+- **"This PDF has no readable text":** screenshots and scanned images can't be converted. Use the
   original PDF from GCash.
-- **"This doesn't look like a GCash Transaction History PDF"**: only GCash statements are supported
+- **"This doesn't look like a GCash Transaction History PDF":** only GCash statements are supported
   for now.
-- **Some rows say "Balance didn't change"**: see Step 3. The figures come straight from your
-  statement.
-
-**TODO: verify** and add screenshots of each step, made with the fake sample statement only.
+- **Some rows say "Balance unchanged":** see Step 4. The figures come straight from your statement;
+  nothing is changed.

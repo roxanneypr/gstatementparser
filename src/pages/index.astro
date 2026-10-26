@@ -1,7 +1,12 @@
 ---
 import Converter from "../components/Converter.astro";
+import { getPosts, postUrl } from "../data/blog.ts";
+import { faq } from "../data/faq.ts";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { CONTACT_EMAIL, SITE_NAME, SITE_TAGLINE } from "../site.ts";
+
+// FAQ "learn more" links only point at posts that exist in this build.
+const postIds = new Set((await getPosts()).map((p) => p.id));
 
 const schema = [
   {
@@ -14,6 +19,15 @@ const schema = [
     operatingSystem: "Any",
     browserRequirements: "Requires a modern web browser with JavaScript.",
     offers: { "@type": "Offer", price: "0", priceCurrency: "PHP" },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: { "@type": "Answer", text: f.answer },
+    })),
   },
 ];
 
@@ -82,6 +96,26 @@ const icons = {
       </section>
     ))}
   </div>
+
+  <section class="section faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">Questions</h2>
+    {faq.map((f) => (
+      <details>
+        <summary>
+          <h3>{f.question}</h3>
+        </summary>
+        <p>
+          {f.answer}
+          {f.more && postIds.has(f.more.postSlug) && (
+            <>
+              {" "}
+              <a href={postUrl(f.more.postSlug)}>{f.more.text} →</a>
+            </>
+          )}
+        </p>
+      </details>
+    ))}
+  </section>
 
   <section class="section cta-band" aria-labelledby="need-more">
     <div>
