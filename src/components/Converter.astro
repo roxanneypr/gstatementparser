@@ -10,27 +10,43 @@ const r = t.results;
     {t.heading}
   </h2>
 
-  <form id="convert-form" class="card" novalidate>
-    <div class="dropzone" id="dropzone">
+  <div id="panel" class="panel" data-state="idle">
+    <!-- 1. Choose a file -->
+    <div id="state-idle" class="panel-state">
       <input
         id="pdf-file"
-        class="file-input"
+        class="visually-hidden"
         type="file"
         accept="application/pdf,.pdf"
-        aria-describedby="file-name"
+        tabindex="-1"
+        aria-hidden="true"
       />
-      <label for="pdf-file" class="dropzone-label">
-        <span class="dropzone-icon" aria-hidden="true">
-          📄
-        </span>
-        <strong>{t.chooseFile}</strong>
-        <span class="muted">{t.orDrag}</span>
-      </label>
-      <p id="file-name" class="file-name" aria-live="polite"></p>
+      <button type="button" id="choose-btn" class="btn-big">
+        {t.chooseFile}
+      </button>
+      <p class="panel-hint">{t.orDrag}</p>
+      <p class="panel-privacy">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16">
+          <path
+            fill="currentColor"
+            d="M12 1 3 5v6c0 5.6 3.8 10.7 9 12 5.2-1.3 9-6.4 9-12V5l-9-4Zm-1.4 15.4-3.5-3.5 1.4-1.4 2.1 2.1 5.3-5.3 1.4 1.4-6.7 6.7Z"
+          ></path>
+        </svg>
+        {t.privacyNote}
+      </p>
     </div>
 
-    <div class="field">
-      <label for="pdf-password">{t.password}</label>
+    <!-- 2. Password (only when the PDF asks for one) -->
+    <form id="state-password" class="panel-state panel-form" novalidate hidden>
+      <p class="file-chip">
+        <span aria-hidden="true">📄</span> <span class="file-name"></span>
+      </p>
+      <p id="password-prompt" class="panel-prompt">
+        {t.passwordPrompt}
+      </p>
+      <label for="pdf-password" class="visually-hidden">
+        {t.password}
+      </label>
       <div class="password-row">
         <input
           id="pdf-password"
@@ -38,7 +54,8 @@ const r = t.results;
           autocomplete="off"
           autocapitalize="off"
           spellcheck="false"
-          aria-describedby="password-hint"
+          placeholder={t.password}
+          aria-describedby="password-prompt password-hint"
         />
         <button
           type="button"
@@ -53,23 +70,49 @@ const r = t.results;
       <p id="password-hint" class="hint">
         {t.passwordHint}
       </p>
+      <button type="submit" class="btn-primary btn-wide">
+        {t.unlock}
+      </button>
+      <button type="button" class="btn-link" data-action="reset">
+        {t.chooseDifferent}
+      </button>
+    </form>
+
+    <!-- 3. Working -->
+    <div id="state-working" class="panel-state" hidden>
+      <span class="spinner" aria-hidden="true"></span>
+      <p>{t.converting}</p>
     </div>
 
-    <button type="submit" id="convert-btn" class="btn-primary">
-      {t.convert}
-    </button>
-    <p class="privacy-note">
-      <span aria-hidden="true">🔒</span> {t.privacyNote}
-    </p>
-  </form>
+    <!-- 4. Done -->
+    <div id="state-done" class="panel-state" hidden>
+      <p class="done-title" id="done-title" tabindex="-1">
+        <span class="done-check" aria-hidden="true">
+          ✓
+        </span>
+        {t.converted} <span class="file-name"></span>
+      </p>
+      <p id="done-summary" class="panel-hint"></p>
+      <div class="downloads">
+        <button type="button" id="download-xlsx" class="btn-primary">
+          {r.downloadXlsx}
+        </button>
+        <button type="button" id="download-csv" class="btn-secondary">
+          {r.downloadCsv}
+        </button>
+      </div>
+      <p class="hint">{r.sheetsTip}</p>
+      <button type="button" id="reset" class="btn-link" data-action="reset">
+        {r.convertAnother}
+      </button>
+    </div>
 
-  <p id="status" class="status" role="status" aria-live="polite"></p>
-  <p id="error" class="error" role="alert"></p>
+    <p id="error" class="error" role="alert"></p>
+    <p id="status" class="visually-hidden" role="status" aria-live="polite"></p>
+  </div>
 
   <div id="results" class="results" hidden>
-    <h2 id="results-heading" tabindex="-1">
-      {r.heading}
-    </h2>
+    <h2 id="results-heading">{r.detailsHeading}</h2>
     <p id="results-period" class="muted"></p>
 
     <dl class="stats">
@@ -90,16 +133,6 @@ const r = t.results;
         <dd id="stat-net"></dd>
       </div>
     </dl>
-
-    <div class="downloads">
-      <button type="button" id="download-xlsx" class="btn-primary">
-        {r.downloadXlsx}
-      </button>
-      <button type="button" id="download-csv" class="btn-secondary">
-        {r.downloadCsv}
-      </button>
-    </div>
-    <p class="hint">{r.sheetsTip}</p>
 
     <h3>{r.checksHeading}</h3>
     <ul id="checks" class="checks"></ul>
@@ -133,10 +166,6 @@ const r = t.results;
         <tbody id="preview-body"></tbody>
       </table>
     </div>
-
-    <button type="button" id="reset" class="btn-secondary">
-      {r.convertAnother}
-    </button>
   </div>
 </section>
 

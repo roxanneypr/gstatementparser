@@ -16,16 +16,23 @@ const el = <T extends HTMLElement>(id: string) => {
   return node as T;
 };
 
-const form = el<HTMLFormElement>("convert-form");
+type State = "idle" | "password" | "working" | "done";
+
+const panel = el<HTMLDivElement>("panel");
 const fileInput = el<HTMLInputElement>("pdf-file");
-const dropzone = el<HTMLDivElement>("dropzone");
-const fileName = el<HTMLParagraphElement>("file-name");
+const chooseBtn = el<HTMLButtonElement>("choose-btn");
+const passwordForm = el<HTMLFormElement>("state-password");
 const passwordInput = el<HTMLInputElement>("pdf-password");
 const togglePassword = el<HTMLButtonElement>("toggle-password");
-const convertBtn = el<HTMLButtonElement>("convert-btn");
 const statusEl = el<HTMLParagraphElement>("status");
 const errorEl = el<HTMLParagraphElement>("error");
 const results = el<HTMLDivElement>("results");
+const states: Record<State, HTMLElement> = {
+  idle: el("state-idle"),
+  password: passwordForm,
+  working: el("state-working"),
+  done: el("state-done"),
+};
 
 let file: File | null = null;
 let result: ParseResult | null = null;
@@ -33,66 +40,102 @@ let result: ParseResult | null = null;
 const peso = (centavos: number) =>
   centavos < 0 ? `−₱${formatMoney(-centavos)}` : `₱${formatMoney(centavos)}`;
 
-// ---- file selection -------------------------------------------------------
+// ---- panel state ------------------------------------------------------------
 
-function setFile(f: File | null) {
-  file = f;
-  fileName.textContent = f ? fill(t.selected, { name: f.name }) : "";
-  showError("");
+function setState(state: State) {
+  panel.dataset.state = state;
+  for (const [name, node] of Object.entries(states)) node.hidden = name !== state;
+  statusEl.textContent = state === "working" ? t.converting : "";
+  for (const n of panel.querySelectorAll(".file-name")) n.textContent = file?.name ?? "";
 }
 
-fileInput.addEventListener("change", () => setFile(fileInput.files?.[0] ?? null));
+function showError(message: string) {
+  errorEl.textContent = message;
+}
 
-// Don't let a PDF dropped outside the box open in the tab.
+function reset() {
+  file = null;
+  result = null;
+  fileInput.value = "";
+  passwordInput.value = "";
+  setPasswordVisible(false);
+  showError("");
+  results.hidden = true;
+  setState("idle");
+  chooseBtn.focus();
+}
+
+for (const btn of panel.querySelectorAll<HTMLButtonElement>('[data-action="reset"]')) {
+  btn.addEventListener("click", reset);
+}
+
+// ---- choosing a file ----------------------------------------------------------
+
+chooseBtn.addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", () => {
+  const f = fileInput.files?.[0];
+  if (f) void start(f);
+});
+
+// Don't let a PDF dropped outside the panel open in the tab.
 for (const type of ["dragover", "drop"] as const) {
   window.addEventListener(type, (e) => e.preventDefault());
 }
-dropzone.addEventListener("dragover", (e) => {
+panel.addEventListener("dragover", (e) => {
   e.preventDefault();
-  dropzone.classList.add("dragging");
+  if (panel.dataset.state === "idle") panel.classList.add("dragging");
 });
-dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragging"));
-dropzone.addEventListener("drop", (e) => {
+panel.addEventListener("dragleave", () => panel.classList.remove("dragging"));
+panel.addEventListener("drop", (e) => {
   e.preventDefault();
-  dropzone.classList.remove("dragging");
+  panel.classList.remove("dragging");
   const dropped = e.dataTransfer?.files[0];
-  if (dropped) setFile(dropped);
+  if (dropped && panel.dataset.state === "idle") void start(dropped);
 });
 
-togglePassword.addEventListener("click", () => {
-  const show = passwordInput.type === "password";
+function start(f: File) {
+  showError("");
+  if (f.type !== "application/pdf" && !/\.pdf$/i.test(f.name)) return showError(t.errors.notPdf);
+  if (f.size > MAX_BYTES) return showError(t.errors.tooLarge);
+  file = f;
+  return convert(); // try without a password first; ask only if the PDF needs one
+}
+
+// ---- password -----------------------------------------------------------------
+
+function setPasswordVisible(show: boolean) {
   passwordInput.type = show ? "text" : "password";
   togglePassword.textContent = show ? t.hidePassword : t.showPassword;
   togglePassword.setAttribute("aria-pressed", String(show));
+}
+
+togglePassword.addEventListener("click", () =>
+  setPasswordVisible(passwordInput.type === "password"),
+);
+
+passwordForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (!passwordInput.value) {
+    showError(t.errors.passwordEmpty);
+    passwordInput.focus();
+    return;
+  }
+  void convert(passwordInput.value);
 });
 
-// ---- convert ----------------------------------------------------------------
-
-function showError(message: string, focus?: HTMLElement) {
-  errorEl.textContent = message;
-  if (message) statusEl.textContent = "";
-  if (focus) {
-    focus.focus();
-    if (focus instanceof HTMLInputElement && focus.type !== "file") focus.select();
-  }
+function askForPassword(message = "") {
+  setState("password");
+  showError(message);
+  passwordInput.focus();
+  passwordInput.select();
 }
 
-function setBusy(busy: boolean) {
-  convertBtn.disabled = busy;
-  form.setAttribute("aria-busy", String(busy));
-  statusEl.textContent = busy ? t.converting : "";
-}
+// ---- convert --------------------------------------------------------------------
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  if (!file) return showError(t.errors.noFile, fileInput);
-  if (file.type !== "application/pdf" && !/\.pdf$/i.test(file.name)) {
-    return showError(t.errors.notPdf, fileInput);
-  }
-  if (file.size > MAX_BYTES) return showError(t.errors.tooLarge, fileInput);
-
+async function convert(password?: string) {
+  if (!file) return;
   showError("");
-  setBusy(true);
+  setState("working");
   try {
     const [{ extractText, ExtractError }, { detectParser }] = await Promise.all([
       import("../pdf/extractText.ts"),
@@ -100,30 +143,36 @@ form.addEventListener("submit", async (e) => {
     ]);
     let pages;
     try {
-      pages = await extractText(await file.arrayBuffer(), passwordInput.value);
+      pages = await extractText(await file.arrayBuffer(), password);
     } catch (err) {
       if (err instanceof ExtractError) {
-        if (err.kind === "password-required")
-          return showError(t.errors.passwordRequired, passwordInput);
-        if (err.kind === "wrong-password") return showError(t.errors.wrongPassword, passwordInput);
-        return showError(t.errors.invalidPdf, fileInput);
+        if (err.kind === "password-required") return askForPassword();
+        if (err.kind === "wrong-password") return askForPassword(t.errors.wrongPassword);
+        return fail(t.errors.invalidPdf);
       }
       throw err;
     }
-    if (!pages.some((p) => p.items.length)) return showError(t.errors.noText, fileInput);
+    if (!pages.some((p) => p.items.length)) return fail(t.errors.noText);
     const parser = detectParser(pages);
-    if (!parser) return showError(t.errors.unsupported, fileInput);
+    if (!parser) return fail(t.errors.unsupported);
 
     result = parser.parse(pages);
     passwordInput.value = ""; // don't keep the password around once it's been used
     render(result);
+    setState("done");
+    el("done-title").focus();
     void import("../export/toXlsx.ts"); // warm up so the download is instant
   } catch {
-    showError(t.errors.generic);
-  } finally {
-    setBusy(false);
+    fail(t.errors.generic);
   }
-});
+}
+
+function fail(message: string) {
+  file = null;
+  fileInput.value = "";
+  setState("idle");
+  showError(message);
+}
 
 // ---- results ----------------------------------------------------------------
 
@@ -138,13 +187,19 @@ function render(res: ParseResult) {
   el("stat-out").textContent = peso(s.moneyOut);
   el("stat-net").textContent = peso(s.net);
 
+  const period =
+    res.periodStart && res.periodEnd
+      ? fill(r.period, { start: res.periodStart, end: res.periodEnd })
+      : "";
+  el("done-summary").textContent = fill(s.count === 1 ? t.doneSummaryOne : t.doneSummary, {
+    n: s.count,
+    period,
+  }).replace(/ · $/, "");
+
   renderChecks(res, s.balanceUnchanged + s.balanceDifferent);
   renderWarnings(res);
   renderPreview(res.transactions);
-
-  form.hidden = true;
   results.hidden = false;
-  el("results-heading").focus();
 }
 
 function renderChecks(res: ParseResult, gaps: number) {
@@ -335,16 +390,4 @@ el("download-csv").addEventListener("click", async () => {
     new Blob([toCsv(result)], { type: "text/csv;charset=utf-8" }),
     `${exportBaseName(result)}.csv`,
   );
-});
-
-el("reset").addEventListener("click", () => {
-  result = null;
-  form.reset();
-  setFile(null);
-  passwordInput.type = "password";
-  togglePassword.textContent = t.showPassword;
-  togglePassword.setAttribute("aria-pressed", "false");
-  results.hidden = true;
-  form.hidden = false;
-  fileInput.focus();
 });

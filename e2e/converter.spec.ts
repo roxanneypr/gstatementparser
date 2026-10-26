@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { read, utils } from "xlsx";
+import { PASSWORD } from "./global-setup.ts";
 
 const pdf = (name: string) => `e2e/.generated/${name}.pdf`;
 
@@ -24,24 +25,45 @@ test.beforeEach(async ({ page }) => {
       console.error(`CSP violation: ${e.violatedDirective} ${e.blockedURI}`),
     ),
   );
+  await page.goto("/");
 });
 
-async function convert(page: Page, file: string, password = "") {
-  await page.goto("/");
-  await page.setInputFiles("#pdf-file", file);
-  if (password) await page.fill("#pdf-password", password);
-  await page.click("#convert-btn");
+/** Click the big button and pick a file, like a user would. */
+async function choose(page: Page, file: string) {
+  const [chooser] = await Promise.all([
+    page.waitForEvent("filechooser"),
+    page.click("#choose-btn"),
+  ]);
+  await chooser.setFiles(file);
 }
 
-test("converts a statement and downloads Excel and CSV without sending any data", async ({
+test("one button: choose a protected PDF, enter the password, download — nothing is sent", async ({
   page,
 }) => {
   const { requests, problems } = watch(page);
-  await convert(page, pdf("clean"));
+  await expect(page.locator("#choose-btn")).toHaveText("Click here to convert a PDF");
+  await choose(page, pdf("protected"));
 
-  await expect(page.locator("#results")).toBeVisible();
-  await expect(page.locator("#results-heading")).toBeFocused();
-  await expect(page.locator("#stat-count")).toHaveText("9");
+  // The PDF asks for a password, so the panel asks for one.
+  await expect(page.locator("#state-password")).toBeVisible();
+  await expect(page.locator("#state-password .file-name")).toHaveText("protected.pdf");
+  await expect(page.locator("#pdf-password")).toBeFocused();
+
+  await page.fill("#pdf-password", "wrong");
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#error")).toHaveText("Wrong password, try again.");
+  await expect(page.locator("#state-password")).toBeVisible();
+
+  await page.fill("#pdf-password", PASSWORD);
+  await page.click("#state-password button[type=submit]");
+
+  await expect(page.locator("#state-done")).toBeVisible();
+  await expect(page.locator("#done-title")).toBeFocused();
+  await expect(page.locator("#error")).toBeEmpty();
+  await expect(page.locator("#done-summary")).toHaveText(
+    "9 transactions · 2026-03-01 to 2026-03-31",
+  );
+  await expect(page.locator("#pdf-password")).toHaveValue(""); // password not kept
   await expect(page.locator("#stat-in")).toHaveText("₱12,505.00");
   await expect(page.locator("#stat-out")).toHaveText("₱2,983.50");
   await expect(page.locator("#checks .check-ok")).toHaveCount(3);
@@ -70,8 +92,20 @@ test("converts a statement and downloads Excel and CSV without sending any data"
   expect(problems).toEqual([]);
 });
 
+test("a PDF without a password converts straight away", async ({ page }) => {
+  await page.setInputFiles("#pdf-file", pdf("clean"));
+  await expect(page.locator("#state-done")).toBeVisible();
+  await expect(page.locator("#state-password")).toBeHidden();
+});
+
+test("asks for the password again if it's left empty", async ({ page }) => {
+  await page.setInputFiles("#pdf-file", pdf("protected"));
+  await page.click("#state-password button[type=submit]");
+  await expect(page.locator("#error")).toHaveText("Enter the PDF password.");
+});
+
 test("points out balance gaps without changing the figures", async ({ page }) => {
-  await convert(page, pdf("balance-gap"));
+  await page.setInputFiles("#pdf-file", pdf("balance-gap"));
   await expect(page.locator("#checks .check-warn")).toHaveCount(1);
   await expect(page.locator("#warnings")).toBeVisible();
   await expect(page.locator("#warnings summary").first()).toHaveText(
@@ -83,11 +117,7 @@ test("points out balance gaps without changing the figures", async ({ page }) =>
   await expect(row5).toContainText("Balance didn't change");
 });
 
-test("explains files it can't convert", async ({ page }) => {
-  await page.goto("/");
-  await page.click("#convert-btn");
-  await expect(page.locator("#error")).toHaveText("Choose your GCash statement PDF first.");
-
+test("explains files it can't convert and stays on the first step", async ({ page }) => {
   const cases: [string, RegExp][] = [
     ["not-really", /couldn't be opened as a PDF/],
     ["no-text", /no readable text/],
@@ -95,19 +125,24 @@ test("explains files it can't convert", async ({ page }) => {
   ];
   for (const [name, message] of cases) {
     await page.setInputFiles("#pdf-file", pdf(name));
-    await page.click("#convert-btn");
     await expect(page.locator("#error")).toHaveText(message);
+    await expect(page.locator("#state-idle")).toBeVisible();
     await expect(page.locator("#results")).toBeHidden();
   }
 });
 
-test("can convert another statement after the first", async ({ page }) => {
-  await convert(page, pdf("clean"));
-  await expect(page.locator("#results")).toBeVisible();
+test("choose a different file / convert another", async ({ page }) => {
+  await page.setInputFiles("#pdf-file", pdf("protected"));
+  await expect(page.locator("#state-password")).toBeVisible();
+  await page.click("#state-password .btn-link");
+  await expect(page.locator("#state-idle")).toBeVisible();
+  await expect(page.locator("#choose-btn")).toBeFocused();
+
+  await page.setInputFiles("#pdf-file", pdf("clean"));
+  await expect(page.locator("#state-done")).toBeVisible();
   await page.click("#reset");
+  await expect(page.locator("#state-idle")).toBeVisible();
   await expect(page.locator("#results")).toBeHidden();
-  await expect(page.locator("#pdf-file")).toBeFocused();
   await page.setInputFiles("#pdf-file", pdf("balance-gap"));
-  await page.click("#convert-btn");
   await expect(page.locator("#warnings")).toBeVisible();
 });

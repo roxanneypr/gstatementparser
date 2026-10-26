@@ -4,6 +4,7 @@ import type { PageText } from "../src/parsers/types.ts";
 import { pagesToPdf } from "../scripts/fake-pdf.mjs";
 
 export const GENERATED = "e2e/.generated";
+export const PASSWORD = "fake-pass-123";
 
 export default function globalSetup() {
   mkdirSync(GENERATED, { recursive: true });
@@ -11,6 +12,8 @@ export default function globalSetup() {
     pages: PageText[];
   };
   writeFileSync(`${GENERATED}/clean.pdf`, pagesToPdf(pages));
+  // Real GCash statements are password-protected; this one uses a fake password.
+  writeFileSync(`${GENERATED}/protected.pdf`, pagesToPdf(pages, { password: PASSWORD }));
 
   // Same statement, but row 5's printed balance doesn't move (the real-world pattern).
   const gap = structuredClone(pages);

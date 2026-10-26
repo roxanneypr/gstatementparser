@@ -19,6 +19,13 @@ const year = new Date().getFullYear();
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link
+      rel="preload"
+      href="/fonts/poppins-latin-600-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <Seo {...seo} />
     <slot name="head" />
@@ -30,15 +37,16 @@ const year = new Date().getFullYear();
     <header class="site-header">
       <div class="container header-inner">
         <a class="brand" href="/">
-          {SITE_NAME}
+          <img src="/favicon.svg" alt="" width="28" height="28" />
+          <span class="brand-text">{SITE_NAME}</span>
         </a>
         <nav aria-label="Main">
           <ul>
             <li>
-              <a href="/">{t.nav.converter}</a>
+              <a href="/guides">{t.nav.guides}</a>
             </li>
             <li>
-              <a href="/guides">{t.nav.guides}</a>
+              <a href="/about">{t.footer.about}</a>
             </li>
           </ul>
         </nav>
@@ -48,29 +56,27 @@ const year = new Date().getFullYear();
       <slot />
     </main>
     <footer class="site-footer">
-      <div class="container">
-        <p class="disclaimer">{t.footer.disclaimer}</p>
+      <div class="container footer-inner">
+        <p>
+          © {year} {SITE_NAME}
+        </p>
         <nav aria-label="Footer">
           <ul>
             <li>
               <a href="/guides">{t.footer.guides}</a>
             </li>
             <li>
-              <a href="/privacy">{t.footer.privacy}</a>
-            </li>
-            <li>
               <a href="/about">{t.footer.about}</a>
             </li>
             <li>
-              <a href={`mailto:${CONTACT_EMAIL}`}>
-                {t.footer.contact}: {CONTACT_EMAIL}
-              </a>
+              <a href="/privacy">{t.footer.privacy}</a>
+            </li>
+            <li>
+              <a href={`mailto:${CONTACT_EMAIL}`}>{t.footer.contact}</a>
             </li>
           </ul>
         </nav>
-        <p class="copyright">
-          © {year} {SITE_NAME}
-        </p>
+        <p class="disclaimer">{t.footer.disclaimer}</p>
       </div>
     </footer>
   </body>
