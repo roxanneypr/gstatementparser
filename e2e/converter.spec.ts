@@ -146,3 +146,12 @@ test("choose a different file / convert another", async ({ page }) => {
   await page.setInputFiles("#pdf-file", pdf("balance-gap"));
   await expect(page.locator("#warnings")).toBeVisible();
 });
+
+test("explains when the converter code can't load (e.g. stale cache, offline)", async ({
+  page,
+}) => {
+  await page.route(/extractText.*\.js/, (route) => route.abort());
+  await page.setInputFiles("#pdf-file", pdf("clean"));
+  await expect(page.locator("#error")).toHaveText(/couldn't finish loading.*refresh the page/);
+  await expect(page.locator("#state-idle")).toBeVisible();
+});

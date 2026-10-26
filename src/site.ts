@@ -45,6 +45,8 @@ export const strings = {
         unsupported:
           "This doesn't look like a GCash Transaction History PDF. Only GCash statements are supported for now.",
         generic: "Something went wrong while reading this file. Please try again.",
+        loadFailed:
+          "The converter couldn't finish loading. Check your connection, refresh the page, and try again.",
       },
       results: {
         heading: "Your statement",

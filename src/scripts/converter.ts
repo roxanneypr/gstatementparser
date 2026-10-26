@@ -136,11 +136,15 @@ async function convert(password?: string) {
   if (!file) return;
   showError("");
   setState("working");
+  let modules;
   try {
-    const [{ extractText, ExtractError }, { detectParser }] = await Promise.all([
-      import("../pdf/extractText.ts"),
-      import("../parsers/index.ts"),
-    ]);
+    modules = await Promise.all([import("../pdf/extractText.ts"), import("../parsers/index.ts")]);
+  } catch (err) {
+    console.error("Converter modules failed to load:", err);
+    return fail(t.errors.loadFailed);
+  }
+  const [{ extractText, ExtractError }, { detectParser }] = modules;
+  try {
     let pages;
     try {
       pages = await extractText(await file.arrayBuffer(), password);
@@ -162,7 +166,9 @@ async function convert(password?: string) {
     setState("done");
     el("done-title").focus();
     void import("../export/toXlsx.ts"); // warm up so the download is instant
-  } catch {
+  } catch (err) {
+    // Log the error only (never file contents) so problems can be diagnosed locally.
+    console.error("Conversion failed:", err);
     fail(t.errors.generic);
   }
 }

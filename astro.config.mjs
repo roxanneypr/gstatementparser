@@ -50,6 +50,9 @@ export default defineConfig({
   },
   vite: {
     build: { assetsInlineLimit: 0 },
+    // pdf.js and SheetJS are loaded with dynamic import(); pre-bundle them when the dev server
+    // starts so Vite doesn't re-optimize mid-session (which fails with "504 Outdated Optimize Dep").
+    optimizeDeps: { include: ["pdfjs-dist", "xlsx"] },
     define: { "import.meta.env.PUBLIC_CONTACT_EMAIL": JSON.stringify(CONTACT_EMAIL) },
   },
   integrations: [
