@@ -3,7 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { CONTACT_EMAIL, SITE_NAME } from "../site.ts";
 
 // Keep this page accurate to the code. Update it whenever analytics, hosting or features change.
-const updated = "2026-10-26";
+const updated = "2026-10-27";
 ---
 
 <BaseLayout
@@ -13,7 +13,7 @@ const updated = "2026-10-26";
   <div class="prose">
     <h1>Privacy Policy</h1>
     <p class="muted">
-      Last updated <time datetime={updated}>October 26, 2026</time>
+      Last updated <time datetime={updated}>October 27, 2026</time>
     </p>
 
     <h2>The short version</h2>
@@ -49,15 +49,30 @@ const updated = "2026-10-26";
         <strong>No accounts, no cookies, no advertising trackers.</strong>
       </li>
       <li>
-        <strong>Hosting logs.</strong> The site is hosted on Cloudflare Pages. Like any web host,
+        <strong>Hosting logs.</strong> The site is hosted on Cloudflare. Like any web host,
         Cloudflare processes basic technical data needed to deliver pages and protect the site, such
         as your IP address and browser type. This never includes your statement or password. See{" "}
         <a href="https://www.cloudflare.com/privacypolicy/">Cloudflare's privacy policy</a>.
       </li>
       <li>
-        <strong>Analytics.</strong> We don't currently use analytics. If we add it, we will only use
-        privacy-friendly, cookieless page-view counts (such as Cloudflare Web Analytics) and update
-        this page first. Statement data will never be included.
+        <strong>Visitor statistics, without a tracking script.</strong> To understand how the site
+        is used, we look at overall traffic statistics that Cloudflare produces from those same
+        server records: for example, the number of visits, which pages were opened, approximate
+        country and browser type. No analytics script runs on our pages, no cookies are set, and we
+        don't build profiles of individual visitors. Your statement is never part of this, because
+        it is never sent to us.
+      </li>
+      <li>
+        <strong>Google Search Console.</strong> We use Google Search Console to see how the site
+        appears in Google Search, such as which searches show our pages and how often they are
+        clicked. That information comes from Google Search itself; Search Console adds nothing to
+        our pages. See <a href="https://policies.google.com/privacy">Google's privacy policy</a>.
+      </li>
+      <li>
+        <strong>No other third-party scripts.</strong> Our pages only load files from our own site,
+        and the site's security settings block scripts from anywhere else, including analytics and
+        advertising scripts. If we ever add more detailed analytics, we will update this page first,
+        and it will not run on the converter.
       </li>
     </ul>
 

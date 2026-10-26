@@ -38,4 +38,15 @@ describe("no network access in app code", () => {
     expect(headers).toMatch(/default-src 'self'/);
     expect(headers).toMatch(/form-action 'none'/);
   });
+
+  it("HTML pages tell Cloudflare not to modify them (no injected scripts)", () => {
+    const headers = readFileSync("public/_headers", "utf8");
+    for (const path of ["/", "/about", "/privacy", "/blog", "/blog/*"]) {
+      const rule = new RegExp(
+        `^${path.replace(/[*/]/g, "\\$&")}\\n\\s+Cache-Control:[^\\n]*no-transform`,
+        "m",
+      );
+      expect(headers, path).toMatch(rule);
+    }
+  });
 });

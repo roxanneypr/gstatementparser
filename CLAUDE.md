@@ -43,7 +43,11 @@ Core promise: **"Your statement never leaves your device."** All parsing happens
 - **Lint/format:** ESLint + Prettier
 - **Hosting:** Cloudflare Workers with static assets only (free tier), built by Workers Builds from
   GitHub; config in `wrangler.jsonc`. (Cloudflare Pages also works; the launch guard supports both.)
-- **Analytics (optional):** Cloudflare Web Analytics (cookieless). Track page views only, never file data.
+- **Analytics:** no script on the site. Use Cloudflare's server-side traffic analytics (domain →
+  Analytics & Logs) and Google Search Console (verified via DNS TXT). HTML pages send
+  `Cache-Control: … no-transform` (public/_headers) so Cloudflare can't inject scripts such as its
+  automatic Web Analytics beacon. Any future analytics script must never run on the converter
+  page, and the privacy page must be updated first.
 
 Reference implementation worth studying (MIT licensed): `gcash-pdf-parser` on npm /
 github.com/KazeFreeze/gcash-pdf-parser. If any code is adapted from it, keep its license notice.
