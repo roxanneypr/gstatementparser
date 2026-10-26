@@ -6,7 +6,7 @@ import "../styles/global.css";
 
 export interface Props extends SeoProps {
   lang?: Lang;
-  /** Home page: the hero handles its own top spacing. */
+  /** Home page: the hero handles its own top spacing, and the converter is the page. */
   flush?: boolean;
 }
 
@@ -46,15 +46,21 @@ const year = new Date().getFullYear();
           <img src="/favicon.svg" alt="" width="26" height="26" />
           <span>{SITE_NAME}</span>
         </a>
-        <nav aria-label="Main">
-          <ul>
-            <li>
-              <a class="nav-cta" href="/">
-                {t.nav.convert}
-              </a>
-            </li>
-          </ul>
-        </nav>
+        {
+          /* No "Convert PDF" on the home page: the converter is right there, and linking to "/"
+             would reload the page and wipe a finished conversion. */
+          !flush && (
+            <nav aria-label="Main">
+              <ul>
+                <li>
+                  <a class="nav-cta" href="/">
+                    {t.nav.convert}
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          )
+        }
       </div>
     </header>
     <main id="main" class:list={["container", { "page-top": !flush }]}>

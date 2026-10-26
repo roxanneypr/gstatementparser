@@ -123,6 +123,7 @@ Improve the home page title/description if it gets impressions but few clicks.
 ## Privacy verification
 
 - `tests/no-network.test.ts` fails if app code uses `fetch`, XHR, `sendBeacon`, WebSockets, etc.
+  The one allowed exception is a same-origin GET of the fake sample statement.
 - `e2e/converter.spec.ts` converts a statement and downloads both files in a real browser with
   the production CSP, and asserts that every request is a same-origin GET with no body, and that
   there are no CSP violations or console errors.
@@ -133,6 +134,7 @@ Improve the home page title/description if it gets impressions but few clicks.
 
 ```bash
 node scripts/make-og-image.mjs     # public/og-image.png (1200x630 share image)
+node scripts/make-sample-pdf.mjs   # public/sample/sample-gcash-statement.pdf ("Try a sample statement"; FAKE data)
 ```
 
 ## Credits

@@ -220,3 +220,44 @@ test("statement details: pages of 20, filters, months, search and rows to review
   await expect(page.locator("#tx-body tr.flagged")).toHaveCount(3);
   await expect(page.locator("#tx-body .col-row")).toHaveText(["8", "9", "31"]);
 });
+
+test("try a sample statement: runs the real converter on the bundled FAKE PDF", async ({
+  page,
+}) => {
+  const { requests, problems } = watch(page);
+  await page.getByRole("button", { name: "Try a sample statement" }).click();
+  await expect(page.locator("#state-done")).toBeVisible();
+  await expect(page.locator("#done-summary")).toHaveText(
+    "34 transactions · 2026-03-01 to 2026-04-30",
+  );
+  await expect(page.locator("#review-title")).toHaveText("1 row needs a look");
+  await expect(page.locator("#months-body tr")).toHaveCount(2);
+  // The only extra request is a same-origin GET for the sample file; nothing is sent.
+  const origin = new URL(page.url()).origin;
+  expect(
+    requests.filter((r) => r.url === `${origin}/sample/sample-gcash-statement.pdf`),
+  ).toHaveLength(1);
+  expect(requests.filter((r) => !r.url.startsWith(origin) && !/^(blob|data):/.test(r.url))).toEqual(
+    [],
+  );
+  expect(requests.filter((r) => r.method !== "GET" || r.body > 0)).toEqual([]);
+  expect(problems).toEqual([]);
+});
+
+test("home page: no header Convert button (it would wipe results); example output shown", async ({
+  page,
+  isMobile,
+}) => {
+  await expect(page.locator(".nav-cta")).toHaveCount(0);
+  await expect(page.locator(".example tbody tr")).toHaveCount(4);
+  // "Drag and drop" only makes sense with a mouse.
+  if (isMobile) await expect(page.locator(".drag-hint")).toBeHidden();
+  else await expect(page.locator(".drag-hint")).toBeVisible();
+  // The main button is visible without scrolling.
+  const box = await page.locator("#choose-btn").boundingBox();
+  const viewport = page.viewportSize();
+  expect(box && viewport && box.y + box.height <= viewport.height).toBe(true);
+
+  await page.goto("/about");
+  await expect(page.locator(".nav-cta")).toHaveCount(1);
+});

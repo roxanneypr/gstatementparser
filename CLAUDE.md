@@ -206,7 +206,14 @@ Never store the password (no localStorage, no URL params).
   (File → Import → Upload).
 - Excel output: sheet "Transactions" (frozen header, peso number format `₱#,##0.00`, date column as real
   dates, autofilter) and sheet "Summary" (period, totals, transaction count, monthly in/out).
-- Clear privacy note near the upload box: "Processed entirely on your device. Nothing is uploaded."
+- Clear privacy note near the upload box: "Processed on your device. Nothing is uploaded." Say it
+  once on the home page (not in a badge + feature + note); repetition reads as defensive.
+- The converter card shows an "Example output" (sample rows in real statement wording, never
+  invented labels like "Buy Load" unless verified) and a "Try a sample statement" button that runs
+  the real converter on the FAKE `public/sample/sample-gcash-statement.pdf`.
+- Mobile first: the main button must be visible without scrolling at 360×500 (Facebook in-app
+  browser); "drag and drop" copy only on devices with a mouse. Don't promise "no limits" (a paid
+  tier is on the roadmap); say "Free to use".
 - Footer: disclaimer (not affiliated with GCash), link to privacy page, contact email.
 - Pages: home (converter), about, blog, privacy, 404. Footer: About · Blog · Privacy · Contact.
   The blog (and its footer link) only exists once at least one post is published.

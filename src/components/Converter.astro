@@ -3,6 +3,14 @@ import { strings } from "../site.ts";
 
 const t = strings.en.converter;
 const r = t.results;
+const ex = t.example;
+// Statement-style wording (as GCash prints it), fake amounts; balances add up.
+const exampleRows: [string, string, string, string][] = [
+  ["Mar 1", "Received GCash from BPI with account ending in 1234", "+₱5,000.00", "₱6,250.00"],
+  ["Mar 1", "Payment to Angkas", "−₱186.00", "₱6,064.00"],
+  ["Mar 2", "Transfer from 09170000001 to 09180000002", "−₱1,500.00", "₱4,564.00"],
+  ["Mar 4", "Refund from Grab Philippines", "+₱75.00", "₱4,639.00"],
+];
 const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7 1.5V9h5.5L13 3.5Z";
 ---
 
@@ -14,20 +22,6 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
   <div id="panel" class="panel" data-state="idle">
     <!-- 1. Choose a file -->
     <div id="state-idle" class="panel-state">
-      <div class="flow-art" aria-hidden="true">
-        <span class="art-wallet"></span>
-        <svg class="art-arrow" viewBox="0 0 24 24" width="22" height="22">
-          <path
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.6"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M5 12h14m-5-5 5 5-5 5"
-          ></path>
-        </svg>
-        <span class="art-sheet"></span>
-      </div>
       <input
         id="pdf-file"
         class="visually-hidden"
@@ -39,7 +33,7 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
       <button type="button" id="choose-btn" class="btn-big">
         {t.chooseFile}
       </button>
-      <p class="panel-hint">{t.orDrag}</p>
+      <p class="panel-hint drag-hint">{t.orDrag}</p>
       <p class="panel-privacy">
         <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15">
           <path
@@ -48,6 +42,59 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
           ></path>
         </svg>
         {t.privacyNote}
+      </p>
+
+      <!-- What you get: a few rows of real-looking output (sample data, statement wording). -->
+      <figure class="example">
+        <figcaption>
+          <span>{ex.caption}</span>
+          <span class="example-tag">{ex.sample}</span>
+        </figcaption>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{ex.date}</th>
+              <th scope="col">{ex.description}</th>
+              <th scope="col" class="num">
+                {ex.amount}
+              </th>
+              <th scope="col" class="num example-balance">
+                {ex.balance}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {exampleRows.map(([date, desc, amount, balance]) => (
+              <tr>
+                <td class="tabular">{date}</td>
+                <td class="example-desc">{desc}</td>
+                <td class:list={["num", { "is-in": amount.startsWith("+") }]}>{amount}</td>
+                <td class="num example-balance">{balance}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p class="example-checks">
+          <span>
+            <span class="tick" aria-hidden="true">
+              ✓
+            </span>
+            {ex.totals}
+          </span>
+          <span>
+            <span class="tick" aria-hidden="true">
+              ✓
+            </span>
+            {ex.balances}
+          </span>
+        </p>
+      </figure>
+
+      <p class="sample-line">
+        {t.noPdf}
+        <button type="button" id="sample-btn" class="btn-link">
+          {t.trySample}
+        </button>
       </p>
     </div>
 

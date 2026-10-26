@@ -343,25 +343,6 @@ button {
   background-size: 48px 32px;
   mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 20%, transparent 75%);
 }
-.badge-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 12px;
-  margin-bottom: 22px;
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  background: var(--bg);
-  font-size: 0.8125rem;
-  color: var(--body);
-}
-.badge-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--green-bright);
-  box-shadow: 0 0 0 3px var(--green-tint);
-}
 .hero-wrap h1 {
   max-width: 1000px;
   margin: 0 auto;
@@ -369,11 +350,6 @@ button {
 }
 .lead {
   text-wrap: pretty;
-}
-@media (max-width: 559px) {
-  .hero-wrap {
-    padding-top: 44px;
-  }
 }
 .hero-wrap h1 .soft {
   display: block;
@@ -438,64 +414,6 @@ button {
   color: var(--green);
   vertical-align: -3px;
   margin-right: 4px;
-}
-
-/* wallet → sheet illustration */
-.flow-art {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 26px;
-}
-.art-wallet {
-  position: relative;
-  width: 76px;
-  height: 50px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #2a2e33, #0b0d0e);
-  box-shadow: 0 6px 14px -6px rgb(0 0 0 / 40%);
-}
-.art-wallet::before {
-  /* chip */
-  content: "";
-  position: absolute;
-  left: 10px;
-  top: 14px;
-  width: 14px;
-  height: 11px;
-  border-radius: 3px;
-  background: linear-gradient(135deg, #e9d8a6, #b89a52);
-}
-.art-wallet::after {
-  content: "";
-  position: absolute;
-  left: 10px;
-  right: 10px;
-  bottom: 10px;
-  height: 3px;
-  border-radius: 2px;
-  background: rgb(255 255 255 / 25%);
-}
-.art-arrow {
-  color: var(--faint);
-}
-.art-sheet {
-  width: 76px;
-  height: 50px;
-  border-radius: 10px;
-  border: 1px solid var(--line-strong);
-  background:
-    linear-gradient(var(--green-bright), var(--green-bright)) top / 100% 11px no-repeat,
-    linear-gradient(
-      to right,
-      transparent 32%,
-      var(--line) 32%,
-      var(--line) calc(32% + 1px),
-      transparent calc(32% + 1px)
-    ),
-    repeating-linear-gradient(to bottom, transparent 0 12px, var(--line) 12px 13px),
-    var(--bg);
-  overflow: hidden;
 }
 
 .panel-form {
@@ -1642,4 +1560,154 @@ main.page-top {
   font-weight: 500;
   vertical-align: middle;
   letter-spacing: 0;
+}
+
+/* ---- converter card: example output + sample ---- */
+/* "Drag and drop" means nothing on a phone. */
+@media (hover: none), (pointer: coarse) {
+  .drag-hint {
+    display: none;
+  }
+}
+#state-idle {
+  max-width: 620px;
+}
+#state-idle > .btn-big {
+  min-width: min(100%, 300px);
+}
+.example {
+  width: 100%;
+  margin: 28px 0 0;
+  padding: 14px 16px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--subtle);
+  text-align: left;
+}
+.example figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.example-tag {
+  padding: 1px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: 0.6875rem;
+}
+.example table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.8125rem;
+}
+.example th {
+  padding: 4px 6px 6px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: left;
+  border-bottom: 1px solid var(--line-strong);
+}
+.example td {
+  padding: 7px 6px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.example tr:last-child td {
+  border-bottom: 0;
+}
+.example th:first-child,
+.example td:first-child {
+  width: 52px;
+  color: var(--muted);
+}
+.example .num {
+  width: 92px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.example td.num:not(.example-balance) {
+  font-weight: 600;
+}
+.example td.example-balance {
+  color: var(--muted);
+}
+.example-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 10px 0 0;
+  font-size: 0.75rem;
+  color: var(--green);
+  font-weight: 500;
+}
+.example-checks .tick {
+  margin-right: 5px;
+}
+.sample-line {
+  margin: 16px 0 0;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+.sample-line .btn-link {
+  padding: 4px;
+  font-size: inherit;
+  color: var(--text);
+  font-weight: 500;
+}
+@media (max-width: 479px) {
+  .example {
+    padding: 12px 12px 10px;
+  }
+  .example table {
+    font-size: 0.75rem;
+  }
+  .example th,
+  .example td {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+  .example .example-balance {
+    display: none;
+  }
+  .example .num {
+    width: 84px;
+  }
+  .example th:first-child,
+  .example td:first-child {
+    width: 44px;
+  }
+}
+
+/* Phones: keep the main button above the fold (incl. Facebook's in-app browser). */
+@media (max-width: 559px) {
+  .hero-wrap {
+    padding-top: 28px;
+  }
+  .hero-wrap h1 {
+    font-size: 2rem;
+  }
+  .lead {
+    margin-top: 12px;
+    font-size: 0.975rem;
+  }
+  .converter {
+    margin-top: 22px;
+  }
+  .panel {
+    padding: 22px 18px 20px;
+    min-height: 0;
+  }
 }

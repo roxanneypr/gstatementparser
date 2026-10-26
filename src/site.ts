@@ -22,6 +22,18 @@ export const strings = {
       heading: "Convert your statement",
       chooseFile: "Choose your GCash PDF",
       orDrag: "or drag and drop it here",
+      noPdf: "No PDF handy?",
+      trySample: "Try a sample statement",
+      example: {
+        caption: "Example output",
+        sample: "Sample data",
+        date: "Date",
+        description: "Description",
+        amount: "Amount",
+        balance: "Balance",
+        totals: "Totals match your statement",
+        balances: "Every balance checked",
+      },
       privacyNote: "Processed on your device. Nothing is uploaded.",
       passwordPrompt: "This statement is password-protected.",
       password: "PDF password",
@@ -45,6 +57,8 @@ export const strings = {
         unsupported:
           "This doesn't look like a GCash Transaction History PDF. Only GCash statements are supported for now.",
         generic: "Something went wrong while reading this file. Please try again.",
+        sampleFailed:
+          "The sample statement couldn't be loaded. Check your connection and try again.",
         loadFailed:
           "The converter couldn't finish loading. Check your connection, refresh the page, and try again.",
       },

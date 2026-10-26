@@ -19,7 +19,7 @@ const schema = [
 
 // Line icons (24px grid, stroked).
 const icons = {
-  private: "M12 3 5 6v5c0 4.4 3 8.4 7 9.5 4-1.1 7-5.1 7-9.5V6l-7-3Zm-2.5 9 2 2 4-4",
+  statement: "M7 3h7l5 5v13H7zM14 3v5h5M10 12h6M10 15.5h6M10 19h4",
   accurate: "M4 19V5m0 14h16M8 15l3-3 3 2 5-6",
   free: "M3 7h18v10H3zM3 11h18M8 7v10m8-10v10",
 };
@@ -32,16 +32,12 @@ const icons = {
   flush
 >
   <div class="hero-wrap">
-    <p class="badge-pill">
-      <span class="badge-dot" aria-hidden="true"></span>Private by design. Nothing leaves your
-      device.
-    </p>
     <h1>
       GCash statement to Excel, <span class="soft">in seconds.</span>
     </h1>
     <p class="lead">
-      Turn your GCash Transaction History PDF into a clean, checked spreadsheet. Free, no sign-up,
-      and processed entirely in your browser.
+      Turn your GCash transaction history PDF into a clean, checked spreadsheet for Excel, Google
+      Sheets or CSV. Free to use, no sign-up.
     </p>
   </div>
 
@@ -50,10 +46,10 @@ const icons = {
   <div class="features">
     {[
       {
-        id: "f-private",
-        icon: icons.private,
-        title: "Private by default",
-        text: "Your PDF is read in your browser. It's never uploaded, and nothing is saved after you close the page.",
+        id: "f-statement",
+        icon: icons.statement,
+        title: "Built for GCash statements",
+        text: "Reads the Transaction History layout as printed, including wrapped descriptions, reference numbers and running balances.",
       },
       {
         id: "f-accurate",
@@ -65,7 +61,7 @@ const icons = {
         id: "f-free",
         icon: icons.free,
         title: "Ready for Excel and Sheets",
-        text: "Real dates, peso amounts, filters and a monthly summary. Free, with no sign-up and no limits.",
+        text: "Real dates, peso amounts, filters and a monthly summary. Free to use, no sign-up.",
       },
     ].map((f) => (
       <section class="feature" aria-labelledby={f.id}>

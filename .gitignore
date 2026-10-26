@@ -10,6 +10,8 @@ coverage/
 # Real statements — NEVER commit
 samples/private/
 *.pdf
+# ...except the FAKE sample statement used by "Try a sample statement"
+!public/sample/*.pdf
 .astro/
 
 # Playwright

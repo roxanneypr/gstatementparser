@@ -22,7 +22,13 @@ describe("no network access in app code", () => {
   });
 
   it.each(sources)("%s makes no network calls", (file) => {
-    const code = readFileSync(file, "utf8").replace(/\/\/.*$|\/\*[\s\S]*?\*\//gm, "");
+    let code = readFileSync(file, "utf8").replace(/\/\/.*$|\/\*[\s\S]*?\*\//gm, "");
+    // Single allowed exception: the converter GETs the FAKE sample statement from our own site.
+    if (file.endsWith(join("scripts", "converter.ts"))) {
+      expect(code).toMatch(/const SAMPLE_URL = "\/sample\/[a-z0-9-]+\.pdf";/);
+      expect(code.match(/fetch\(/g)).toHaveLength(1);
+      code = code.replace("fetch(SAMPLE_URL)", "");
+    }
     expect(code).not.toMatch(NETWORK_APIS);
   });
 
