@@ -368,14 +368,14 @@ button {
   scroll-margin-top: 80px; /* clear the sticky header */
 }
 .panel {
-  max-width: 760px;
+  max-width: 840px;
   margin: 0 auto;
   background: var(--bg);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
-  padding: 40px 32px 32px;
-  min-height: 300px;
+  padding: 52px 44px 44px;
+  min-height: 360px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -415,6 +415,64 @@ button {
   color: var(--green);
   vertical-align: -3px;
   margin-right: 4px;
+}
+
+/* wallet → sheet illustration */
+.flow-art {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 26px;
+}
+.art-wallet {
+  position: relative;
+  width: 76px;
+  height: 50px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2a2e33, #0b0d0e);
+  box-shadow: 0 6px 14px -6px rgb(0 0 0 / 40%);
+}
+.art-wallet::before {
+  /* chip */
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 14px;
+  width: 14px;
+  height: 11px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, #e9d8a6, #b89a52);
+}
+.art-wallet::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 25%);
+}
+.art-arrow {
+  color: var(--faint);
+}
+.art-sheet {
+  width: 76px;
+  height: 50px;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  background:
+    linear-gradient(var(--green-bright), var(--green-bright)) top / 100% 11px no-repeat,
+    linear-gradient(
+      to right,
+      transparent 32%,
+      var(--line) 32%,
+      var(--line) calc(32% + 1px),
+      transparent calc(32% + 1px)
+    ),
+    repeating-linear-gradient(to bottom, transparent 0 12px, var(--line) 12px 13px),
+    var(--bg);
+  overflow: hidden;
 }
 
 .panel-form {
@@ -1571,7 +1629,7 @@ main.page-top {
   }
 }
 #state-idle {
-  max-width: 620px;
+  max-width: 660px;
 }
 #state-idle > .btn-big {
   min-width: min(100%, 300px);
@@ -1780,4 +1838,29 @@ main.page-top {
   margin: 20px 0 28px;
   border: 1px solid var(--line-strong);
   border-radius: var(--radius);
+}
+
+/* Phones: smaller illustration so the main button stays above the fold. */
+@media (max-width: 559px) {
+  .flow-art {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .art-wallet,
+  .art-sheet {
+    width: 60px;
+    height: 40px;
+    border-radius: 8px;
+  }
+  .art-wallet::before {
+    left: 8px;
+    top: 10px;
+    width: 12px;
+    height: 9px;
+  }
+  .art-wallet::after {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+  }
 }
