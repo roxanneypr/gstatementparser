@@ -41,7 +41,8 @@ Core promise: **"Your statement never leaves your device."** All parsing happens
 - **CSV export:** generate manually with proper escaping; prepend a UTF-8 BOM so Excel shows ₱ and ñ correctly.
 - **Tests:** Vitest
 - **Lint/format:** ESLint + Prettier
-- **Hosting:** Cloudflare Pages (free tier allows commercial use), deployed from GitHub
+- **Hosting:** Cloudflare Workers with static assets only (free tier), built by Workers Builds from
+  GitHub; config in `wrangler.jsonc`. (Cloudflare Pages also works; the launch guard supports both.)
 - **Analytics (optional):** Cloudflare Web Analytics (cookieless). Track page views only, never file data.
 
 Reference implementation worth studying (MIT licensed): `gcash-pdf-parser` on npm /

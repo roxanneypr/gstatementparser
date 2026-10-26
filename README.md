@@ -69,35 +69,39 @@ Posts live in `src/content/blog/*.md` (frontmatter: `title` ≤ 60 chars, `descr
 To publish: check every `TODO: verify` against official GCash sources, add any screenshots using
 the fake statement only (`scripts/fake-statement.mjs`), then set `draft: false`.
 
-## Deployment (Cloudflare Pages)
+## Deployment (Cloudflare Workers, static assets)
 
-1. Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git** → choose this repo.
-2. Build settings:
-   - Framework preset: **Astro**
-   - Build command: `npm run build`
-   - Build output directory: `dist`
-3. Environment variables (Settings → Variables and secrets), for **Production**:
+The site is deployed as a Cloudflare **Worker with static assets only** (no server code), built by
+**Workers Builds** from GitHub. `wrangler.jsonc` sets the asset folder (`dist`), the custom 404 page
+and clean URLs; `public/_headers` sets the CSP and security headers.
 
-   | Variable               | Example                           | Notes                                                                                  |
-   | ---------------------- | --------------------------------- | -------------------------------------------------------------------------------------- |
-   | `SITE_URL`             | `https://wallettoexcel.pages.dev` | Canonical URLs, OG tags, sitemap, robots.txt. Use the custom domain once you have one. |
-   | `PUBLIC_CONTACT_EMAIL` | `you@yourdomain.ph`               | Shown in the footer, privacy and about pages.                                          |
-   | `NODE_VERSION`         | `24`                              | Matches `.nvmrc`.                                                                      |
+1. Cloudflare dashboard → **Workers & Pages** → the `wallettoexcel` Worker → **Settings → Build**:
+   - Git repository: `roxanneypr/gstatementparser`, production branch `main`
+   - Build command: `npm run build` · Deploy command: `npx wrangler deploy`
+2. **Settings → Build → Variables and secrets** (build-time variables, not the runtime ones):
 
-   **Launch guard:** production builds on the `main` branch fail until `SITE_URL` and
-   `PUBLIC_CONTACT_EMAIL` are set to real values. Preview deployments are not blocked. Run the same
-   check locally with `LAUNCH_CHECK=1 SITE_URL=… PUBLIC_CONTACT_EMAIL=… npm run build`.
+   | Variable               | Value                       | Notes                                         |
+   | ---------------------- | --------------------------- | --------------------------------------------- |
+   | `SITE_URL`             | `https://wallettoexcel.com` | Canonical URLs, OG tags, sitemap, robots.txt. |
+   | `PUBLIC_CONTACT_EMAIL` | `hello@wallettoexcel.com`   | Shown in the footer, privacy and about pages. |
+   | `NODE_VERSION`         | `24`                        | Matches `.nvmrc`.                             |
 
-4. Every push to `main` deploys to production; pull requests get preview URLs.
-5. `public/_headers` sets the CSP and security headers, and long caching for `/_astro/*`.
+   **Launch guard:** builds of `main` fail until `SITE_URL` and `PUBLIC_CONTACT_EMAIL` are set to
+   real values (a failed build leaves the previous deployment live). Other branches aren't blocked.
+   Run the same check locally with `LAUNCH_CHECK=1 SITE_URL=… PUBLIC_CONTACT_EMAIL=… npm run build`.
+
+3. Every push to `main` deploys to production.
+4. Check a config change without deploying: `npm run build && npx wrangler deploy --dry-run`.
 
 ### Custom domain
 
-1. Pages project → **Custom domains → Set up a custom domain**. If the domain's DNS is on
+1. Worker → **Settings → Domains & Routes → Add → Custom domain**. If the domain's DNS is on
    Cloudflare, records are created automatically.
 2. Pick one canonical host (e.g. the apex `example.ph`) and redirect the other (`www`) to it:
    Rules → **Redirect Rules** → "Redirect from WWW to root" template (301, preserve path and query).
-3. Update `SITE_URL` to the canonical host and redeploy.
+3. Domain → **SSL/TLS → Edge Certificates → Always Use HTTPS**: on.
+4. Update `SITE_URL` to the canonical host and redeploy.
+5. Keep **Rocket Loader** off (domain → Speed → Settings): it rewrites scripts and breaks the CSP.
 
 ### Optional: Cloudflare Web Analytics
 

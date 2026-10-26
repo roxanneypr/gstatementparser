@@ -1,0 +1,15 @@
+// Cloudflare Workers (static assets only: no server code, so nothing can receive user data).
+// Workers Builds runs `npm run build`, then `npx wrangler deploy` with this config.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Must match the Worker's name in the Cloudflare dashboard.
+  "name": "wallettoexcel",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    // Serve dist/404.html (with a 404 status) for unknown URLs.
+    "not_found_handling": "404-page",
+    // /about -> about.html, /blog -> blog.html (matches the build's "file" format).
+    "html_handling": "auto-trailing-slash",
+  },
+}

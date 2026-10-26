@@ -11,11 +11,13 @@ const SITE = (process.env.SITE_URL ?? PLACEHOLDER_SITE).replace(/\/$/, "");
 const CONTACT_EMAIL = process.env.PUBLIC_CONTACT_EMAIL ?? PLACEHOLDER_EMAIL;
 
 /**
- * Launch guard: a production deploy (Cloudflare Pages on the `main` branch, or LAUNCH_CHECK=1)
- * fails if the domain or contact email are still placeholders. Preview and local builds are fine.
+ * Launch guard: a production deploy (Cloudflare Workers Builds or Pages on the `main` branch, or
+ * LAUNCH_CHECK=1) fails if the domain or contact email are still placeholders. Preview and local
+ * builds are fine.
  */
 const isProductionDeploy =
   process.env.LAUNCH_CHECK === "1" ||
+  (process.env.WORKERS_CI === "1" && process.env.WORKERS_CI_BRANCH === "main") ||
   (process.env.CF_PAGES === "1" && process.env.CF_PAGES_BRANCH === "main");
 if (isProductionDeploy) {
   const problems = [];
