@@ -172,24 +172,38 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
         {t.converted}
       </p>
       <p id="done-summary" class="panel-hint"></p>
-      <p class="file-chip">
-        <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15">
-          <path fill="currentColor" d={fileIcon}></path>
-        </svg>
-        <span class="file-name"></span>
-      </p>
-      <div class="downloads">
-        <button type="button" id="download-xlsx" class="btn-primary">
-          {r.downloadXlsx} <span class="file-tag">XLSX</span>
-        </button>
-        <button type="button" id="download-csv" class="btn-secondary">
-          {r.downloadCsv} <span class="file-tag">CSV</span>
+
+      <div class="download-row">
+        <fieldset class="format-toggle">
+          <legend class="visually-hidden">{r.format}</legend>
+          <label>
+            <input type="radio" name="format" value="xlsx" checked />
+            <span>{r.formatXlsx}</span>
+          </label>
+          <label>
+            <input type="radio" name="format" value="csv" />
+            <span>{r.formatCsv}</span>
+          </label>
+        </fieldset>
+        <button type="button" id="download-btn" class="btn-primary">
+          {r.download}{" "}
+          <span class="file-tag" id="download-ext">
+            .xlsx
+          </span>
         </button>
       </div>
-      <p class="hint">{r.sheetsTip}</p>
-      <button type="button" id="reset" class="btn-link" data-action="reset">
-        {r.convertAnother}
-      </button>
+
+      <p class="done-links">
+        <button type="button" id="view-transactions" class="btn-link">
+          {r.viewTransactions} <span aria-hidden="true">↓</span>
+        </button>
+        <span class="dot" aria-hidden="true">
+          ·
+        </span>
+        <button type="button" id="reset" class="btn-link" data-action="reset">
+          {r.convertAnother}
+        </button>
+      </p>
     </div>
 
     <p id="error" class="error" role="alert"></p>

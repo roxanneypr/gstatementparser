@@ -80,13 +80,16 @@ test("one button: choose a protected PDF, enter the password, download — nothi
   await expect(page.locator("#tx-range")).toHaveText("1–9 of 9");
   await expect(page.locator("#pager-buttons button")).toHaveCount(0);
 
-  const [xlsx] = await Promise.all([page.waitForEvent("download"), page.click("#download-xlsx")]);
+  await expect(page.locator("#download-ext")).toHaveText(".xlsx"); // Excel is the default
+  const [xlsx] = await Promise.all([page.waitForEvent("download"), page.click("#download-btn")]);
   expect(xlsx.suggestedFilename()).toBe("gcash-statement_2026-03-01_to_2026-03-31.xlsx");
   const wb = read(readFileSync((await xlsx.path())!));
   expect(wb.SheetNames).toEqual(["Transactions", "Summary"]);
   expect(utils.sheet_to_json(wb.Sheets.Transactions!)).toHaveLength(9);
 
-  const [csv] = await Promise.all([page.waitForEvent("download"), page.click("#download-csv")]);
+  await page.getByRole("radio", { name: "CSV" }).check();
+  await expect(page.locator("#download-ext")).toHaveText(".csv");
+  const [csv] = await Promise.all([page.waitForEvent("download"), page.click("#download-btn")]);
   expect(csv.suggestedFilename()).toBe("gcash-statement_2026-03-01_to_2026-03-31.csv");
   const text = readFileSync((await csv.path())!, "utf8");
   expect(text.charCodeAt(0)).toBe(0xfeff);
@@ -232,6 +235,8 @@ test("try a sample statement: runs the real converter on the bundled FAKE PDF", 
   );
   await expect(page.locator("#review-title")).toHaveText("1 row needs a look");
   await expect(page.locator("#months-body tr")).toHaveCount(2);
+  await page.getByRole("button", { name: "View transactions" }).click();
+  await expect(page.locator("#tx-heading")).toBeFocused();
   // The only extra request is a same-origin GET for the sample file; nothing is sent.
   const origin = new URL(page.url()).origin;
   expect(

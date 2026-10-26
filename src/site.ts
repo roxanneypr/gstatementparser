@@ -66,11 +66,12 @@ export const strings = {
       results: {
         heading: "Statement details",
         period: "{start} to {end}",
-        downloadXlsx: "Download Excel",
-        downloadCsv: "Download CSV",
-        sheetsTip:
-          "Using Google Sheets? Open sheets.google.com, then File → Import → Upload, and choose the downloaded file.",
-        convertAnother: "Convert another statement",
+        download: "Download",
+        format: "File format",
+        formatXlsx: "Excel",
+        formatCsv: "CSV",
+        viewTransactions: "View transactions",
+        convertAnother: "Convert another",
         overview: {
           net: "Net (money in − money out)",
           opening: "Starting balance",

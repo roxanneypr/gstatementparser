@@ -554,27 +554,40 @@ function saveBlob(blob: Blob, name: string) {
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 
-el("download-xlsx").addEventListener("click", async () => {
+type Format = "xlsx" | "csv";
+const formatInputs = document.querySelectorAll<HTMLInputElement>('input[name="format"]');
+const selectedFormat = (): Format =>
+  document.querySelector<HTMLInputElement>('input[name="format"]:checked')?.value === "csv"
+    ? "csv"
+    : "xlsx";
+for (const input of formatInputs) {
+  input.addEventListener("change", () => {
+    el("download-ext").textContent = `.${selectedFormat()}`;
+  });
+}
+
+el("download-btn").addEventListener("click", async () => {
   if (!result) return;
   try {
-    const { toXlsx } = await import("../export/toXlsx.ts");
-    const bytes = toXlsx(result);
-    saveBlob(
-      new Blob([bytes.slice().buffer], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      }),
-      `${exportBaseName(result)}.xlsx`,
-    );
-  } catch {
+    if (selectedFormat() === "csv") {
+      const { toCsv } = await import("../export/toCsv.ts");
+      saveBlob(
+        new Blob([toCsv(result)], { type: "text/csv;charset=utf-8" }),
+        `${exportBaseName(result)}.csv`,
+      );
+    } else {
+      const { toXlsx } = await import("../export/toXlsx.ts");
+      saveBlob(
+        new Blob([toXlsx(result).slice().buffer], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        }),
+        `${exportBaseName(result)}.xlsx`,
+      );
+    }
+  } catch (err) {
+    console.error("Download failed:", err);
     showError(t.errors.generic);
   }
 });
 
-el("download-csv").addEventListener("click", async () => {
-  if (!result) return;
-  const { toCsv } = await import("../export/toCsv.ts");
-  saveBlob(
-    new Blob([toCsv(result)], { type: "text/csv;charset=utf-8" }),
-    `${exportBaseName(result)}.csv`,
-  );
-});
+el("view-transactions").addEventListener("click", () => focusTable());

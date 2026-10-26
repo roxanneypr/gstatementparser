@@ -43,9 +43,9 @@ it's cleared after converting.
 ## Step 3: Download Excel or CSV
 
 When it's done, you'll see **Your spreadsheet is ready** with the number of transactions and the
-statement period. Press **Download Excel** or **Download CSV**.
+statement period. Choose **Excel** or **CSV**, then press **Download**.
 
-![The finished step: "Your spreadsheet is ready", 34 transactions from 2026-03-01 to 2026-04-30, with Download Excel and Download CSV buttons.](./images/gcash-statement-to-excel-guide/3-ready.png)
+![The finished step: "Your spreadsheet is ready", 34 transactions from 2026-03-01 to 2026-04-30, an Excel or CSV choice and a Download button.](./images/gcash-statement-to-excel-guide/3-ready.png)
 
 The Excel workbook has two sheets:
 
@@ -58,7 +58,7 @@ The CSV opens in Excel, Google Sheets, Numbers and most accounting tools.
 
 ## Step 4: Check the results against your PDF
 
-Below the download buttons you'll find the statement details. Use them to make sure everything was
+Press **View transactions** (or scroll down) to see the statement details. Use them to make sure everything was
 read correctly before you rely on the spreadsheet.
 
 **Overview.** Money in and money out for the whole period, the net, and your starting and ending
