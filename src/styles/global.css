@@ -12,28 +12,38 @@
 
 :root {
   color-scheme: light;
+  /* Brand: navy ink + gold accent. Gold (#c9a15b) is 2.4:1 on white, so it is used for fills and
+     accents only; gold TEXT uses --gold-text (5:1). Green stays the "money in / match" signal and
+     warnings are terracotta, so neither can be mistaken for the gold brand accent. */
   --bg: #ffffff;
-  --subtle: #fafafa;
-  --ink: #0b0d0e;
-  --text: #0b0d0e;
-  --body: #3d4247;
-  --muted: #6b7177;
-  --faint: #868c92; /* large/decorative text only (≥3:1); small text uses --muted */
-  --line: #ececee;
-  --line-strong: #dfe1e4;
+  --subtle: #f7f8fa;
+  --ink: #10213a;
+  --ink-hover: #1b3358;
+  --text: #10213a;
+  --body: #3b4a5e;
+  --muted: #5e6b7d;
+  --faint: #8a94a3; /* large/decorative text only (≥3:1); small text uses --muted */
+  --line: #e8ebf0;
+  --line-strong: #dce1e8;
+  --gold: #c9a15b;
+  --gold-hover: #d4b073;
+  --gold-text: #8a6a2f;
+  --gold-tint: #faf5ea;
+  --gold-line: #ebddbe;
   --green: #15803d;
   --green-bright: #16a34a;
   --green-tint: #effaf3;
-  --focus: #2563eb;
-  --warn-bg: #fffaeb;
-  --warn-line: #f6e2a8;
-  --warn-text: #7a4b05;
+  --focus: #b07f2a;
+  --warn-bg: #fff4ed;
+  --warn-line: #fbd5bd;
+  --warn-text: #9a3412;
+  --warn-hover: #ffead9;
   --radius-sm: 10px;
   --radius: 14px;
   --radius-lg: 22px;
   --shadow:
-    0 1px 2px rgb(16 18 20 / 4%), 0 8px 24px -10px rgb(16 18 20 / 10%),
-    0 30px 60px -30px rgb(16 18 20 / 14%);
+    0 1px 2px rgb(16 33 58 / 4%), 0 8px 24px -10px rgb(16 33 58 / 10%),
+    0 30px 60px -30px rgb(16 33 58 / 16%);
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-family: var(--font);
   font-feature-settings: "cv11", "ss01";
@@ -45,6 +55,11 @@
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+::selection {
+  background: var(--gold-tint);
+  color: var(--ink);
 }
 
 body {
@@ -276,7 +291,7 @@ button {
 .btn-primary:hover,
 .btn-big:hover,
 .cta-link:hover {
-  background: #26292c;
+  background: var(--ink-hover);
   color: #fff;
 }
 .btn-primary:active,
@@ -391,8 +406,8 @@ button {
   }
 }
 .panel.dragging {
-  border-color: var(--green-bright);
-  background: var(--green-tint);
+  border-color: var(--gold);
+  background: var(--gold-tint);
 }
 .panel-state {
   width: 100%;
@@ -412,7 +427,7 @@ button {
   color: var(--muted);
 }
 .panel-privacy svg {
-  color: var(--green);
+  color: var(--gold-text);
   vertical-align: -3px;
   margin-right: 4px;
 }
@@ -478,7 +493,7 @@ button {
 .password-field input:focus {
   outline: none;
   border-color: var(--ink);
-  box-shadow: 0 0 0 4px rgb(11 13 14 / 8%);
+  box-shadow: 0 0 0 4px rgb(201 161 91 / 25%);
 }
 .password-toggle {
   position: absolute;
@@ -537,8 +552,9 @@ button {
   height: 44px;
   margin: 0 auto 14px;
   border-radius: 50%;
-  background: var(--green-tint);
-  color: var(--green);
+  background: var(--gold-tint);
+  color: var(--gold-text);
+  box-shadow: inset 0 0 0 1px var(--gold-line);
   font-size: 1.2rem;
 }
 #state-done {
@@ -909,7 +925,7 @@ tbody tr:last-child > * {
   background: var(--bg);
   color: var(--text);
   box-shadow:
-    0 1px 2px rgb(16 18 20 / 8%),
+    0 1px 2px rgb(16 33 58 / 8%),
     0 0 0 1px var(--line-strong);
 }
 .seg-count {
@@ -947,7 +963,7 @@ tbody tr:last-child > * {
 .tx-controls input[type="search"]:focus {
   outline: none;
   border-color: var(--ink);
-  box-shadow: 0 0 0 4px rgb(11 13 14 / 8%);
+  box-shadow: 0 0 0 4px rgb(201 161 91 / 25%);
 }
 
 /* transactions table */
@@ -975,7 +991,7 @@ tbody tr:last-child > * {
   background: var(--warn-bg);
 }
 .tx-table tr.flagged:hover > td {
-  background: #fff4d6;
+  background: var(--warn-hover);
 }
 .tx-empty {
   margin: 0;
@@ -1225,7 +1241,7 @@ tbody tr:last-child > * {
   display: block;
   font-size: 0.8125rem;
   font-weight: 500;
-  color: var(--green);
+  color: var(--gold-text);
   margin-bottom: 10px;
 }
 .section-head {
@@ -1275,7 +1291,7 @@ tbody tr:last-child > * {
 }
 .cta-band {
   background: var(--ink);
-  color: #c9cdd1;
+  color: #c3cbd8;
   border-radius: var(--radius-lg);
   padding: 48px 40px;
   display: flex;
@@ -1308,12 +1324,13 @@ tbody tr:last-child > * {
   max-width: 52ch;
 }
 .cta-band .btn-light {
-  background: #fff;
+  background: var(--gold);
   color: var(--ink);
-  border: 1px solid #fff;
+  border: 1px solid var(--gold);
 }
 .cta-band .btn-light:hover {
-  background: #e9ebed;
+  background: var(--gold-hover);
+  border-color: var(--gold-hover);
   color: var(--ink);
 }
 @media (max-width: 559px) {
@@ -1389,7 +1406,7 @@ main.page-top {
 }
 .prose .eyebrow {
   margin: 0;
-  color: var(--green);
+  color: var(--gold-text);
   font-size: 0.8125rem;
   line-height: 1.6;
 }
@@ -1503,7 +1520,7 @@ main.page-top {
   color: var(--muted);
 }
 .post-meta a {
-  color: var(--green);
+  color: var(--gold-text);
   text-decoration: none;
   font-weight: 500;
 }

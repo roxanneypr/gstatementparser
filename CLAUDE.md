@@ -222,17 +222,12 @@ Never store the password (no localStorage, no URL params).
 - Languages: English first; keep UI strings in one object so Filipino/Taglish can be added later.
 - Accessible: labels on inputs, keyboard usable, good contrast.
 - Light theme only (no dark mode). Design direction: minimal, premium fintech. Inter (self-hosted),
-  near-black ink and black pill buttons, one accent (spreadsheet green), hairline dividers, generous
-  whitespace, and a subtle "wallet → spreadsheet" motif. No GCash brand colours.
-
-## SEO requirements
-
-SEO is the main growth channel, so build it in from the start. Users search in plain English and
-Taglish, e.g. "gcash transaction history to excel", "how to download gcash transaction history",
-"gcash statement password", "gcash pdf to google sheets".
-
-### Every page must have
-
+  generous whitespace, hairline dividers, a subtle "wallet → spreadsheet" motif.
+- Palette (tokens in `src/styles/global.css`): navy ink `#10213A` (text, buttons, dark band, logo
+  tile) and gold `#C9A15B` (logo, accents, fills). Gold is 2.4:1 on white, so never use it for
+  text; gold text uses `#8A6A2F`. Green `#15803D` is reserved for "money in" and "✓ Match";
+  warnings are terracotta `#9A3412`, so neither can be confused with the gold accent.
+  No GCash brand colours.
 - A unique `<title>` (≤ 60 chars) and meta description (≤ 155 chars) written for humans.
 - Exactly one `<h1>`; logical `h2`/`h3` structure.
 - `<link rel="canonical">` with the absolute URL (set `site` in `astro.config.mjs`).
