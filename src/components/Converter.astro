@@ -1,0 +1,145 @@
+---
+import { strings } from "../site.ts";
+
+const t = strings.en.converter;
+const r = t.results;
+---
+
+<section class="converter" aria-labelledby="converter-heading">
+  <h2 id="converter-heading" class="visually-hidden">
+    {t.heading}
+  </h2>
+
+  <form id="convert-form" class="card" novalidate>
+    <div class="dropzone" id="dropzone">
+      <input
+        id="pdf-file"
+        class="file-input"
+        type="file"
+        accept="application/pdf,.pdf"
+        aria-describedby="file-name"
+      />
+      <label for="pdf-file" class="dropzone-label">
+        <span class="dropzone-icon" aria-hidden="true">
+          📄
+        </span>
+        <strong>{t.chooseFile}</strong>
+        <span class="muted">{t.orDrag}</span>
+      </label>
+      <p id="file-name" class="file-name" aria-live="polite"></p>
+    </div>
+
+    <div class="field">
+      <label for="pdf-password">{t.password}</label>
+      <div class="password-row">
+        <input
+          id="pdf-password"
+          type="password"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          aria-describedby="password-hint"
+        />
+        <button
+          type="button"
+          id="toggle-password"
+          class="btn-secondary"
+          aria-controls="pdf-password"
+          aria-pressed="false"
+        >
+          {t.showPassword}
+        </button>
+      </div>
+      <p id="password-hint" class="hint">
+        {t.passwordHint}
+      </p>
+    </div>
+
+    <button type="submit" id="convert-btn" class="btn-primary">
+      {t.convert}
+    </button>
+    <p class="privacy-note">
+      <span aria-hidden="true">🔒</span> {t.privacyNote}
+    </p>
+  </form>
+
+  <p id="status" class="status" role="status" aria-live="polite"></p>
+  <p id="error" class="error" role="alert"></p>
+
+  <div id="results" class="results" hidden>
+    <h2 id="results-heading" tabindex="-1">
+      {r.heading}
+    </h2>
+    <p id="results-period" class="muted"></p>
+
+    <dl class="stats">
+      <div>
+        <dt>{r.count}</dt>
+        <dd id="stat-count"></dd>
+      </div>
+      <div>
+        <dt>{r.moneyIn}</dt>
+        <dd id="stat-in"></dd>
+      </div>
+      <div>
+        <dt>{r.moneyOut}</dt>
+        <dd id="stat-out"></dd>
+      </div>
+      <div>
+        <dt>{r.net}</dt>
+        <dd id="stat-net"></dd>
+      </div>
+    </dl>
+
+    <div class="downloads">
+      <button type="button" id="download-xlsx" class="btn-primary">
+        {r.downloadXlsx}
+      </button>
+      <button type="button" id="download-csv" class="btn-secondary">
+        {r.downloadCsv}
+      </button>
+    </div>
+    <p class="hint">{r.sheetsTip}</p>
+
+    <h3>{r.checksHeading}</h3>
+    <ul id="checks" class="checks"></ul>
+
+    <section id="warnings" class="warnings" aria-labelledby="warnings-heading" hidden>
+      <h3 id="warnings-heading">{r.warningsHeading}</h3>
+      <div id="warnings-body"></div>
+    </section>
+
+    <h3>{r.previewHeading}</h3>
+    <p id="preview-note" class="muted"></p>
+    <div class="table-wrap">
+      <table class="preview">
+        <thead>
+          <tr>
+            <th scope="col">{r.columns.row}</th>
+            <th scope="col">{r.columns.date}</th>
+            <th scope="col">{r.columns.description}</th>
+            <th scope="col" class="num">
+              {r.columns.debit}
+            </th>
+            <th scope="col" class="num">
+              {r.columns.credit}
+            </th>
+            <th scope="col" class="num">
+              {r.columns.balance}
+            </th>
+            <th scope="col">{r.columns.check}</th>
+          </tr>
+        </thead>
+        <tbody id="preview-body"></tbody>
+      </table>
+    </div>
+
+    <button type="button" id="reset" class="btn-secondary">
+      {r.convertAnother}
+    </button>
+  </div>
+</section>
+
+<script>
+  import "../scripts/converter.ts";
+</script>

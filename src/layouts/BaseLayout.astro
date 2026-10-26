@@ -1,0 +1,77 @@
+---
+import Seo, { type Props as SeoProps } from "../components/Seo.astro";
+import { CONTACT_EMAIL, SITE_NAME, uiStrings, type Lang } from "../site.ts";
+import "../styles/global.css";
+
+export interface Props extends SeoProps {
+  lang?: Lang;
+}
+
+const { lang = "en", ...seo } = Astro.props;
+const t = uiStrings(lang);
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <Seo {...seo} />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">
+      {t.skipToContent}
+    </a>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/">
+          {SITE_NAME}
+        </a>
+        <nav aria-label="Main">
+          <ul>
+            <li>
+              <a href="/">{t.nav.converter}</a>
+            </li>
+            <li>
+              <a href="/guides">{t.nav.guides}</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main id="main" class="container">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <p class="disclaimer">{t.footer.disclaimer}</p>
+        <nav aria-label="Footer">
+          <ul>
+            <li>
+              <a href="/guides">{t.footer.guides}</a>
+            </li>
+            <li>
+              <a href="/privacy">{t.footer.privacy}</a>
+            </li>
+            <li>
+              <a href="/about">{t.footer.about}</a>
+            </li>
+            <li>
+              <a href={`mailto:${CONTACT_EMAIL}`}>
+                {t.footer.contact}: {CONTACT_EMAIL}
+              </a>
+            </li>
+          </ul>
+        </nav>
+        <p class="copyright">
+          © {year} {SITE_NAME}
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

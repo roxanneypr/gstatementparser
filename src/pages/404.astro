@@ -1,0 +1,23 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE_NAME } from "../site.ts";
+---
+
+<BaseLayout
+  title={`Page Not Found – ${SITE_NAME}`}
+  description="This page doesn't exist. Go to the GCash statement converter or browse the guides."
+  noindex
+>
+  <div class="prose">
+    <h1>Page not found</h1>
+    <p>Sorry, we couldn't find that page. It may have moved, or the link may be wrong.</p>
+    <ul>
+      <li>
+        <a href="/">Convert your GCash statement to Excel</a>
+      </li>
+      <li>
+        <a href="/guides">Browse GCash statement guides</a>
+      </li>
+    </ul>
+  </div>
+</BaseLayout>

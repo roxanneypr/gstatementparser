@@ -1,0 +1,102 @@
+---
+import { render } from "astro:content";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import ConverterCta from "../../components/ConverterCta.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import {
+  displayDate,
+  getGuides,
+  guideUrl,
+  isoDate,
+  SHOW_DRAFTS,
+  type Guide,
+} from "../../data/guides.ts";
+import { breadcrumbSchema, publisher } from "../../data/schema.ts";
+
+export async function getStaticPaths() {
+  const guides = await getGuides();
+  return guides.map((guide) => ({ params: { slug: guide.id }, props: { guide, all: guides } }));
+}
+
+interface Props {
+  guide: Guide;
+  all: Guide[];
+}
+
+const { guide, all } = Astro.props;
+const { Content } = await render(guide);
+const { title, description, publishedDate, updatedDate, lang, draft } = guide.data;
+const url = new URL(guideUrl(guide.id), Astro.site).href;
+const related = guide.data.related
+  .map((slug) => all.find((g) => g.id === slug))
+  .filter((g): g is Guide => Boolean(g));
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: title,
+    description,
+    inLanguage: lang === "fil" ? "fil-PH" : "en-PH",
+    datePublished: isoDate(publishedDate),
+    dateModified: isoDate(updatedDate ?? publishedDate),
+    mainEntityOfPage: url,
+    image: new URL("/og-image.png", Astro.site).href,
+    author: publisher(Astro.site),
+    publisher: publisher(Astro.site),
+  },
+  breadcrumbSchema(Astro.site, [
+    { name: "Home", path: "/" },
+    { name: "Guides", path: "/guides" },
+    { name: title, path: guideUrl(guide.id) },
+  ]),
+];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  lang={lang}
+  type="article"
+  publishedTime={isoDate(publishedDate)}
+  modifiedTime={isoDate(updatedDate ?? publishedDate)}
+  schema={schema}
+  noindex={draft}
+>
+  <Breadcrumbs
+    items={[{ name: "Home", href: "/" }, { name: "Guides", href: "/guides" }, { name: title }]}
+  />
+  <article class="guide">
+    {draft && SHOW_DRAFTS && (
+      <p class="draft-banner" role="note">
+        DRAFT (only visible in development). Resolve every "TODO: verify" and set{" "}
+        <code>draft: false</code> to publish.
+      </p>
+    )}
+    <h1>{title}</h1>
+    <p class="guide-meta muted">
+      <time datetime={isoDate(updatedDate ?? publishedDate)}>
+        {`${updatedDate ? "Updated" : "Published"} ${displayDate(updatedDate ?? publishedDate)}`}
+      </time>
+    </p>
+    <p class="lead">{description}</p>
+    <ConverterCta />
+    <div class="prose">
+      <Content />
+    </div>
+    <ConverterCta heading="Ready to convert your statement?" />
+    {related.length > 0 && (
+      <section aria-labelledby="related-heading" class="related">
+        <h2 id="related-heading">Related guides</h2>
+        <ul>
+          {related.map((g) => (
+            <li>
+              <a href={guideUrl(g.id)}>{g.data.title}</a>
+              <span class="related-desc muted">{g.data.description}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </article>
+</BaseLayout>

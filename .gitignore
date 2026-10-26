@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+.env
+.env.*
+coverage/
+.wrangler/
+
+# Real statements — NEVER commit
+samples/private/
+*.pdf
+.astro/
+
+# Playwright
+e2e/.generated/
+test-results/
+playwright-report/

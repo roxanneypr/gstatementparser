@@ -1,0 +1,62 @@
+---
+// DEV ONLY: injected by astro.config.mjs only for `astro dev`; never built or deployed.
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>PDF Debug (dev only)</title>
+  </head>
+  <body style="font-family: system-ui, sans-serif; padding: 16px">
+    <h1>PDF text dump (dev only)</h1>
+    <p>Output goes to the browser console only. Nothing is uploaded or saved.</p>
+    <p>
+      <label>
+        PDF <input id="file" type="file" accept="application/pdf" />
+      </label>
+    </p>
+    <p>
+      <label>
+        Password <input id="password" type="password" autocomplete="off" />
+      </label>
+    </p>
+    <p>
+      <label>
+        <input id="redact" type="checkbox" checked /> Redact digits &amp; emails
+      </label>
+    </p>
+    <p>
+      <button id="run" type="button">
+        Dump to console
+      </button>
+    </p>
+    <p id="status" role="status"></p>
+    <script>
+      import { extractText, ExtractError } from "../pdf/extractText.ts";
+      import { formatPageDump } from "../pdf/pageText.ts";
+
+      const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+      const status = $<HTMLParagraphElement>("status");
+
+      $<HTMLButtonElement>("run").addEventListener("click", async () => {
+        const file = $<HTMLInputElement>("file").files?.[0];
+        if (!file) {
+          status.textContent = "Pick a PDF first.";
+          return;
+        }
+        const password = $<HTMLInputElement>("password").value;
+        const redact = $<HTMLInputElement>("redact").checked;
+        try {
+          const pages = await extractText(await file.arrayBuffer(), password);
+          for (const page of pages) console.log(formatPageDump(page, redact));
+          status.textContent = `Dumped ${pages.length} page(s) to the console.`;
+        } catch (err) {
+          status.textContent = err instanceof ExtractError ? err.message : String(err);
+        }
+      });
+    </script>
+  </body>
+</html>

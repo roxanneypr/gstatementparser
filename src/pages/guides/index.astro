@@ -1,0 +1,64 @@
+---
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import ConverterCta from "../../components/ConverterCta.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { displayDate, getGuides, guideUrl, isoDate } from "../../data/guides.ts";
+import { breadcrumbSchema } from "../../data/schema.ts";
+
+const guides = await getGuides();
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "GCash Statement Guides",
+    url: new URL("/guides", Astro.site).href,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: guides.map((g, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        url: new URL(guideUrl(g.id), Astro.site).href,
+        name: g.data.title,
+      })),
+    },
+  },
+  breadcrumbSchema(Astro.site, [
+    { name: "Home", path: "/" },
+    { name: "Guides", path: "/guides" },
+  ]),
+];
+---
+
+<BaseLayout
+  title="GCash Statement Guides – Excel, Sheets & More"
+  description="Step-by-step guides for GCash statements: download your transaction history, open it in Excel or Google Sheets, and track your income and spending."
+  schema={schema}
+>
+  <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Guides" }]} />
+  <h1>GCash Statement Guides</h1>
+  <p class="lead">
+    Practical help for getting your GCash transaction history into a spreadsheet and making sense of
+    it.
+  </p>
+  {guides.length ? (
+    <ul class="guide-list">
+      {guides.map((g) => (
+        <li>
+          <h2>
+            <a href={guideUrl(g.id)}>{g.data.title}</a>
+            {g.data.draft && <span class="badge">Draft</span>}
+          </h2>
+          <p>{g.data.description}</p>
+          <p class="muted">
+            <time datetime={isoDate(g.data.updatedDate ?? g.data.publishedDate)}>
+              {displayDate(g.data.updatedDate ?? g.data.publishedDate)}
+            </time>
+          </p>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p>New guides are on the way. In the meantime, the converter is ready to use.</p>
+  )}
+  <ConverterCta />
+</BaseLayout>

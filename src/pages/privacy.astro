@@ -1,0 +1,84 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { CONTACT_EMAIL, SITE_NAME } from "../site.ts";
+
+// Keep this page accurate to the code. Update it whenever analytics, hosting or features change.
+const updated = "2026-10-26";
+---
+
+<BaseLayout
+  title={`Privacy Policy – ${SITE_NAME}`}
+  description="Your GCash statement is processed on your device and never uploaded. Read exactly what this site does and doesn't collect."
+>
+  <div class="prose">
+    <h1>Privacy Policy</h1>
+    <p class="muted">
+      Last updated <time datetime={updated}>October 26, 2026</time>
+    </p>
+
+    <h2>The short version</h2>
+    <p>
+      Your GCash statement, its password and your transactions never leave your device. The
+      converter runs entirely in your web browser. We don't have a server that could receive your
+      file, and we don't want one.
+    </p>
+
+    <h2>Your statement and password</h2>
+    <ul>
+      <li>
+        When you choose a PDF, your browser reads it locally. It is not uploaded, emailed, logged or
+        sent to analytics.
+      </li>
+      <li>
+        The password you type is used only to open the PDF on your device. It isn't saved in your
+        browser, in cookies or in the page address, and the password box is cleared after
+        converting.
+      </li>
+      <li>
+        The Excel and CSV files are created on your device and saved straight to it by your browser.
+      </li>
+      <li>
+        Everything is kept in memory only while the page is open. Closing or refreshing the page
+        clears it.
+      </li>
+    </ul>
+
+    <h2>What this website collects</h2>
+    <ul>
+      <li>
+        <strong>No accounts, no cookies, no advertising trackers.</strong>
+      </li>
+      <li>
+        <strong>Hosting logs.</strong> The site is hosted on Cloudflare Pages. Like any web host,
+        Cloudflare processes basic technical data needed to deliver pages and protect the site, such
+        as your IP address and browser type. This never includes your statement or password. See{" "}
+        <a href="https://www.cloudflare.com/privacypolicy/">Cloudflare's privacy policy</a>.
+      </li>
+      <li>
+        <strong>Analytics.</strong> We don't currently use analytics. If we add it, we will only use
+        privacy-friendly, cookieless page-view counts (such as Cloudflare Web Analytics) and update
+        this page first. Statement data will never be included.
+      </li>
+    </ul>
+
+    <h2>How you can check</h2>
+    <p>
+      Open your browser's developer tools, go to the Network tab and convert a statement. You'll see
+      the site load its own files, and no request that sends your PDF or its contents anywhere. The
+      site's security settings also block the page from contacting other servers.
+    </p>
+
+    <h2>Children</h2>
+    <p>
+      This site is not directed at children and doesn't knowingly collect anyone's personal data.
+    </p>
+
+    <h2>Changes</h2>
+    <p>If this policy changes, we'll update this page and the date at the top.</p>
+
+    <h2>Contact</h2>
+    <p>
+      Questions? Email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+    </p>
+  </div>
+</BaseLayout>

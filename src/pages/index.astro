@@ -1,0 +1,152 @@
+---
+import Converter from "../components/Converter.astro";
+import { faq } from "../data/faq.ts";
+import { getGuides, guideUrl, SHOW_DRAFTS } from "../data/guides.ts";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE_NAME } from "../site.ts";
+
+// Only link to guides that exist in this build (drafts are dev-only).
+const guides = await getGuides();
+const guideHref = (slug: string) =>
+  guides.find((g) => g.id === slug && (SHOW_DRAFTS || !g.data.draft));
+const downloadGuide = guideHref("how-to-download-gcash-transaction-history");
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: SITE_NAME,
+    url: Astro.site?.href,
+    applicationCategory: "FinanceApplication",
+    operatingSystem: "Any",
+    browserRequirements: "Requires a modern web browser with JavaScript.",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "PHP" },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: { "@type": "Answer", text: f.answer },
+    })),
+  },
+];
+---
+
+<BaseLayout
+  title="GCash Statement to Excel – Free & Private Converter"
+  description="Convert your GCash transaction history PDF to Excel or CSV in seconds. Free, and private: your statement is processed on your device and never uploaded."
+  schema={schema}
+>
+  <div class="hero">
+    <h1>GCash Statement to Excel</h1>
+    <p class="lead">
+      Turn your GCash Transaction History PDF into a clean Excel or CSV file in seconds. Free, and
+      your statement never leaves your device.
+    </p>
+  </div>
+
+  <Converter />
+
+  <section class="content" aria-labelledby="how-it-works">
+    <h2 id="how-it-works">How it works</h2>
+    <ol class="steps">
+      <li>
+        <h3>Get your Transaction History PDF</h3>
+        <p>
+          Request your transaction history from the GCash app and save the PDF to your phone or
+          computer.
+          {downloadGuide && (
+            <>
+              Our guide on{" "}
+              <a href={guideUrl(downloadGuide.id)}>
+                how to download your GCash transaction history
+              </a>{" "}
+              walks you through it.
+            </>
+          )}
+        </p>
+      </li>
+      <li>
+        <h3>Choose the file and enter its password</h3>
+        <p>
+          Select the PDF above and type the password that came with it. The file is opened right
+          here in your browser.
+        </p>
+      </li>
+      <li>
+        <h3>Download Excel or CSV</h3>
+        <p>
+          Check the preview and the accuracy checks, then download an Excel workbook (with a
+          Transactions sheet and a monthly Summary) or a CSV you can open in Google Sheets.
+        </p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="content" aria-labelledby="privacy">
+    <h2 id="privacy">Why your statement stays private</h2>
+    <ul>
+      <li>
+        The PDF is read by code running in your own browser. There is no server that receives your
+        file, your password, or your transactions.
+      </li>
+      <li>Nothing is stored: close or refresh the page and everything is gone.</li>
+      <li>No account and no sign-up. No ads or trackers reading your data.</li>
+      <li>The Excel and CSV files are created on your device and saved straight to it.</li>
+    </ul>
+    <p>
+      Read the full <a href="/privacy">privacy policy</a>.
+    </p>
+  </section>
+
+  <section class="content" aria-labelledby="accuracy">
+    <h2 id="accuracy">Checked for accuracy</h2>
+    <p>
+      Every conversion is checked against the statement itself: the totals are compared with the
+      statement's Total Debit and Total Credit, and each row's running balance is checked against
+      the row before it. If anything doesn't add up, the rows are pointed out for you to review. We
+      never change or guess the figures GCash printed.
+    </p>
+  </section>
+
+  <section class="content" aria-labelledby="who">
+    <h2 id="who">Who it's for</h2>
+    <ul class="audience">
+      <li>
+        <strong>Freelancers</strong> tracking client payments received through GCash.
+      </li>
+      <li>
+        <strong>Online sellers</strong> reconciling orders and payouts.
+      </li>
+      <li>
+        <strong>Small business owners</strong> keeping simple books.
+      </li>
+      <li>
+        <strong>Bookkeepers</strong> who need clean data instead of retyping PDFs.
+      </li>
+      <li>
+        <strong>Anyone budgeting</strong> who wants to see where their money goes each month.
+      </li>
+    </ul>
+  </section>
+
+  <section class="content" aria-labelledby="faq">
+    <h2 id="faq">Frequently asked questions</h2>
+    {faq.map((f) => (
+      <div class="faq-item">
+        <h3>{f.question}</h3>
+        <p>{f.answer}</p>
+      </div>
+    ))}
+  </section>
+
+  <section class="content" aria-labelledby="guides">
+    <h2 id="guides">Guides</h2>
+    <p>
+      Step-by-step help with GCash statements, from downloading your history to tracking income in a
+      spreadsheet. <a href="/guides">Browse all GCash statement guides</a>.
+    </p>
+  </section>
+</BaseLayout>

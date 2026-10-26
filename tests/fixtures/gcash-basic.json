@@ -1,0 +1,579 @@
+{
+  "_note": "Synthetic data. Mirrors the GCash Transaction History layout; not a real statement.",
+  "pages": [
+    {
+      "pageNumber": 1,
+      "width": 595,
+      "height": 842,
+      "items": [
+        {
+          "str": "GCash Transaction History",
+          "x": 183.9,
+          "y": 45.9,
+          "width": 69,
+          "height": 19.21,
+          "fontName": "g_d0_f1"
+        },
+        {
+          "str": "2026-03-01 to 2026-03-31",
+          "x": 247,
+          "y": 72.3,
+          "width": 69.34,
+          "height": 9.6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "Date and Time",
+          "x": 50.1,
+          "y": 93.3,
+          "width": 36.17,
+          "height": 6,
+          "fontName": "g_d0_f1"
+        },
+        {
+          "str": "Description",
+          "x": 211,
+          "y": 93.3,
+          "width": 29.66,
+          "height": 6,
+          "fontName": "g_d0_f1"
+        },
+        {
+          "str": "Reference No.",
+          "x": 340.9,
+          "y": 93.3,
+          "width": 36.15,
+          "height": 6,
+          "fontName": "g_d0_f1"
+        },
+        {
+          "str": "Debit",
+          "x": 427,
+          "y": 93.3,
+          "width": 13.33,
+          "height": 6,
+          "fontName": "g_d0_f1"
+        },
+        {
+          "str": "Credit",
+          "x": 475.6,
+          "y": 93.3,
+          "width": 16.33,
+          "height": 6,
+          "fontName": "g_d0_f1"
+        },
+        {
+          "str": "Balance",
+          "x": 523.6,
+          "y": 93.3,
+          "width": 19.33,
+          "height": 6,
+          "fontName": "g_d0_f1"
+        },
+        {
+          "str": "STARTING BALANCE",
+          "x": 125.7,
+          "y": 104.1,
+          "width": 46.67,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "1500.00",
+          "x": 524.4,
+          "y": 104.1,
+          "width": 19.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "2026-03-01 08:15 AM",
+          "x": 50.1,
+          "y": 114.9,
+          "width": 54.32,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "1000000000001",
+          "x": 329.2,
+          "y": 114.9,
+          "width": 39,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "Payment to Sample Coffee Shop",
+          "x": 125.7,
+          "y": 114.9,
+          "width": 83.01,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "150.00",
+          "x": 424.5,
+          "y": 114.9,
+          "width": 16.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "1350.00",
+          "x": 524.4,
+          "y": 114.9,
+          "width": 19.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "2026-03-02 01:30 PM",
+          "x": 50.1,
+          "y": 129.3,
+          "width": 54.32,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "1000000000002",
+          "x": 329.2,
+          "y": 129.3,
+          "width": 39,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "Received GCash from Sample Bank with account ending in 1234 and",
+          "x": 125.7,
+          "y": 125.70000000000002,
+          "width": 171.85,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "invno:20260302SMPLPHM1XXXB000000000000001",
+          "x": 125.7,
+          "y": 132.9,
+          "width": 122.81,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "2500.00",
+          "x": 472.8,
+          "y": 129.3,
+          "width": 19.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "3850.00",
+          "x": 524.4,
+          "y": 129.3,
+          "width": 19.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "2026-03-03 07:45 PM",
+          "x": 50.1,
+          "y": 143.7,
+          "width": 54.32,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "1000000000003",
+          "x": 329.2,
+          "y": 143.7,
+          "width": 39,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "Transfer from 09170000000 to 09180000000",
+          "x": 125.7,
+          "y": 143.7,
+          "width": 116.18,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "1000.00",
+          "x": 421.5,
+          "y": 143.7,
+          "width": 19.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "2850.00",
+          "x": 524.4,
+          "y": 143.7,
+          "width": 19.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "2026-03-04 09:00 PM",
+          "x": 50.1,
+          "y": 154.5,
+          "width": 54.32,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "1000000000004",
+          "x": 329.2,
+          "y": 154.5,
+          "width": 39,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "Refund from Sample Ride",
+          "x": 125.7,
+          "y": 154.5,
+          "width": 64.67,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "5.00",
+          "x": 481.8,
+          "y": 154.5,
+          "width": 10.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "2855.00",
+          "x": 524.4,
+          "y": 154.5,
+          "width": 19.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "2026-03-05 12:00 PM",
+          "x": 50.1,
+          "y": 167.70000000000002,
+          "width": 54.32,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "1000000000005",
+          "x": 329.2,
+          "y": 165.3,
+          "width": 39,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "Payment to Sample Ride",
+          "x": 125.7,
+          "y": 165.3,
+          "width": 61.67,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "85.50",
+          "x": 427.5,
+          "y": 165.3,
+          "width": 13.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "2769.50",
+          "x": 524.4,
+          "y": 165.3,
+          "width": 19.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        }
+      ]
+    },
+    {
+      "pageNumber": 2,
+      "width": 595,
+      "height": 842,
+      "items": [
+        {
+          "str": "Date and Time",
+          "x": 50.1,
+          "y": 35.7,
+          "width": 36.17,
+          "height": 6,
+          "fontName": "g_d0_f1"
+        },
+        {
+          "str": "Description",
+          "x": 211,
+          "y": 35.7,
+          "width": 29.66,
+          "height": 6,
+          "fontName": "g_d0_f1"
+        },
+        {
+          "str": "Reference No.",
+          "x": 340.9,
+          "y": 35.7,
+          "width": 36.15,
+          "height": 6,
+          "fontName": "g_d0_f1"
+        },
+        {
+          "str": "Debit",
+          "x": 427,
+          "y": 35.7,
+          "width": 13.33,
+          "height": 6,
+          "fontName": "g_d0_f1"
+        },
+        {
+          "str": "Credit",
+          "x": 475.6,
+          "y": 35.7,
+          "width": 16.33,
+          "height": 6,
+          "fontName": "g_d0_f1"
+        },
+        {
+          "str": "Balance",
+          "x": 523.6,
+          "y": 35.7,
+          "width": 19.33,
+          "height": 6,
+          "fontName": "g_d0_f1"
+        },
+        {
+          "str": "2026-03-10 11:05 AM",
+          "x": 50.1,
+          "y": 50.1,
+          "width": 54.32,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "1000000000006",
+          "x": 329.2,
+          "y": 50.1,
+          "width": 39,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "Payment to Sample Food, Merchant Transaction Number: sub-",
+          "x": 125.7,
+          "y": 46.5,
+          "width": 161.31,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "AbCd1234EfGh",
+          "x": 125.7,
+          "y": 53.7,
+          "width": 36,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "349.00",
+          "x": 424.5,
+          "y": 50.1,
+          "width": 16.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "2420.50",
+          "x": 524.4,
+          "y": 50.1,
+          "width": 19.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "2026-03-15 10:20 PM",
+          "x": 50.1,
+          "y": 64.5,
+          "width": 54.32,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "1000000000007",
+          "x": 329.2,
+          "y": 64.5,
+          "width": 39,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "Payment to Sample Loans Repayment, Merchant Transaction Number:",
+          "x": 125.7,
+          "y": 60.9,
+          "width": 180.81,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "XyZ987654321",
+          "x": 125.7,
+          "y": 68.1,
+          "width": 36,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "1250.00",
+          "x": 421.5,
+          "y": 64.5,
+          "width": 19.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "1170.50",
+          "x": 524.4,
+          "y": 64.5,
+          "width": 19.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "2026-03-20 06:00 PM",
+          "x": 50.1,
+          "y": 75.3,
+          "width": 54.32,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "1000000000008",
+          "x": 329.2,
+          "y": 77.7,
+          "width": 39,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "Payment to Sample Streaming, Merchant Transaction Number: abc-1234-def",
+          "x": 125.7,
+          "y": 77.7,
+          "width": 200.14,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "149.00",
+          "x": 424.5,
+          "y": 77.7,
+          "width": 16.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "1021.50",
+          "x": 524.4,
+          "y": 77.7,
+          "width": 19.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "2026-03-31 11:59 PM",
+          "x": 50.1,
+          "y": 88.5,
+          "width": 54.32,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "1000000000009",
+          "x": 329.2,
+          "y": 88.5,
+          "width": 39,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "Transfer from 09180000000 to 09170000000",
+          "x": 125.7,
+          "y": 88.5,
+          "width": 116.18,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "10000.00",
+          "x": 469.8,
+          "y": 88.5,
+          "width": 22.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "11021.50",
+          "x": 521.4,
+          "y": 88.5,
+          "width": 22.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "ENDING BALANCE",
+          "x": 125.7,
+          "y": 99.3,
+          "width": 40.67,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "11021.50",
+          "x": 521.4,
+          "y": 99.3,
+          "width": 22.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "Total Debit",
+          "x": 125.7,
+          "y": 110.1,
+          "width": 28.33,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "2983.50",
+          "x": 421.5,
+          "y": 110.1,
+          "width": 19.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "Total Credit",
+          "x": 125.7,
+          "y": 120.9,
+          "width": 31.33,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        },
+        {
+          "str": "12505.00",
+          "x": 469.8,
+          "y": 120.9,
+          "width": 22.48,
+          "height": 6,
+          "fontName": "g_d0_f2"
+        }
+      ]
+    }
+  ]
+}
