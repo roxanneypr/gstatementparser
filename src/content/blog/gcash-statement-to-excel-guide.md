@@ -79,7 +79,7 @@ pick a month, or search by description or reference number to find a row from yo
 Turn on **Clean up** to leave out transactions that didn't change your balance; it also applies to
 your download.
 
-![The transactions table filtered to "Money in", showing date and time, description with reference number, amount, balance and status for each row.](./images/gcash-statement-to-excel-guide/7-transactions.png)
+![The transactions table filtered to "Money in", showing date and time, description with reference number, amount and balance for each row.](./images/gcash-statement-to-excel-guide/7-transactions.png)
 
 ## Step 5: Open it
 
@@ -95,5 +95,5 @@ your download.
   original PDF from GCash.
 - **"This doesn't look like a GCash Transaction History PDF":** only GCash statements are supported
   for now.
-- **Some rows say "Balance unchanged":** see Step 4. The figures come straight from your statement;
+- **Some rows have a ⚠ sign:** their running balance doesn't follow (hover it to see why); see Step 4. The figures come straight from your statement;
   nothing is changed.

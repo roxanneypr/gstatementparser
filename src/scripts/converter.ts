@@ -382,21 +382,38 @@ function renderMonths(s: Summary) {
   select.hidden = s.months.length < 2;
 }
 
-function statusPill(tx: Transaction) {
+const WARN_ICON = "M12 3.5 2.5 20h19L12 3.5Zm0 6v5m0 2.6v.1";
+
+/** Why a row is flagged, or null when it's fine. */
+function rowWarning(tx: Transaction): string | null {
   const tb = r.table;
-  if (tx.flags?.length) return h("span", "pill pill-warn", tb.statusRead);
-  if (tx.balanceIssue?.kind === "unchanged") return h("span", "pill pill-warn", tb.statusUnchanged);
-  if (tx.balanceIssue) {
-    return h(
-      "span",
-      "pill pill-warn",
-      fill(tb.statusDifferent, { amount: signed(tx.balanceIssue.difference) }),
-    );
-  }
-  const ok = h("span", "status-ok", "✓");
-  ok.setAttribute("aria-label", tb.statusOk);
-  ok.title = tb.statusOk;
-  return ok;
+  if (tx.flags?.length) return tb.warnRead;
+  if (tx.balanceIssue?.kind === "unchanged") return tb.warnUnchanged;
+  if (tx.balanceIssue)
+    return fill(tb.warnDifferent, { amount: signed(tx.balanceIssue.difference) });
+  return null;
+}
+
+/** Small warning sign (with an accessible reason) shown in the first column of flagged rows. */
+function warnIcon(reason: string) {
+  const wrap = h("span", "row-warn");
+  wrap.title = reason;
+  const svgNs = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNs, "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("width", "16");
+  svg.setAttribute("height", "16");
+  svg.setAttribute("aria-hidden", "true");
+  const path = document.createElementNS(svgNs, "path");
+  path.setAttribute("d", WARN_ICON);
+  path.setAttribute("fill", "none");
+  path.setAttribute("stroke", "currentColor");
+  path.setAttribute("stroke-width", "1.8");
+  path.setAttribute("stroke-linecap", "round");
+  path.setAttribute("stroke-linejoin", "round");
+  svg.append(path);
+  wrap.append(svg, h("span", "visually-hidden", reason));
+  return wrap;
 }
 
 function txRow({ row, tx }: IndexedTx) {
@@ -404,8 +421,11 @@ function txRow({ row, tx }: IndexedTx) {
   const tr = h("tr");
   if (needsReview(tx)) tr.className = "flagged";
 
-  const num = h("td", "col-row tabular", String(row));
+  const num = h("td", "col-row tabular");
   num.dataset.label = c.row;
+  num.append(h("span", "row-n", String(row)));
+  const warning = rowWarning(tx);
+  if (warning) num.append(warnIcon(warning));
 
   const date = h("td", "col-date tabular");
   date.dataset.label = c.date;
@@ -428,11 +448,7 @@ function txRow({ row, tx }: IndexedTx) {
   const balance = h("td", "num col-balance", tx.balance !== undefined ? peso(tx.balance) : "");
   balance.dataset.label = c.balance;
 
-  const status = h("td", "col-status");
-  status.dataset.label = c.status;
-  status.append(statusPill(tx));
-
-  tr.append(num, date, desc, amount, balance, status);
+  tr.append(num, date, desc, amount, balance);
   return tr;
 }
 

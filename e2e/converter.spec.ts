@@ -132,7 +132,8 @@ test("points out balance gaps without changing the figures", async ({ page }) =>
   const row5 = page.locator("#tx-body tr").nth(4);
   await expect(row5).toHaveClass(/flagged/);
   await expect(row5).toContainText("₱2,855.00");
-  await expect(row5).toContainText("Balance unchanged");
+  await expect(row5.locator(".row-warn")).toHaveAttribute("title", "Balance didn't change");
+  await expect(page.locator("#tx-body .row-warn")).toHaveCount(2); // only the flagged rows
 });
 
 test("explains files it can't convert and stays on the first step", async ({ page }) => {
@@ -213,7 +214,7 @@ test("statement details: pages of 20, filters, months, search and rows to review
   await page.selectOption("#month-filter", "");
   await page.fill("#tx-search", "4000000000031");
   await expect(rows).toHaveCount(1);
-  await expect(rows.first()).toContainText("Balance unchanged");
+  await expect(rows.first().locator(".row-warn")).toHaveAttribute("title", "Balance didn't change");
   await page.fill("#tx-search", "no such thing");
   await expect(page.locator("#tx-empty")).toBeVisible();
 
@@ -224,7 +225,7 @@ test("statement details: pages of 20, filters, months, search and rows to review
   await expect(page.locator('[data-filter="review"]')).toHaveAttribute("aria-pressed", "true");
   await expect(rows).toHaveCount(3);
   await expect(page.locator("#tx-body tr.flagged")).toHaveCount(3);
-  await expect(page.locator("#tx-body .col-row")).toHaveText(["8", "9", "31"]);
+  await expect(page.locator("#tx-body .row-n")).toHaveText(["8", "9", "31"]);
 });
 
 test("try a sample statement: runs the real converter on the bundled FAKE PDF", async ({

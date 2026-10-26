@@ -987,11 +987,20 @@ tbody tr:last-child > * {
 
 /* transactions table */
 .tx-table .col-row {
-  width: 48px;
+  width: 64px;
   color: var(--faint);
 }
 .tx-table td.col-row {
   color: var(--muted);
+}
+.tx-table td.col-row .row-warn {
+  vertical-align: -3px;
+}
+.row-warn {
+  display: inline-flex;
+  margin-left: 8px;
+  color: var(--warn-text);
+  cursor: help;
 }
 .tx-table .col-date {
   white-space: nowrap;
@@ -1064,11 +1073,6 @@ tbody tr:last-child > * {
   align-self: center;
   padding: 0 4px;
   color: var(--faint);
-}
-
-.status-ok {
-  color: var(--faint);
-  font-size: 0.875rem;
 }
 
 /* Phones: tables become cards. */
@@ -1150,8 +1154,7 @@ tbody tr:last-child > * {
     grid-template-columns: 1fr auto;
     grid-template-areas:
       "desc amount"
-      "date balance"
-      "status status";
+      "date balance";
     gap: 4px 12px;
     padding: 14px 16px;
     margin-bottom: 8px;
@@ -1171,6 +1174,25 @@ tbody tr:last-child > * {
   }
   .tx-table td.col-row {
     display: none;
+  }
+  /* Phones: no row numbers; flagged cards show the warning sign at the start. */
+  .tx-table tbody tr.flagged {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "flag desc amount"
+      "flag date balance";
+  }
+  .tx-table tr.flagged td.col-row {
+    display: block;
+    grid-area: flag;
+    width: auto;
+    padding-top: 1px;
+  }
+  .tx-table td.col-row .row-n {
+    display: none;
+  }
+  .tx-table td.col-row .row-warn {
+    margin-left: 0;
   }
   .tx-table td.col-desc {
     grid-area: desc;
@@ -1201,12 +1223,6 @@ tbody tr:last-child > * {
   }
   .tx-table td.col-balance:empty::before {
     content: "";
-  }
-  .tx-table td.col-status {
-    grid-area: status;
-  }
-  .tx-table tr:not(.flagged) td.col-status {
-    display: none;
   }
   .tx-toolbar,
   .tx-controls {
@@ -2024,5 +2040,23 @@ main.page-top {
 @media (min-width: 720px) {
   .panel[data-state="done"] {
     padding: 64px 64px 48px;
+  }
+}
+
+/* Denser transactions table: 20 rows per page. */
+@media (min-width: 720px) {
+  .tx-table {
+    font-size: 0.8125rem;
+  }
+  .tx-table thead th {
+    padding: 9px 14px;
+    font-size: 0.6875rem;
+  }
+  .tx-table td {
+    padding: 9px 14px;
+  }
+  .tx-table .cell-sub {
+    margin-top: 1px;
+    font-size: 0.75rem;
   }
 }
