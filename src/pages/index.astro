@@ -1,6 +1,5 @@
 ---
 import Converter from "../components/Converter.astro";
-import { faq } from "../data/faq.ts";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { CONTACT_EMAIL, SITE_NAME, SITE_TAGLINE } from "../site.ts";
 
@@ -15,15 +14,6 @@ const schema = [
     operatingSystem: "Any",
     browserRequirements: "Requires a modern web browser with JavaScript.",
     offers: { "@type": "Offer", price: "0", priceCurrency: "PHP" },
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faq.map((f) => ({
-      "@type": "Question",
-      name: f.question,
-      acceptedAnswer: { "@type": "Answer", text: f.answer },
-    })),
   },
 ];
 
@@ -96,24 +86,6 @@ const icons = {
       </section>
     ))}
   </div>
-
-  <section class="section faq-layout" aria-labelledby="faq">
-    <div class="section-head">
-      <span class="eyebrow">FAQ</span>
-      <h2 id="faq">Questions, answered</h2>
-      <p>Everything you need to know about converting your GCash statement.</p>
-    </div>
-    <div class="faq">
-      {faq.map((f) => (
-        <details>
-          <summary>
-            <h3>{f.question}</h3>
-          </summary>
-          <p>{f.answer}</p>
-        </details>
-      ))}
-    </div>
-  </section>
 
   <section class="section cta-band" aria-labelledby="need-more">
     <div>

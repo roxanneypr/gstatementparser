@@ -1354,59 +1354,6 @@ tbody tr:last-child > * {
   border: 1px solid var(--line-strong);
   color: var(--text);
 }
-.faq-layout {
-  display: grid;
-  gap: 24px;
-}
-@media (min-width: 860px) {
-  .faq-layout {
-    grid-template-columns: 1fr 1.6fr;
-    gap: 96px;
-  }
-}
-.faq details {
-  border-bottom: 1px solid var(--line);
-  padding: 18px 0;
-}
-.faq details:first-child {
-  border-top: 1px solid var(--line);
-}
-.faq summary {
-  cursor: pointer;
-  list-style: none;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-}
-.faq summary::-webkit-details-marker {
-  display: none;
-}
-.faq summary::after {
-  content: "";
-  flex: none;
-  width: 9px;
-  height: 9px;
-  border-right: 1.5px solid var(--muted);
-  border-bottom: 1.5px solid var(--muted);
-  transform: rotate(45deg) translateY(-3px);
-  transition: transform 0.15s;
-}
-.faq details[open] summary::after {
-  transform: rotate(-135deg) translateY(-2px);
-}
-.faq summary h3 {
-  margin: 0;
-  font-weight: 500;
-  font-size: 0.975rem;
-  letter-spacing: -0.01em;
-}
-.faq details p {
-  margin: 10px 0 0;
-  color: var(--muted);
-  font-size: 0.9375rem;
-  max-width: 62ch;
-}
 .cta-band {
   background: var(--ink);
   color: #c9cdd1;
