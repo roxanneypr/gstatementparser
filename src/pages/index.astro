@@ -1,13 +1,8 @@
 ---
 import Converter from "../components/Converter.astro";
 import { faq } from "../data/faq.ts";
-import { getGuides, guideUrl } from "../data/guides.ts";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { CONTACT_EMAIL, SITE_NAME, SITE_TAGLINE } from "../site.ts";
-
-// Only link to guides that exist in this build (drafts are dev-only).
-const guides = await getGuides();
-const downloadGuide = guides.find((g) => g.id === "how-to-download-gcash-transaction-history");
 
 const schema = [
   {
@@ -102,44 +97,6 @@ const icons = {
     ))}
   </div>
 
-  <section class="section" aria-labelledby="how-it-works">
-    <div class="section-head">
-      <span class="eyebrow">How it works</span>
-      <h2 id="how-it-works">From wallet to spreadsheet in three steps</h2>
-    </div>
-    <ol class="steps">
-      <li>
-        <span class="step-num" aria-hidden="true">
-          01
-        </span>
-        <h3>Get your PDF from GCash</h3>
-        <p>
-          Request your Transaction History in the GCash app and save the PDF.
-          {downloadGuide && (
-            <>
-              {" "}
-              See <a href={guideUrl(downloadGuide.id)}>how to download it</a>.
-            </>
-          )}
-        </p>
-      </li>
-      <li>
-        <span class="step-num" aria-hidden="true">
-          02
-        </span>
-        <h3>Choose it and unlock it</h3>
-        <p>Pick the PDF above and type the password that came with it. It stays on your device.</p>
-      </li>
-      <li>
-        <span class="step-num" aria-hidden="true">
-          03
-        </span>
-        <h3>Download Excel or CSV</h3>
-        <p>Review the totals and checks, then download a workbook with a monthly summary.</p>
-      </li>
-    </ol>
-  </section>
-
   <section class="section" aria-labelledby="who">
     <div class="section-head">
       <span class="eyebrow">Who it's for</span>
@@ -183,21 +140,7 @@ const icons = {
     <div class="section-head">
       <span class="eyebrow">FAQ</span>
       <h2 id="faq">Questions, answered</h2>
-      <p>
-        More help in the <a href="/guides">GCash statement guides</a>
-        {guides.length > 0 && (
-          <>
-            , including{" "}
-            {guides.slice(0, 2).map((g, i) => (
-              <>
-                {i > 0 && " and "}
-                <a href={guideUrl(g.id)}>{g.data.title}</a>
-              </>
-            ))}
-          </>
-        )}
-        .
-      </p>
+      <p>Everything you need to know about converting your GCash statement.</p>
     </div>
     <div class="faq">
       {faq.map((f) => (

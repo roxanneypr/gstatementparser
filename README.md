@@ -54,18 +54,6 @@ Test fixtures in `tests/fixtures/` are **synthetic** data that mirror the real l
 bug fix gets a regression test with an anonymised fixture. The e2e tests turn fixtures into fake
 PDFs at run time (`scripts/fake-pdf.mjs`).
 
-## Guides (SEO content)
-
-Guides live in `src/content/guides/*.md`. New guides start as `draft: true`:
-
-- drafts render only in `npm run dev` (with a DRAFT banner) and are excluded from production
-  pages, listings and the sitemap;
-- the build **fails** if a published guide still contains `TODO`, uses a `# ` heading, or links to
-  an unknown related guide.
-
-To publish: verify every `TODO: verify` against official GCash sources, add screenshots made with
-the fake statement only, then set `draft: false` and `updatedDate`.
-
 ## Deployment (Cloudflare Pages)
 
 1. Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git** → choose this repo.
@@ -78,7 +66,7 @@ the fake statement only, then set `draft: false` and `updatedDate`.
    | Variable               | Example                           | Notes                                                                                  |
    | ---------------------- | --------------------------------- | -------------------------------------------------------------------------------------- |
    | `SITE_URL`             | `https://wallettoexcel.pages.dev` | Canonical URLs, OG tags, sitemap, robots.txt. Use the custom domain once you have one. |
-   | `PUBLIC_CONTACT_EMAIL` | `you@yourdomain.ph`               | Shown in the footer, privacy and about pages.                                          |
+   | `PUBLIC_CONTACT_EMAIL` | `you@yourdomain.ph`               | Shown in the footer and privacy page.                                                  |
    | `NODE_VERSION`         | `24`                              | Matches `.nvmrc`.                                                                      |
 
    **Launch guard:** production builds on the `main` branch fail until `SITE_URL` and
@@ -115,8 +103,7 @@ enabling it.
    Sharing Debugger (developers.facebook.com/tools/debug).
 
 **Monthly:** check Search Console → Pages (indexing problems) and Performance (queries).
-Improve guides that get impressions but few clicks (title/description), and add guides for
-queries you rank for but don't answer yet.
+Improve the home page title/description if it gets impressions but few clicks.
 
 ## Privacy verification
 

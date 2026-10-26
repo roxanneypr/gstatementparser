@@ -30,7 +30,6 @@ Core promise: **"Your statement never leaves your device."** All parsing happens
 - **Build:** Astro (static output, `output: 'static'`) + TypeScript. Astro uses Vite under the hood.
   Every page ships as pre-rendered HTML (great for SEO); the converter is the only page with
   client-side JS, loaded via a `<script>` in that page (vanilla TS, no UI framework needed).
-- **Content:** guides written in Markdown/MDX using Astro content collections (`src/content/guides/`).
 - **SEO integrations:** `@astrojs/sitemap` for `sitemap.xml`.
 - **PDF parsing:** `pdfjs-dist` (supports password-protected PDFs via `getDocument({ data, password })`)
   - Configure the worker via Vite's `?url` import: `import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'`
@@ -67,14 +66,8 @@ github.com/KazeFreeze/gcash-pdf-parser. If any code is adapted from it, keep its
 │   │   └── Converter.astro   # the upload/convert UI markup + client script
 │   ├── pages/
 │   │   ├── index.astro       # converter landing page (main keyword target)
-│   │   ├── guides/
-│   │   │   ├── index.astro   # list of all guides
-│   │   │   └── [slug].astro  # renders each guide from the content collection
 │   │   ├── privacy.astro
-│   │   ├── about.astro
 │   │   └── 404.astro
-│   ├── content/
-│   │   └── guides/           # Markdown guides (see SEO section)
 │   ├── scripts/
 │   │   └── converter.ts      # UI wiring for the converter
 │   ├── styles/global.css
@@ -211,6 +204,7 @@ Never store the password (no localStorage, no URL params).
   dates, autofilter) and sheet "Summary" (period, totals, transaction count, monthly in/out).
 - Clear privacy note near the upload box: "Processed entirely on your device. Nothing is uploaded."
 - Footer: disclaimer (not affiliated with GCash), link to privacy page, contact email.
+- Pages: home (converter), privacy, 404. No guides or about page.
 - Languages: English first; keep UI strings in one object so Filipino/Taglish can be added later.
 - Accessible: labels on inputs, keyboard usable, good contrast.
 - Light theme only (no dark mode). Design direction: minimal, premium fintech. Inter (self-hosted),
@@ -237,28 +231,11 @@ Taglish, e.g. "gcash transaction history to excel", "how to download gcash trans
 
 - Title example: "GCash Statement to Excel – Free & Private | WalletToExcel" (keyword first, brand last).
 - The converter is above the fold, but the page also has real crawlable text below it:
-  how it works (3 steps), why it's private, who it's for, and an FAQ section in plain HTML.
+  why it's private/accurate (feature columns), who it's for, and an FAQ section in plain HTML.
+  (No "How it works" section, guides or about page: removed by product decision, 2026-10-26.)
 - JSON-LD: `WebApplication` (name, url, applicationCategory: "FinanceApplication",
   operatingSystem: "Any", offers price 0 PHP) and `FAQPage` for the FAQ.
 - The core content must be in the static HTML, never injected only by JavaScript.
-
-### Guides (`/guides/<slug>`)
-
-Each guide answers one specific search question and links to the converter with a clear call to action.
-Use a content collection schema with: `title`, `description`, `publishedDate`, `updatedDate`,
-`lang`, `draft`. Add JSON-LD `Article` (or `HowTo`-style steps in plain HTML) and `BreadcrumbList`.
-
-Create these as drafts with outlines (the human will review facts before publishing; do NOT invent
-GCash app menu paths, passwords, fees, or BIR rules — mark anything unverified with `TODO: verify`):
-
-1. `how-to-download-gcash-transaction-history`
-2. `gcash-statement-pdf-password`
-3. `open-gcash-statement-in-google-sheets`
-4. `track-gcash-income-freelancers-online-sellers`
-5. `gcash-statement-to-excel-guide` (step-by-step using this tool)
-
-Internal linking: every guide links to the converter and to 1–2 related guides; the landing page links
-to the guides index; the footer links to guides, privacy, and about.
 
 ### Future bank pages
 
@@ -273,13 +250,13 @@ When new parsers are added, each gets its own landing page (`/bpi-statement-to-e
 - Performance targets (Lighthouse mobile): Performance ≥ 95, SEO = 100, Accessibility ≥ 95.
   Keep heavy libs lazy-loaded; use system fonts or one self-hosted font; compress images (WebP/AVIF).
 - Clean, lowercase, hyphenated URLs; no trailing query params for content.
-- Custom `404.astro` that links back to the converter and guides.
+- Custom `404.astro` that links back to the converter.
 - Redirect `www` ↔ apex to one canonical host (configure in Cloudflare).
 
 ### After launch (human tasks, document them in README)
 
 - Verify the domain in Google Search Console and Bing Webmaster Tools; submit `sitemap.xml`.
-- Check indexing and search queries monthly; update guides that get impressions but few clicks.
+- Check indexing and search queries monthly; improve the home page title/description if it gets impressions but few clicks.
 
 ## Security headers (`public/_headers`)
 

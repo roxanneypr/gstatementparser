@@ -9,13 +9,11 @@ export const CONTACT_EMAIL: string = import.meta.env.PUBLIC_CONTACT_EMAIL ?? "he
 export const strings = {
   en: {
     skipToContent: "Skip to content",
-    nav: { converter: "Converter", guides: "Guides", convert: "Convert PDF" },
+    nav: { convert: "Convert PDF" },
     footer: {
       disclaimer:
         "Independent tool. Not affiliated with, endorsed by, or sponsored by GCash, G-Xchange, Inc., or Mynt.",
       privacy: "Privacy",
-      about: "About",
-      guides: "Guides",
       contact: "Contact",
     },
     converter: {

@@ -10,7 +10,7 @@ test.describe("SEO", () => {
     const sitemap = await (await request.get("/sitemap-0.xml")).text();
     const paths = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1]!).pathname);
     expect(paths).toContain("/");
-    expect(paths).toContain("/guides");
+    expect(paths).toContain("/privacy");
     expect(paths.some((p) => p.includes("404") || p.includes("/dev/"))).toBe(false);
   });
 
