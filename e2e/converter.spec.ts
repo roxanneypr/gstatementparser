@@ -64,11 +64,21 @@ test("one button: choose a protected PDF, enter the password, download — nothi
     "9 transactions · 2026-03-01 to 2026-03-31",
   );
   await expect(page.locator("#pdf-password")).toHaveValue(""); // password not kept
-  await expect(page.locator("#stat-in")).toHaveText("₱12,505.00");
-  await expect(page.locator("#stat-out")).toHaveText("₱2,983.50");
-  await expect(page.locator("#checks .check-ok")).toHaveCount(3);
-  await expect(page.locator("#warnings")).toBeHidden();
-  await expect(page.locator("#preview-body tr")).toHaveCount(9);
+  await expect(page.locator("#ov-in")).toHaveText("+₱12,505.00");
+  await expect(page.locator("#ov-out")).toHaveText("−₱2,983.50");
+  await expect(page.locator("#ov-net")).toHaveText("+₱9,521.50");
+  await expect(page.locator("#ov-opening")).toHaveText("₱1,500.00");
+  await expect(page.locator("#ov-closing")).toHaveText("₱11,021.50");
+  // Cross-check: statement totals shown next to calculated ones, all matching.
+  await expect(page.locator("#verify-body tr")).toHaveCount(4);
+  await expect(page.locator("#verify-body .pill-ok")).toHaveCount(4);
+  await expect(page.locator("#verify-body tr").first()).toContainText("₱12,505.00");
+  await expect(page.locator("#review")).toBeHidden();
+  await expect(page.locator("#months")).toBeHidden(); // single month
+  await expect(page.locator("#tx-body tr")).toHaveCount(9);
+  await expect(page.locator("#tx-body tr").first()).toContainText("Ref. 1000000000001");
+  await expect(page.locator("#tx-range")).toHaveText("1–9 of 9");
+  await expect(page.locator("#pager-buttons button")).toHaveCount(0);
 
   const [xlsx] = await Promise.all([page.waitForEvent("download"), page.click("#download-xlsx")]);
   expect(xlsx.suggestedFilename()).toBe("gcash-statement_2026-03-01_to_2026-03-31.xlsx");
@@ -106,15 +116,17 @@ test("asks for the password again if it's left empty", async ({ page }) => {
 
 test("points out balance gaps without changing the figures", async ({ page }) => {
   await page.setInputFiles("#pdf-file", pdf("balance-gap"));
-  await expect(page.locator("#checks .check-warn")).toHaveCount(1);
-  await expect(page.locator("#warnings")).toBeVisible();
-  await expect(page.locator("#warnings summary").first()).toHaveText(
-    "The balance didn't change after 1 transaction",
+  await expect(page.locator("#verify-body .pill-warn")).toHaveCount(1);
+  await expect(page.locator("#verify-body tr").nth(3)).toContainText("2 gaps");
+  await expect(page.locator("#review")).toBeVisible();
+  await expect(page.locator("#review-title")).toHaveText("2 rows need a look");
+  await expect(page.locator("#review-body")).toContainText(
+    "1 unchanged, 1 moved by a different amount",
   );
-  const row5 = page.locator("#preview-body tr").nth(4);
+  const row5 = page.locator("#tx-body tr").nth(4);
   await expect(row5).toHaveClass(/flagged/);
   await expect(row5).toContainText("₱2,855.00");
-  await expect(row5).toContainText("Balance didn't change");
+  await expect(row5).toContainText("Balance unchanged");
 });
 
 test("explains files it can't convert and stays on the first step", async ({ page }) => {
@@ -144,7 +156,7 @@ test("choose a different file / convert another", async ({ page }) => {
   await expect(page.locator("#state-idle")).toBeVisible();
   await expect(page.locator("#results")).toBeHidden();
   await page.setInputFiles("#pdf-file", pdf("balance-gap"));
-  await expect(page.locator("#warnings")).toBeVisible();
+  await expect(page.locator("#review")).toBeVisible();
 });
 
 test("explains when the converter code can't load (e.g. stale cache, offline)", async ({
@@ -154,4 +166,57 @@ test("explains when the converter code can't load (e.g. stale cache, offline)", 
   await page.setInputFiles("#pdf-file", pdf("clean"));
   await expect(page.locator("#error")).toHaveText(/couldn't finish loading.*refresh the page/);
   await expect(page.locator("#state-idle")).toBeVisible();
+});
+
+test("statement details: pages of 20, filters, months, search and rows to review", async ({
+  page,
+}) => {
+  await page.setInputFiles("#pdf-file", pdf("two-months-gaps"));
+  await expect(page.locator("#results")).toBeVisible();
+  const rows = page.locator("#tx-body tr");
+  const range = page.locator("#tx-range");
+
+  // Pagination
+  await expect(rows).toHaveCount(20);
+  await expect(range).toHaveText("1–20 of 45");
+  await page.getByRole("button", { name: "Page 3" }).click();
+  await expect(range).toHaveText("41–45 of 45");
+  await expect(rows).toHaveCount(5);
+  await expect(page.getByRole("button", { name: "Page 3" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await page.getByRole("button", { name: "Previous" }).click();
+  await expect(range).toHaveText("21–40 of 45");
+
+  // Filters reset to page 1 and show counts
+  await page.click('[data-filter="in"]');
+  await expect(page.locator('[data-filter="in"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(range).toHaveText("1–7 of 7");
+  await expect(rows.first().locator(".col-amount")).toHaveText(/^\+₱/);
+
+  // Month view: two months, "View" filters the table
+  await expect(page.locator("#months")).toBeVisible();
+  await expect(page.locator("#months-body tr")).toHaveCount(2);
+  await page.getByRole("button", { name: "View April 2026 transactions" }).click();
+  await expect(page.locator("#month-filter")).toHaveValue("2026-04");
+  await expect(page.locator('[data-filter="all"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(range).toHaveText(/of 22$/);
+
+  // Search by reference no. (across all months)
+  await page.selectOption("#month-filter", "");
+  await page.fill("#tx-search", "4000000000031");
+  await expect(rows).toHaveCount(1);
+  await expect(rows.first()).toContainText("Balance unchanged");
+  await page.fill("#tx-search", "no such thing");
+  await expect(page.locator("#tx-empty")).toBeVisible();
+
+  // "Show rows to review" jumps to just the flagged rows
+  await expect(page.locator("#review-title")).toHaveText("3 rows need a look");
+  await page.click("#review-show");
+  await expect(page.locator("#tx-search")).toHaveValue("");
+  await expect(page.locator('[data-filter="review"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(rows).toHaveCount(3);
+  await expect(page.locator("#tx-body tr.flagged")).toHaveCount(3);
+  await expect(page.locator("#tx-body .col-row")).toHaveText(["8", "9", "31"]);
 });

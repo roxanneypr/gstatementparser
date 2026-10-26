@@ -21,7 +21,8 @@ describe("summarize", () => {
   it("totals in/out/net and months in centavos", () => {
     const s = summarize(parsed());
     expect(s).toMatchObject({ count: 9, moneyIn: 1250500, moneyOut: 298350, net: 952150 });
-    expect(s.months).toEqual([{ month: "2026-03", moneyIn: 1250500, moneyOut: 298350 }]);
+    expect(s).toMatchObject({ countIn: 3, countOut: 6 });
+    expect(s.months).toEqual([{ month: "2026-03", moneyIn: 1250500, moneyOut: 298350, count: 9 }]);
   });
 
   it("names files after the period", () => {

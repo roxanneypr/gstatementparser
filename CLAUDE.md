@@ -145,6 +145,7 @@ interface ParseResult {
   periodEnd?: string;
   openingBalance?: number;
   closingBalance?: number;
+  statementTotals?: { debit?: number; credit?: number }; // totals printed on the statement
   transactions: Transaction[];
   // Statement-level problems only (unplaced text, missing balances, totals mismatch, ...).
   // Row-level problems live on each Transaction (`flags`, `balanceIssue`).

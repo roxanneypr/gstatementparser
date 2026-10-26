@@ -56,6 +56,8 @@ export interface ParseResult {
   periodEnd?: string;
   openingBalance?: number;
   closingBalance?: number;
+  /** Totals printed on the statement itself (e.g. "Total Debit"/"Total Credit"), in centavos. */
+  statementTotals?: { debit?: number; credit?: number };
   transactions: Transaction[];
   /** statement-level problems: unplaced text, missing balances, totals mismatches, etc.
    *  Row-level problems live on each Transaction (`flags`, `balanceIssue`). */

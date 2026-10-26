@@ -259,6 +259,9 @@ function parse(pages: PageText[]): ParseResult {
 
   result.openingBalance = summary.opening;
   result.closingBalance = summary.closing;
+  if (summary.totalDebit !== undefined || summary.totalCredit !== undefined) {
+    result.statementTotals = { debit: summary.totalDebit, credit: summary.totalCredit };
+  }
   reconcile(result, summary);
   return result;
 }

@@ -27,6 +27,7 @@ describe("GCash parser: clean statement", () => {
     expect(result.periodEnd).toBe("2026-03-31");
     expect(result.openingBalance).toBe(150000);
     expect(result.closingBalance).toBe(1102150);
+    expect(result.statementTotals).toEqual({ debit: 298350, credit: 1250500 });
   });
 
   it("extracts every transaction across pages, in order, without header rows", () => {

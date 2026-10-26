@@ -137,61 +137,191 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
 
   <div id="results" class="results" hidden>
     <div class="results-head">
-      <h2 id="results-heading">{r.detailsHeading}</h2>
+      <h2 id="results-heading">{r.heading}</h2>
       <p id="results-period" class="muted tabular"></p>
     </div>
 
-    <dl class="stats">
-      <div>
-        <dt>{r.count}</dt>
-        <dd id="stat-count"></dd>
+    <!-- Overview -->
+    <div class="overview">
+      <div class="ov-card ov-main">
+        <p class="ov-label">{r.overview.net}</p>
+        <p id="ov-net" class="ov-net tabular"></p>
+        <div class="ov-balances">
+          <div>
+            <span class="ov-label">{r.overview.opening}</span>
+            <span id="ov-opening" class="ov-value tabular"></span>
+          </div>
+          <svg class="ov-arrow" aria-hidden="true" viewBox="0 0 24 24" width="20" height="20">
+            <path
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M5 12h14m-5-5 5 5-5 5"
+            ></path>
+          </svg>
+          <div>
+            <span class="ov-label">{r.overview.closing}</span>
+            <span id="ov-closing" class="ov-value tabular"></span>
+          </div>
+        </div>
       </div>
-      <div>
-        <dt>{r.moneyIn}</dt>
-        <dd id="stat-in"></dd>
+      <div class="ov-card ov-flows">
+        <div class="flow">
+          <div class="flow-top">
+            <span class="ov-label">{r.overview.moneyIn}</span>
+            <span id="ov-in" class="flow-amount is-in tabular"></span>
+          </div>
+          <div class="bar">
+            <span id="bar-in" class="bar-fill is-in"></span>
+          </div>
+          <p id="ov-in-count" class="flow-count"></p>
+        </div>
+        <div class="flow">
+          <div class="flow-top">
+            <span class="ov-label">{r.overview.moneyOut}</span>
+            <span id="ov-out" class="flow-amount tabular"></span>
+          </div>
+          <div class="bar">
+            <span id="bar-out" class="bar-fill"></span>
+          </div>
+          <p id="ov-out-count" class="flow-count"></p>
+        </div>
       </div>
-      <div>
-        <dt>{r.moneyOut}</dt>
-        <dd id="stat-out"></dd>
-      </div>
-      <div>
-        <dt>{r.net}</dt>
-        <dd id="stat-net"></dd>
-      </div>
-    </dl>
+    </div>
 
-    <h3>{r.checksHeading}</h3>
-    <ul id="checks" class="checks"></ul>
-
-    <section id="warnings" class="warnings" aria-labelledby="warnings-heading" hidden>
-      <h3 id="warnings-heading">{r.warningsHeading}</h3>
-      <div id="warnings-body"></div>
+    <!-- Cross-check -->
+    <section class="block" aria-labelledby="verify-heading">
+      <div class="block-head">
+        <h3 id="verify-heading">{r.verify.heading}</h3>
+        <p>{r.verify.intro}</p>
+      </div>
+      <div class="table-wrap">
+        <table class="verify-table">
+          <thead>
+            <tr>
+              <th scope="col">{r.verify.check}</th>
+              <th scope="col" class="num">
+                {r.verify.onStatement}
+              </th>
+              <th scope="col" class="num">
+                {r.verify.calculated}
+              </th>
+              <th scope="col">{r.verify.result}</th>
+            </tr>
+          </thead>
+          <tbody id="verify-body"></tbody>
+        </table>
+      </div>
     </section>
 
-    <h3>{r.previewHeading}</h3>
-    <p id="preview-note" class="muted hint"></p>
-    <div class="table-wrap">
-      <table class="preview">
-        <thead>
-          <tr>
-            <th scope="col">{r.columns.row}</th>
-            <th scope="col">{r.columns.date}</th>
-            <th scope="col">{r.columns.description}</th>
-            <th scope="col" class="num">
-              {r.columns.debit}
-            </th>
-            <th scope="col" class="num">
-              {r.columns.credit}
-            </th>
-            <th scope="col" class="num">
-              {r.columns.balance}
-            </th>
-            <th scope="col">{r.columns.check}</th>
-          </tr>
-        </thead>
-        <tbody id="preview-body"></tbody>
-      </table>
+    <!-- Rows to review -->
+    <div id="review" class="review" role="note" hidden>
+      <div class="review-text">
+        <p id="review-title" class="review-title"></p>
+        <p id="review-body"></p>
+        <ul id="review-notes"></ul>
+      </div>
+      <button type="button" id="review-show" class="btn-secondary">
+        {r.review.show}
+      </button>
     </div>
+
+    <!-- By month -->
+    <section id="months" class="block" aria-labelledby="months-heading" hidden>
+      <div class="block-head">
+        <h3 id="months-heading">{r.months.heading}</h3>
+      </div>
+      <div class="table-wrap">
+        <table class="months-table">
+          <thead>
+            <tr>
+              <th scope="col">{r.months.month}</th>
+              <th scope="col" class="num">
+                {r.months.moneyIn}
+              </th>
+              <th scope="col" class="num">
+                {r.months.moneyOut}
+              </th>
+              <th scope="col" class="num">
+                {r.months.net}
+              </th>
+              <th scope="col" class="num">
+                {r.months.count}
+              </th>
+              <th scope="col">
+                <span class="visually-hidden">{r.months.view}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="months-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Transactions -->
+    <section class="block" aria-labelledby="tx-heading">
+      <div class="block-head">
+        <h3 id="tx-heading" tabindex="-1">
+          {r.table.heading}
+        </h3>
+      </div>
+      <div class="tx-toolbar">
+        <div class="segmented" role="group" aria-label={r.table.filterLabel}>
+          {(["all", "in", "out", "review"] as const).map((f) => (
+            <button type="button" data-filter={f} aria-pressed={f === "all" ? "true" : "false"}>
+              {r.table.filters[f]} <span class="seg-count" data-count={f} />
+            </button>
+          ))}
+        </div>
+        <div class="tx-controls">
+          <label for="month-filter" class="visually-hidden">
+            {r.table.month}
+          </label>
+          <select id="month-filter">
+            <option value="">{r.table.allMonths}</option>
+          </select>
+          <label for="tx-search" class="visually-hidden">
+            {r.table.search}
+          </label>
+          <input
+            id="tx-search"
+            type="search"
+            autocomplete="off"
+            placeholder={r.table.searchPlaceholder}
+          />
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="tx-table">
+          <thead>
+            <tr>
+              <th scope="col" class="col-row">
+                {r.table.columns.row}
+              </th>
+              <th scope="col">{r.table.columns.date}</th>
+              <th scope="col">{r.table.columns.description}</th>
+              <th scope="col" class="num">
+                {r.table.columns.amount}
+              </th>
+              <th scope="col" class="num">
+                {r.table.columns.balance}
+              </th>
+              <th scope="col">{r.table.columns.status}</th>
+            </tr>
+          </thead>
+          <tbody id="tx-body"></tbody>
+        </table>
+        <p id="tx-empty" class="tx-empty" hidden>
+          {r.table.empty}
+        </p>
+      </div>
+      <nav class="pager" aria-label="Pagination">
+        <p id="tx-range" class="muted tabular" aria-live="polite"></p>
+        <div id="pager-buttons" class="pager-buttons"></div>
+      </nav>
+    </section>
   </div>
 </section>
 

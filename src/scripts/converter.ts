@@ -1,13 +1,22 @@
 // Converter UI wiring. Everything runs in the browser: the PDF, its password and the parsed
 // transactions are never sent over the network. Heavy libraries (pdf.js, SheetJS) load lazily.
 import { formatMoney } from "../lib/money.ts";
-import { exportBaseName, summarize } from "../lib/summary.ts";
+import { exportBaseName, summarize, type Summary } from "../lib/summary.ts";
+import {
+  filterCounts,
+  filterTransactions,
+  needsReview,
+  pageButtons,
+  paginate,
+  type IndexedTx,
+  type TxFilter,
+  type TxQuery,
+} from "../lib/txView.ts";
 import type { ParseResult, Transaction } from "../parsers/types.ts";
 import { fill, plural, strings } from "../site.ts";
 
 const t = strings.en.converter;
 const r = t.results;
-const PREVIEW_ROWS = 50;
 const MAX_BYTES = 25 * 1024 * 1024;
 
 const el = <T extends HTMLElement>(id: string) => {
@@ -182,182 +191,322 @@ function fail(message: string) {
 
 // ---- results ----------------------------------------------------------------
 
+const PAGE_SIZE = 20;
+let view: TxQuery & { page: number } = { filter: "all", month: "", search: "", page: 1 };
+
+const signed = (centavos: number) => (centavos > 0 ? `+${peso(centavos)}` : peso(centavos));
+const monthName = (ym: string) =>
+  new Date(`${ym}-01T00:00:00Z`).toLocaleDateString("en-PH", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
+/** Create an element with optional class and text. */
+function h<K extends keyof HTMLElementTagNameMap>(tag: K, className = "", text = "") {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text) node.textContent = text;
+  return node;
+}
+
 function render(res: ParseResult) {
   const s = summarize(res);
-  el("results-period").textContent =
-    res.periodStart && res.periodEnd
-      ? fill(r.period, { start: res.periodStart, end: res.periodEnd })
-      : "";
-  el("stat-count").textContent = String(s.count);
-  el("stat-in").textContent = peso(s.moneyIn);
-  el("stat-out").textContent = peso(s.moneyOut);
-  el("stat-net").textContent = peso(s.net);
-
   const period =
     res.periodStart && res.periodEnd
       ? fill(r.period, { start: res.periodStart, end: res.periodEnd })
       : "";
+  el("results-period").textContent = period;
   el("done-summary").textContent = fill(s.count === 1 ? t.doneSummaryOne : t.doneSummary, {
     n: s.count,
     period,
   }).replace(/ · $/, "");
 
-  renderChecks(res, s.balanceUnchanged + s.balanceDifferent);
-  renderWarnings(res);
-  renderPreview(res.transactions);
+  view = { filter: "all", month: "", search: "", page: 1 };
+  el<HTMLInputElement>("tx-search").value = "";
+
+  renderOverview(res, s);
+  renderVerify(res, s);
+  renderReview(res);
+  renderMonths(s);
+  renderTable();
   results.hidden = false;
 }
 
-function renderChecks(res: ParseResult, gaps: number) {
-  const c = r.checks;
-  const {
-    totalsMatchStatement: totals,
-    runningBalanceOk: running,
-    openingToClosingOk: ends,
-  } = res.checks;
-  const s = summarize(res);
-  const endsDiff =
-    res.openingBalance !== undefined && res.closingBalance !== undefined
-      ? res.closingBalance - (res.openingBalance + s.moneyIn - s.moneyOut)
-      : 0;
-  const items: [boolean | null, string][] = [
-    [totals, totals === null ? c.totalsNone : totals ? c.totalsOk : c.totalsBad],
+function renderOverview(res: ParseResult, s: Summary) {
+  const o = r.overview;
+  const net = el("ov-net");
+  net.textContent = signed(s.net);
+  net.classList.toggle("is-in", s.net > 0);
+  el("ov-opening").textContent =
+    res.openingBalance !== undefined ? peso(res.openingBalance) : o.notShown;
+  el("ov-closing").textContent =
+    res.closingBalance !== undefined ? peso(res.closingBalance) : o.notShown;
+  el("ov-in").textContent = `+${peso(s.moneyIn)}`;
+  el("ov-out").textContent = peso(-s.moneyOut);
+  const max = Math.max(s.moneyIn, s.moneyOut, 1);
+  // Widths are set via CSSOM (allowed by the CSP), not inline style attributes.
+  el("bar-in").style.width = `${(s.moneyIn / max) * 100}%`;
+  el("bar-out").style.width = `${(s.moneyOut / max) * 100}%`;
+  el("ov-in-count").textContent = plural(o.count, s.countIn);
+  el("ov-out-count").textContent = plural(o.count, s.countOut);
+}
+
+type Verdict = { ok: boolean | null; text: string };
+
+function verdict(statement: number | undefined, calculated: number | undefined): Verdict {
+  const v = r.verify;
+  if (statement === undefined || calculated === undefined) return { ok: null, text: v.notShown };
+  return statement === calculated
+    ? { ok: true, text: v.match }
+    : { ok: false, text: fill(v.off, { amount: peso(Math.abs(calculated - statement)) }) };
+}
+
+function renderVerify(res: ParseResult, s: Summary) {
+  const v = r.verify;
+  const expectedClosing =
+    res.openingBalance !== undefined ? res.openingBalance + s.moneyIn - s.moneyOut : undefined;
+  const withBalance = res.transactions.filter((t) => t.balance !== undefined).length;
+  const gaps = s.balanceUnchanged + s.balanceDifferent;
+  const money = (c: number | undefined) => (c === undefined ? v.notShown : peso(c));
+
+  const rows: [string, string, string, string, Verdict][] = [
     [
-      running,
-      running === null ? c.runningNone : running ? c.runningOk : plural(c.runningBad, gaps),
+      v.credits,
+      v.creditsSub,
+      money(res.statementTotals?.credit),
+      peso(s.moneyIn),
+      verdict(res.statementTotals?.credit, s.moneyIn),
     ],
     [
-      ends,
-      ends === null ? c.endsNone : ends ? c.endsOk : fill(c.endsBad, { amount: peso(endsDiff) }),
+      v.debits,
+      v.debitsSub,
+      money(res.statementTotals?.debit),
+      peso(s.moneyOut),
+      verdict(res.statementTotals?.debit, s.moneyOut),
+    ],
+    [
+      v.ending,
+      v.endingSub,
+      money(res.closingBalance),
+      money(expectedClosing),
+      verdict(res.closingBalance, expectedClosing),
+    ],
+    [
+      v.running,
+      v.runningSub,
+      plural(v.runningStatement, withBalance),
+      fill(v.runningCalc, { ok: withBalance - gaps }),
+      res.checks.runningBalanceOk === null
+        ? { ok: null, text: v.notShown }
+        : gaps === 0
+          ? { ok: true, text: v.match }
+          : { ok: false, text: plural(v.gaps, gaps) },
     ],
   ];
-  const list = el<HTMLUListElement>("checks");
-  list.replaceChildren(
-    ...items.map(([ok, text]) => {
-      const li = document.createElement("li");
-      li.className = ok === null ? "check-na" : ok ? "check-ok" : "check-warn";
-      const icon = document.createElement("span");
-      icon.className = "check-icon";
-      icon.setAttribute("aria-hidden", "true");
-      icon.textContent = ok === null ? "–" : ok ? "✓" : "!";
-      li.append(icon, document.createTextNode(text));
-      return li;
+  el("verify-body").replaceChildren(
+    ...rows.map(([label, sub, statement, calculated, result]) => {
+      const tr = h("tr");
+      const th = h("th");
+      th.scope = "row";
+      th.append(h("span", "cell-main", label), h("span", "cell-sub", sub));
+      const status = h("td");
+      const kind = result.ok === null ? "na" : result.ok ? "ok" : "warn";
+      status.append(h("span", `pill pill-${kind}`, `${result.ok ? "✓ " : ""}${result.text}`));
+      tr.append(th, h("td", "num", statement), h("td", "num", calculated), status);
+      return tr;
     }),
   );
 }
 
-function rowLabel(index: number, tx: Transaction, extra?: string) {
-  const parts = [
-    `#${index + 1}`,
-    [tx.date, tx.time].filter(Boolean).join(" "),
-    tx.description,
-    tx.debit ? `−${peso(tx.debit)}` : tx.credit ? `+${peso(tx.credit)}` : "",
-    extra ?? "",
-  ];
-  return parts.filter(Boolean).join(" · ");
+function renderReview(res: ParseResult) {
+  const rv = r.review;
+  const txs = res.transactions;
+  const review = txs.filter(needsReview).length;
+  const unchanged = txs.filter((t) => t.balanceIssue?.kind === "unchanged").length;
+  const different = txs.filter((t) => t.balanceIssue?.kind === "different").length;
+  const readProblems = txs.filter((t) => t.flags?.length).length;
+
+  el("review-title").textContent = review ? plural(rv.title, review) : rv.notes;
+  const body: string[] = [];
+  if (unchanged + different) {
+    const details = [
+      unchanged ? fill(rv.unchanged, { n: unchanged }) : "",
+      different ? fill(rv.different, { n: different }) : "",
+    ].filter(Boolean);
+    body.push(fill(rv.gaps, { n: unchanged + different, details: details.join(", ") }));
+  }
+  if (readProblems) body.push(plural(rv.readProblems, readProblems));
+  el("review-body").textContent = body.join(" ");
+  el("review-notes").replaceChildren(...res.warnings.map((w) => h("li", "", w)));
+  el("review-show").hidden = review === 0;
+  el("review").hidden = review === 0 && res.warnings.length === 0;
 }
 
-function group(title: string, body: string, lines: string[], open = false): HTMLDetailsElement {
-  const details = document.createElement("details");
-  details.open = open;
-  const summary = document.createElement("summary");
-  summary.textContent = title;
-  const p = document.createElement("p");
-  p.textContent = body;
-  const ul = document.createElement("ul");
-  ul.append(
-    ...lines.map((line) => {
-      const li = document.createElement("li");
-      li.textContent = line;
-      return li;
+function renderMonths(s: Summary) {
+  const m = r.months;
+  el("months").hidden = s.months.length < 2;
+  el("months-body").replaceChildren(
+    ...s.months.map((month) => {
+      const tr = h("tr");
+      const th = h("th", "", monthName(month.month));
+      th.scope = "row";
+      const net = month.moneyIn - month.moneyOut;
+      const viewBtn = h("button", "btn-link", m.view);
+      viewBtn.type = "button";
+      viewBtn.setAttribute("aria-label", fill(m.viewLabel, { month: monthName(month.month) }));
+      viewBtn.addEventListener("click", () => {
+        setView({ month: month.month, filter: "all", search: "" });
+        focusTable();
+      });
+      const action = h("td");
+      action.append(viewBtn);
+      tr.append(
+        th,
+        h("td", "num is-in", `+${peso(month.moneyIn)}`),
+        h("td", "num", peso(-month.moneyOut)),
+        h("td", `num${net > 0 ? " is-in" : ""}`, signed(net)),
+        h("td", "num", String(month.count)),
+        action,
+      );
+      return tr;
     }),
   );
-  details.append(summary, p, ul);
-  return details;
+  const select = el<HTMLSelectElement>("month-filter");
+  select.replaceChildren(new Option(r.table.allMonths, ""));
+  for (const month of s.months) select.append(new Option(monthName(month.month), month.month));
+  select.hidden = s.months.length < 2;
 }
 
-function renderWarnings(res: ParseResult) {
-  const txs = res.transactions.map((tx, i) => ({ tx, i }));
-  const unchanged = txs.filter(({ tx }) => tx.balanceIssue?.kind === "unchanged");
-  const different = txs.filter(({ tx }) => tx.balanceIssue?.kind === "different");
-  const readProblems = txs.filter(({ tx }) => tx.flags?.length);
-
-  const groups: HTMLElement[] = [];
-  if (readProblems.length) {
-    groups.push(
-      group(
-        plural(r.readProblemsTitle, readProblems.length),
-        r.readProblemsBody,
-        readProblems.map(({ tx, i }) => rowLabel(i, tx, tx.flags?.join("; "))),
-        true,
-      ),
+function statusPill(tx: Transaction) {
+  const tb = r.table;
+  if (tx.flags?.length) return h("span", "pill pill-warn", tb.statusRead);
+  if (tx.balanceIssue?.kind === "unchanged") return h("span", "pill pill-warn", tb.statusUnchanged);
+  if (tx.balanceIssue) {
+    return h(
+      "span",
+      "pill pill-warn",
+      fill(tb.statusDifferent, { amount: signed(tx.balanceIssue.difference) }),
     );
   }
-  if (unchanged.length) {
-    groups.push(
-      group(
-        plural(r.unchangedTitle, unchanged.length),
-        r.unchangedBody,
-        unchanged.map(({ tx, i }) => rowLabel(i, tx)),
-      ),
-    );
-  }
-  if (different.length) {
-    groups.push(
-      group(
-        plural(r.differentTitle, different.length),
-        r.differentBody,
-        different.map(({ tx, i }) =>
-          rowLabel(i, tx, fill(r.offBy, { amount: peso(tx.balanceIssue?.difference ?? 0) })),
-        ),
-      ),
-    );
-  }
-  if (res.warnings.length) {
-    groups.push(group(r.otherTitle, "", res.warnings, true));
-  }
-  el("warnings-body").replaceChildren(...groups);
-  el("warnings").hidden = groups.length === 0;
+  const ok = h("span", "status-ok", "✓");
+  ok.setAttribute("aria-label", tb.statusOk);
+  ok.title = tb.statusOk;
+  return ok;
 }
 
-function cell(text: string, label: string, className?: string) {
-  const td = document.createElement("td");
-  td.textContent = text;
-  td.dataset.label = label;
-  if (className) td.className = className;
-  return td;
+function txRow({ row, tx }: IndexedTx) {
+  const c = r.table.columns;
+  const tr = h("tr");
+  if (needsReview(tx)) tr.className = "flagged";
+
+  const num = h("td", "col-row tabular", String(row));
+  num.dataset.label = c.row;
+
+  const date = h("td", "col-date tabular");
+  date.dataset.label = c.date;
+  date.append(h("span", "cell-main", tx.date), h("span", "cell-sub", tx.time ?? ""));
+
+  const desc = h("td", "col-desc");
+  desc.dataset.label = c.description;
+  desc.append(h("span", "cell-main", tx.description));
+  if (tx.referenceNo) {
+    desc.append(h("span", "cell-sub tabular", fill(r.table.ref, { ref: tx.referenceNo })));
+  }
+
+  const amount = h(
+    "td",
+    `num col-amount${tx.credit > 0 ? " is-in" : ""}`,
+    tx.credit > 0 ? `+${peso(tx.credit)}` : tx.debit > 0 ? peso(-tx.debit) : "",
+  );
+  amount.dataset.label = c.amount;
+
+  const balance = h("td", "num col-balance", tx.balance !== undefined ? peso(tx.balance) : "");
+  balance.dataset.label = c.balance;
+
+  const status = h("td", "col-status");
+  status.dataset.label = c.status;
+  status.append(statusPill(tx));
+
+  tr.append(num, date, desc, amount, balance, status);
+  return tr;
 }
 
-function checkText(tx: Transaction) {
-  if (tx.flags?.length) return r.checkReadProblem;
-  if (!tx.balanceIssue) return r.checkOk;
-  return tx.balanceIssue.kind === "unchanged"
-    ? r.checkUnchanged
-    : fill(r.checkDifferent, { amount: peso(tx.balanceIssue.difference) });
+function renderTable() {
+  if (!result) return;
+  const tb = r.table;
+  const txs = result.transactions;
+
+  const counts = filterCounts(txs, { month: view.month, search: view.search });
+  for (const btn of document.querySelectorAll<HTMLButtonElement>(".segmented [data-filter]")) {
+    const f = btn.dataset.filter as TxFilter;
+    btn.setAttribute("aria-pressed", String(f === view.filter));
+    const count = btn.querySelector(".seg-count");
+    if (count) count.textContent = String(counts[f]);
+    btn.hidden = f === "review" && counts.review === 0 && view.filter !== "review";
+  }
+  el<HTMLSelectElement>("month-filter").value = view.month;
+
+  const page = paginate(filterTransactions(txs, view), view.page, PAGE_SIZE);
+  view.page = page.page;
+  el("tx-body").replaceChildren(...page.items.map(txRow));
+  el("tx-empty").hidden = page.total > 0;
+  el("tx-range").textContent = page.total
+    ? fill(tb.range, { from: page.from, to: page.to, total: page.total })
+    : "";
+
+  const buttons: HTMLElement[] = [];
+  const pageBtn = (label: string, target: number, opts: { current?: boolean; aria?: string }) => {
+    const b = h("button", "pager-btn", label);
+    b.type = "button";
+    if (opts.aria) b.setAttribute("aria-label", opts.aria);
+    if (opts.current) b.setAttribute("aria-current", "page");
+    b.disabled = target < 1 || target > page.pages || opts.current === true;
+    b.addEventListener("click", () => {
+      setView({ page: target });
+      focusTable();
+    });
+    return b;
+  };
+  if (page.pages > 1) {
+    buttons.push(pageBtn("‹", page.page - 1, { aria: tb.previous }));
+    for (const n of pageButtons(page.page, page.pages)) {
+      buttons.push(
+        n === "…"
+          ? h("span", "pager-gap", "…")
+          : pageBtn(String(n), n, { current: n === page.page, aria: fill(tb.page, { n }) }),
+      );
+    }
+    buttons.push(pageBtn("›", page.page + 1, { aria: tb.next }));
+  }
+  el("pager-buttons").replaceChildren(...buttons);
 }
 
-function renderPreview(txs: Transaction[]) {
-  const cols = r.columns;
-  const rows = txs.slice(0, PREVIEW_ROWS).map((tx, i) => {
-    const tr = document.createElement("tr");
-    if (tx.flags?.length || tx.balanceIssue) tr.className = "flagged";
-    tr.append(
-      cell(String(i + 1), cols.row, "row-num"),
-      cell([tx.date, tx.time].filter(Boolean).join(" "), cols.date, "nowrap"),
-      cell(tx.description, cols.description, "desc"),
-      cell(tx.debit ? peso(tx.debit) : "", cols.debit, "num"),
-      cell(tx.credit ? peso(tx.credit) : "", cols.credit, "num"),
-      cell(tx.balance !== undefined ? peso(tx.balance) : "", cols.balance, "num"),
-      cell(checkText(tx), cols.check),
-    );
-    return tr;
-  });
-  el("preview-body").replaceChildren(...rows);
-  el("preview-note").textContent =
-    txs.length > PREVIEW_ROWS
-      ? fill(r.previewNote, { shown: PREVIEW_ROWS, total: txs.length })
-      : fill(r.previewAll, { total: txs.length });
+function setView(change: Partial<typeof view>) {
+  view = { ...view, page: 1, ...change };
+  renderTable();
 }
+
+function focusTable() {
+  const heading = el("tx-heading");
+  heading.focus({ preventScroll: true });
+  heading.scrollIntoView({ block: "start", behavior: "smooth" });
+}
+
+for (const btn of document.querySelectorAll<HTMLButtonElement>(".segmented [data-filter]")) {
+  btn.addEventListener("click", () => setView({ filter: btn.dataset.filter as TxFilter }));
+}
+el<HTMLSelectElement>("month-filter").addEventListener("change", (e) =>
+  setView({ month: (e.target as HTMLSelectElement).value }),
+);
+el<HTMLInputElement>("tx-search").addEventListener("input", (e) =>
+  setView({ search: (e.target as HTMLInputElement).value }),
+);
+el("review-show").addEventListener("click", () => {
+  el<HTMLInputElement>("tx-search").value = "";
+  setView({ filter: "review", month: "", search: "" });
+  focusTable();
+});
 
 // ---- downloads ----------------------------------------------------------------
 

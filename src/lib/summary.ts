@@ -5,10 +5,13 @@ export interface MonthTotals {
   month: string;
   moneyIn: number;
   moneyOut: number;
+  count: number;
 }
 
 export interface Summary {
   count: number;
+  countIn: number;
+  countOut: number;
   /** centavos */
   moneyIn: number;
   moneyOut: number;
@@ -30,13 +33,16 @@ export function summarize(result: ParseResult): Summary {
     moneyOut += t.debit;
     const month = t.date.slice(0, 7);
     if (!month) continue;
-    const m = byMonth.get(month) ?? { month, moneyIn: 0, moneyOut: 0 };
+    const m = byMonth.get(month) ?? { month, moneyIn: 0, moneyOut: 0, count: 0 };
     m.moneyIn += t.credit;
     m.moneyOut += t.debit;
+    m.count++;
     byMonth.set(month, m);
   }
   return {
     count: txs.length,
+    countIn: txs.filter((t) => t.credit > 0).length,
+    countOut: txs.filter((t) => t.debit > 0).length,
     moneyIn,
     moneyOut,
     net: moneyIn - moneyOut,

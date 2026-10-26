@@ -2,6 +2,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import type { PageText } from "../src/parsers/types.ts";
 import { pagesToPdf } from "../scripts/fake-pdf.mjs";
+import { twoMonthStatement } from "../scripts/fake-statement.mjs";
 
 export const GENERATED = "e2e/.generated";
 export const PASSWORD = "fake-pass-123";
@@ -14,6 +15,13 @@ export default function globalSetup() {
   writeFileSync(`${GENERATED}/clean.pdf`, pagesToPdf(pages));
   // Real GCash statements are password-protected; this one uses a fake password.
   writeFileSync(`${GENERATED}/protected.pdf`, pagesToPdf(pages, { password: PASSWORD }));
+
+  // 45 transactions over two months, for pagination and the monthly view.
+  writeFileSync(`${GENERATED}/two-months.pdf`, pagesToPdf(twoMonthStatement(45)));
+  writeFileSync(
+    `${GENERATED}/two-months-gaps.pdf`,
+    pagesToPdf(twoMonthStatement(45, { unchangedRows: [7, 8, 30] })),
+  );
 
   // Same statement, but row 5's printed balance doesn't move (the real-world pattern).
   const gap = structuredClone(pages);
