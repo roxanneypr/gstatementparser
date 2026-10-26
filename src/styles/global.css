@@ -1883,7 +1883,7 @@ main.page-top {
 .done-head {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
 }
 .done .done-check {
   flex: none;
@@ -1901,7 +1901,7 @@ main.page-top {
   letter-spacing: -0.03em;
 }
 .done-sub {
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   font-size: 0.9375rem;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
@@ -1915,37 +1915,32 @@ main.page-top {
 .done-status {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin: 28px 0 0;
-  padding: 14px 18px;
-  border-radius: var(--radius);
+  gap: 8px;
+  margin: 18px 0 0;
   font-size: 0.9375rem;
-  font-weight: 500;
+  color: var(--muted);
 }
 .done-status svg {
   flex: none;
 }
-.done-status.is-ok {
-  background: var(--green-tint);
+.done-status.is-ok svg {
   color: var(--green);
 }
-.done-status.is-warn {
-  background: var(--warn-bg);
+.done-status.is-warn,
+.done-status.is-warn svg {
   color: var(--warn-text);
-  box-shadow: inset 0 0 0 1px var(--warn-line);
 }
-.done-status.is-na {
-  background: var(--subtle);
-  color: var(--muted);
+.done-status.is-na svg {
+  color: var(--faint);
 }
 .done-downloads {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 12px;
-  margin-top: 20px;
+  gap: 16px;
+  margin-top: 48px;
 }
 .done-downloads button {
-  min-height: 56px;
+  min-height: 60px;
   border-radius: var(--radius);
   font-size: 1rem;
 }
@@ -1954,7 +1949,7 @@ main.page-top {
   font-weight: 600;
 }
 .done-downloads .btn-secondary {
-  padding: 0 28px;
+  padding: 0 32px;
 }
 .done-downloads .ext {
   font-weight: 400;
@@ -1967,8 +1962,8 @@ main.page-top {
   align-items: center;
   justify-content: space-between;
   gap: 12px 24px;
-  margin-top: 28px;
-  padding-top: 22px;
+  margin-top: 40px;
+  padding-top: 32px;
   border-top: 1px solid var(--line);
 }
 .view-all {
@@ -2011,8 +2006,10 @@ main.page-top {
     justify-self: start;
   }
   .done-status {
-    margin-top: 20px;
     align-items: flex-start;
+  }
+  .done-downloads {
+    margin-top: 32px;
   }
   .done-downloads {
     grid-template-columns: 1fr;
@@ -2020,5 +2017,12 @@ main.page-top {
   .done-foot {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+/* More breathing room around the finished card on larger screens. */
+@media (min-width: 720px) {
+  .panel[data-state="done"] {
+    padding: 64px 64px 48px;
   }
 }
