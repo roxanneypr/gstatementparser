@@ -1,5 +1,6 @@
-# GCash Statement to Excel
+# WalletToExcel
 
+GCash statement to Excel converter.
 Convert a GCash Transaction History PDF into a clean Excel (.xlsx) or CSV file, entirely in the
 browser. **The statement, its password and the transactions never leave the user's device.**
 
@@ -74,11 +75,11 @@ the fake statement only, then set `draft: false` and `updatedDate`.
    - Build output directory: `dist`
 3. Environment variables (Settings → Variables and secrets), for **Production**:
 
-   | Variable               | Example                              | Notes                                                                                  |
-   | ---------------------- | ------------------------------------ | -------------------------------------------------------------------------------------- |
-   | `SITE_URL`             | `https://gstatementparser.pages.dev` | Canonical URLs, OG tags, sitemap, robots.txt. Use the custom domain once you have one. |
-   | `PUBLIC_CONTACT_EMAIL` | `you@yourdomain.ph`                  | Shown in the footer, privacy and about pages.                                          |
-   | `NODE_VERSION`         | `24`                                 | Matches `.nvmrc`.                                                                      |
+   | Variable               | Example                           | Notes                                                                                  |
+   | ---------------------- | --------------------------------- | -------------------------------------------------------------------------------------- |
+   | `SITE_URL`             | `https://wallettoexcel.pages.dev` | Canonical URLs, OG tags, sitemap, robots.txt. Use the custom domain once you have one. |
+   | `PUBLIC_CONTACT_EMAIL` | `you@yourdomain.ph`               | Shown in the footer, privacy and about pages.                                          |
+   | `NODE_VERSION`         | `24`                              | Matches `.nvmrc`.                                                                      |
 
    **Launch guard:** production builds on the `main` branch fail until `SITE_URL` and
    `PUBLIC_CONTACT_EMAIL` are set to real values. Preview deployments are not blocked. Run the same

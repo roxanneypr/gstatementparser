@@ -10,14 +10,18 @@ const font = (weight) =>
     `public/fonts/poppins-latin-${weight}-normal.woff2`,
   ).toString("base64")}) format("woff2"); }`;
 
+const icon = `data:image/svg+xml;base64,${readFileSync("public/favicon.svg").toString("base64")}`;
+
 const html = /* html */ `<!doctype html><html><head><meta charset="utf-8"><style>
   ${font(400)} ${font(600)}
   * { box-sizing: border-box; margin: 0; }
   body { width: 1200px; height: 630px; font-family: Poppins, -apple-system, "Segoe UI", Roboto, sans-serif;
     background: #f1f0ef; color: #16201b; display: flex; align-items: center; padding: 72px; gap: 56px; }
   .text { flex: 1; }
+  .logo { display: flex; align-items: center; gap: 12px; margin: 0 0 28px; font-size: 30px; font-weight: 600; color: #1b1d21; }
+  .mark { width: 40px; height: 40px; }
   h1 { font-size: 56px; white-space: nowrap; line-height: 1.1; font-weight: 600; letter-spacing: -1px; }
-  p { font-size: 30px; color: #4d5a53; margin-top: 24px; line-height: 1.3; }
+  p { font-size: 28px; color: #4d5a53; margin-top: 20px; line-height: 1.3; }
   .badge { display: inline-block; margin-top: 36px; background: #4359c9; color: #fff; font-size: 26px;
     font-weight: 600; padding: 14px 24px; border-radius: 999px; }
   .sheet { width: 440px; background: #fff; border: 2px solid #d5ddd8; border-radius: 18px; overflow: hidden;
@@ -29,6 +33,7 @@ const html = /* html */ `<!doctype html><html><head><meta charset="utf-8"><style
   .in { color: #1a7f4b; font-weight: 600; }
 </style></head><body>
   <div class="text">
+    <p class="logo"><img class="mark" src="${icon}" alt="">WalletToExcel</p>
     <h1>GCash Statement<br>to Excel</h1>
     <p>Convert your transaction history PDF to Excel or CSV in seconds. Free.</p>
     <span class="badge">🔒 Private: nothing is uploaded</span>

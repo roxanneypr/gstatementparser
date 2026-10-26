@@ -1,4 +1,7 @@
-# CLAUDE.md — GCash Statement to Excel (MVP)
+# CLAUDE.md — WalletToExcel (MVP)
+
+Brand: **WalletToExcel** (domain target: wallettoexcel.com). The brand name avoids "GCash" on purpose
+(trademark), but SEO copy still targets what people search for: "GCash statement to Excel".
 
 ## What this project is
 
@@ -208,7 +211,8 @@ Never store the password (no localStorage, no URL params).
 - Clear privacy note near the upload box: "Processed entirely on your device. Nothing is uploaded."
 - Footer: disclaimer (not affiliated with GCash), link to privacy page, contact email.
 - Languages: English first; keep UI strings in one object so Filipino/Taglish can be added later.
-- Accessible: labels on inputs, keyboard usable, good contrast, works in light and dark mode.
+- Accessible: labels on inputs, keyboard usable, good contrast.
+- Light theme only (minimal, light design; no dark mode).
 
 ## SEO requirements
 
@@ -228,7 +232,7 @@ Taglish, e.g. "gcash transaction history to excel", "how to download gcash trans
 
 ### Landing page (`/`)
 
-- Title example: "GCash Statement to Excel – Free & Private Converter".
+- Title example: "GCash Statement to Excel – Free & Private | WalletToExcel" (keyword first, brand last).
 - The converter is above the fold, but the page also has real crawlable text below it:
   how it works (3 steps), why it's private, who it's for, and an FAQ section in plain HTML.
 - JSON-LD: `WebApplication` (name, url, applicationCategory: "FinanceApplication",

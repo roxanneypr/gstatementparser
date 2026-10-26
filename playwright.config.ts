@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = 4321;
+// Not 4321: that's `astro dev`'s port, and the tests must hit the production build.
+const PORT = 4329;
 
 // Runs against the production build (`npm run test:e2e` builds first), served with dist/_headers
 // so the Content-Security-Policy is enforced like on Cloudflare Pages.
@@ -18,6 +19,6 @@ export default defineConfig({
   webServer: {
     command: `node scripts/serve-dist.mjs dist ${PORT}`,
     url: `http://localhost:${PORT}`,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
   },
 });

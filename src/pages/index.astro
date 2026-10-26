@@ -3,7 +3,7 @@ import Converter from "../components/Converter.astro";
 import { faq } from "../data/faq.ts";
 import { getGuides, guideUrl } from "../data/guides.ts";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { CONTACT_EMAIL, SITE_NAME } from "../site.ts";
+import { CONTACT_EMAIL, SITE_NAME, SITE_TAGLINE } from "../site.ts";
 
 // Only link to guides that exist in this build (drafts are dev-only).
 const guides = await getGuides();
@@ -14,6 +14,7 @@ const schema = [
     "@context": "https://schema.org",
     "@type": "WebApplication",
     name: SITE_NAME,
+    alternateName: SITE_TAGLINE,
     url: Astro.site?.href,
     applicationCategory: "FinanceApplication",
     operatingSystem: "Any",
@@ -41,7 +42,7 @@ const icons = {
 ---
 
 <BaseLayout
-  title="GCash Statement to Excel – Free & Private Converter"
+  title="GCash Statement to Excel – Free & Private | WalletToExcel"
   description="Convert your GCash transaction history PDF to Excel or CSV in seconds. Free, and private: your statement is processed on your device and never uploaded."
   schema={schema}
 >

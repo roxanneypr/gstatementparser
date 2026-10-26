@@ -1,6 +1,8 @@
 // Site-wide constants and UI strings. Keep user-facing text here so Filipino/Taglish can be added later.
 
-export const SITE_NAME = "GCash Statement to Excel";
+export const SITE_NAME = "WalletToExcel";
+/** What the product does, in the words people search for. Used in titles, schema and copy. */
+export const SITE_TAGLINE = "GCash Statement to Excel";
 // Set PUBLIC_CONTACT_EMAIL at build time (see astro.config.mjs; production deploys require it).
 export const CONTACT_EMAIL: string = import.meta.env.PUBLIC_CONTACT_EMAIL ?? "hello@example.com";
 
