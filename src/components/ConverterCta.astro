@@ -1,0 +1,16 @@
+---
+export interface Props {
+  heading?: string;
+}
+const { heading = "Convert your GCash statement to Excel" } = Astro.props;
+---
+
+<aside class="cta-card" aria-label="Converter">
+  <div>
+    <p class="cta-card-title">{heading}</p>
+    <p>Free and private. Your PDF is processed on your device and never uploaded.</p>
+  </div>
+  <a class="btn-primary" href="/">
+    Convert a PDF
+  </a>
+</aside>

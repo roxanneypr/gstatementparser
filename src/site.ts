@@ -13,6 +13,8 @@ export const strings = {
     footer: {
       disclaimer:
         "Independent tool. Not affiliated with, endorsed by, or sponsored by GCash, G-Xchange, Inc., or Mynt.",
+      about: "About",
+      blog: "Blog",
       privacy: "Privacy",
       contact: "Contact",
     },

@@ -1,5 +1,6 @@
 ---
 import Seo, { type Props as SeoProps } from "../components/Seo.astro";
+import { getPosts } from "../data/blog.ts";
 import { CONTACT_EMAIL, SITE_NAME, uiStrings, type Lang } from "../site.ts";
 import "../styles/global.css";
 
@@ -11,6 +12,8 @@ export interface Props extends SeoProps {
 
 const { lang = "en", flush = false, ...seo } = Astro.props;
 const t = uiStrings(lang);
+// The Blog link appears only once a post exists in this build (drafts count in dev only).
+const hasBlog = (await getPosts()).length > 0;
 const year = new Date().getFullYear();
 ---
 
@@ -65,6 +68,14 @@ const year = new Date().getFullYear();
         </a>
         <nav aria-label="Footer">
           <ul>
+            <li>
+              <a href="/about">{t.footer.about}</a>
+            </li>
+            {hasBlog && (
+              <li>
+                <a href="/blog">{t.footer.blog}</a>
+              </li>
+            )}
             <li>
               <a href="/privacy">{t.footer.privacy}</a>
             </li>

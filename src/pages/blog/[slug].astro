@@ -1,0 +1,97 @@
+---
+import { render } from "astro:content";
+import ConverterCta from "../../components/ConverterCta.astro";
+import {
+  displayDate,
+  getPosts,
+  isoDate,
+  postUrl,
+  SHOW_DRAFTS,
+  type Post,
+} from "../../data/blog.ts";
+import { breadcrumbSchema, organization } from "../../data/schema.ts";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post, all: posts } }));
+}
+
+interface Props {
+  post: Post;
+  all: Post[];
+}
+
+const { post, all } = Astro.props;
+const { Content } = await render(post);
+const { title, description, publishedDate, updatedDate, lang, draft } = post.data;
+const shownDate = updatedDate ?? publishedDate;
+const related = post.data.related
+  .map((slug) => all.find((p) => p.id === slug))
+  .filter((p): p is Post => Boolean(p));
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: title,
+    description,
+    inLanguage: lang === "fil" ? "fil-PH" : "en-PH",
+    datePublished: isoDate(publishedDate),
+    dateModified: isoDate(shownDate),
+    mainEntityOfPage: new URL(postUrl(post.id), Astro.site).href,
+    image: new URL("/og-image.png", Astro.site).href,
+    author: organization(Astro.site),
+    publisher: organization(Astro.site),
+  },
+  breadcrumbSchema(Astro.site, [
+    { name: "Home", path: "/" },
+    { name: "Blog", path: "/blog" },
+    { name: title, path: postUrl(post.id) },
+  ]),
+];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  lang={lang}
+  type="article"
+  publishedTime={isoDate(publishedDate)}
+  modifiedTime={isoDate(shownDate)}
+  schema={schema}
+  noindex={draft}
+>
+  <article class="prose post">
+    {draft && SHOW_DRAFTS && (
+      <p class="draft-banner" role="note">
+        Draft (only visible in development). Resolve every "TODO: verify", then set{" "}
+        <code>draft: false</code> to publish.
+      </p>
+    )}
+    <p class="post-meta">
+      <a href="/blog">Blog</a>
+      <span aria-hidden="true">·</span>
+      <time datetime={isoDate(shownDate)}>
+        {`${updatedDate ? "Updated" : "Published"} ${displayDate(shownDate)}`}
+      </time>
+    </p>
+    <h1>{title}</h1>
+    <p class="lead">{description}</p>
+    <Content />
+    <ConverterCta heading="Ready to convert your statement?" />
+    {related.length > 0 && (
+      <section class="related" aria-labelledby="related-heading">
+        <h2 id="related-heading">Keep reading</h2>
+        <ul>
+          {related.map((p) => (
+            <li>
+              <a href={postUrl(p.id)}>{p.data.title}</a>
+              <span>{p.data.description}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </article>
+</BaseLayout>

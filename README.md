@@ -54,6 +54,21 @@ Test fixtures in `tests/fixtures/` are **synthetic** data that mirror the real l
 bug fix gets a regression test with an anonymised fixture. The e2e tests turn fixtures into fake
 PDFs at run time (`scripts/fake-pdf.mjs`).
 
+## Blog
+
+Posts live in `src/content/blog/*.md` (frontmatter: `title` ≤ 60 chars, `description` ≤ 155,
+`publishedDate`, optional `updatedDate`, `lang`, `draft`, `related`). New posts start as
+`draft: true`.
+
+- **Hidden until the first post is published.** With no published posts, production has no
+  `/blog` page, no footer link and no sitemap entry. Drafts render only in `npm run dev`
+  (with a Draft banner and `noindex`).
+- **The build fails** if a published post still contains `TODO`, uses a `# ` heading (the title is
+  the only `<h1>`), or links (via `related` or `/blog/...`) to a post that isn't published.
+
+To publish: check every `TODO: verify` against official GCash sources, add any screenshots using
+the fake statement only (`scripts/fake-statement.mjs`), then set `draft: false`.
+
 ## Deployment (Cloudflare Pages)
 
 1. Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git** → choose this repo.
@@ -66,7 +81,7 @@ PDFs at run time (`scripts/fake-pdf.mjs`).
    | Variable               | Example                           | Notes                                                                                  |
    | ---------------------- | --------------------------------- | -------------------------------------------------------------------------------------- |
    | `SITE_URL`             | `https://wallettoexcel.pages.dev` | Canonical URLs, OG tags, sitemap, robots.txt. Use the custom domain once you have one. |
-   | `PUBLIC_CONTACT_EMAIL` | `you@yourdomain.ph`               | Shown in the footer and privacy page.                                                  |
+   | `PUBLIC_CONTACT_EMAIL` | `you@yourdomain.ph`               | Shown in the footer, privacy and about pages.                                          |
    | `NODE_VERSION`         | `24`                              | Matches `.nvmrc`.                                                                      |
 
    **Launch guard:** production builds on the `main` branch fail until `SITE_URL` and

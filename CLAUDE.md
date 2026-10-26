@@ -66,8 +66,12 @@ github.com/KazeFreeze/gcash-pdf-parser. If any code is adapted from it, keep its
 │   │   └── Converter.astro   # the upload/convert UI markup + client script
 │   ├── pages/
 │   │   ├── index.astro       # converter landing page (main keyword target)
+│   │   ├── about.astro
+│   │   ├── blog/             # [...index].astro (list) + [slug].astro (post)
 │   │   ├── privacy.astro
 │   │   └── 404.astro
+│   ├── content/
+│   │   └── blog/             # Markdown posts (drafts until verified)
 │   ├── scripts/
 │   │   └── converter.ts      # UI wiring for the converter
 │   ├── styles/global.css
@@ -204,7 +208,8 @@ Never store the password (no localStorage, no URL params).
   dates, autofilter) and sheet "Summary" (period, totals, transaction count, monthly in/out).
 - Clear privacy note near the upload box: "Processed entirely on your device. Nothing is uploaded."
 - Footer: disclaimer (not affiliated with GCash), link to privacy page, contact email.
-- Pages: home (converter), privacy, 404. No guides or about page.
+- Pages: home (converter), about, blog, privacy, 404. Footer: About · Blog · Privacy · Contact.
+  The blog (and its footer link) only exists once at least one post is published.
 - Languages: English first; keep UI strings in one object so Filipino/Taglish can be added later.
 - Accessible: labels on inputs, keyboard usable, good contrast.
 - Light theme only (no dark mode). Design direction: minimal, premium fintech. Inter (self-hosted),
@@ -232,11 +237,18 @@ Taglish, e.g. "gcash transaction history to excel", "how to download gcash trans
 - Title example: "GCash Statement to Excel – Free & Private | WalletToExcel" (keyword first, brand last).
 - The converter is above the fold, but the page also has real crawlable text below it:
   why it's private/accurate (feature columns) and an FAQ section in plain HTML.
-  (No "How it works" or "Who it's for" sections, guides or about page: removed by product
-  decision, 2026-10-26.)
+  (No "How it works" or "Who it's for" sections: removed by product decision, 2026-10-26.)
 - JSON-LD: `WebApplication` (name, url, applicationCategory: "FinanceApplication",
   operatingSystem: "Any", offers price 0 PHP) and `FAQPage` for the FAQ.
 - The core content must be in the static HTML, never injected only by JavaScript.
+
+### Blog (`/blog/<slug>`)
+
+Each post answers one specific search question and links to the converter with a clear call to
+action. Content collection fields: `title`, `description`, `publishedDate`, `updatedDate`, `lang`,
+`draft`, `related`. JSON-LD `BlogPosting` + `BreadcrumbList`. Posts start as drafts: do NOT
+invent GCash app menu paths, passwords, fees, or BIR rules; mark anything unverified with
+`TODO: verify` (the build refuses to publish a post that still has TODOs).
 
 ### Future bank pages
 

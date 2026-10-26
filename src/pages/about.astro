@@ -1,0 +1,70 @@
+---
+import ConverterCta from "../components/ConverterCta.astro";
+import { organization } from "../data/schema.ts";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { CONTACT_EMAIL, SITE_NAME } from "../site.ts";
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: `About ${SITE_NAME}`,
+  url: new URL("/about", Astro.site).href,
+  about: organization(Astro.site),
+};
+---
+
+<BaseLayout
+  title={`About – ${SITE_NAME}`}
+  description="WalletToExcel turns GCash statements into clean, checked spreadsheets for free, right in your browser. Here's why we built it and how we keep it private."
+  schema={schema}
+>
+  <article class="prose">
+    <p class="eyebrow">About</p>
+    <h1>Your statement, in a spreadsheet. Nothing else.</h1>
+    <p class="lead">
+      {SITE_NAME} turns your GCash Transaction History PDF into a clean Excel or CSV file, without
+      your statement ever leaving your device.
+    </p>
+
+    <h2>Why we built it</h2>
+    <p>
+      Retyping transactions from a PDF is slow and error-prone, and uploading a financial statement
+      to an unknown website is risky. So the converter does all the work inside your own browser:
+      you get a usable spreadsheet in seconds, and nobody else ever sees your data.
+    </p>
+
+    <h2>Private by design</h2>
+    <p>
+      There's no server that receives your file. The PDF, its password and your transactions stay on
+      your phone or computer, and nothing is stored after you close the page. Read the full{" "}
+      <a href="/privacy">privacy policy</a>.
+    </p>
+
+    <h2>Checked, not guessed</h2>
+    <p>
+      Every conversion is checked against the statement itself: the totals are compared with the
+      statement's own Total Debit and Total Credit, and every running balance is checked against the
+      row before it. If something doesn't add up, the rows are pointed out instead of guessed. Your
+      figures are always kept exactly as GCash printed them.
+    </p>
+
+    <h2>Free</h2>
+    <p>Converting a statement is free, with no sign-up and no limits.</p>
+
+    <h2>Not affiliated with GCash</h2>
+    <p>
+      {SITE_NAME} is an independent tool. It is not affiliated with, endorsed by, or sponsored by
+      GCash, G-Xchange, Inc., or Mynt. "GCash" is used only to describe which statements the tool
+      supports.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      Found a statement that doesn't convert correctly, or have an idea? Email{" "}
+      <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. Please don't attach your statement.
+      Describe the problem instead.
+    </p>
+
+    <ConverterCta />
+  </article>
+</BaseLayout>

@@ -1,0 +1,72 @@
+---
+// The blog index only exists once there's at least one published post (drafts count in dev),
+// so production never ships an empty /blog page.
+import ConverterCta from "../../components/ConverterCta.astro";
+import { displayDate, getPosts, isoDate, postUrl, type Post } from "../../data/blog.ts";
+import { breadcrumbSchema } from "../../data/schema.ts";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { SITE_NAME } from "../../site.ts";
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.length ? [{ params: { index: undefined }, props: { posts } }] : [];
+}
+
+interface Props {
+  posts: Post[];
+}
+const { posts } = Astro.props;
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: `${SITE_NAME} Blog`,
+    url: new URL("/blog", Astro.site).href,
+    blogPost: posts.map((p) => ({
+      "@type": "BlogPosting",
+      headline: p.data.title,
+      url: new URL(postUrl(p.id), Astro.site).href,
+      datePublished: isoDate(p.data.publishedDate),
+    })),
+  },
+  breadcrumbSchema(Astro.site, [
+    { name: "Home", path: "/" },
+    { name: "Blog", path: "/blog" },
+  ]),
+];
+---
+
+<BaseLayout
+  title={`Blog – GCash Statements, Excel & Money | ${SITE_NAME}`}
+  description="Guides and tips for GCash statements: downloading your history, opening it in Excel or Google Sheets, and tracking your income and spending."
+  schema={schema}
+>
+  <div class="blog-head">
+    <p class="eyebrow">Blog</p>
+    <h1>Guides for your GCash statements</h1>
+    <p class="lead">
+      Practical help for getting your transaction history into a spreadsheet and making sense of it.
+    </p>
+  </div>
+  <ul class="post-list">
+    {posts.map((p) => (
+      <li>
+        <a class="post-card" href={postUrl(p.id)}>
+          <time class="post-date" datetime={isoDate(p.data.updatedDate ?? p.data.publishedDate)}>
+            {displayDate(p.data.updatedDate ?? p.data.publishedDate)}
+          </time>
+          <h2>
+            {p.data.title}
+            {p.data.draft && <span class="badge">Draft</span>}
+          </h2>
+          <p>{p.data.description}</p>
+          <span class="post-more" aria-hidden="true">
+            Read →
+          </span>
+        </a>
+      </li>
+    ))}
+  </ul>
+  <ConverterCta />
+</BaseLayout>
