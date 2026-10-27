@@ -100,7 +100,8 @@ test.describe("content", () => {
     await page.goto("/");
     await page.locator('footer a[href="/blog"]').click();
     await expect(page).toHaveURL(/\/blog$/);
-    await page.locator(".post-card").first().click();
+    await expect(page.locator(".post-card")).toHaveCount(3);
+    await page.locator('a.post-card[href="/blog/gcash-statement-to-excel-guide"]').click();
     await expect(page.locator("h1")).toHaveText("GCash Statement to Excel: Step-by-Step Guide");
     const images = page.locator(".prose img");
     expect(await images.count()).toBeGreaterThanOrEqual(5);
