@@ -154,6 +154,25 @@ describe("GCash parser: problems are flagged, not guessed", () => {
     expect(r.transactions[2]).toMatchObject({ referenceNo: undefined, debit: 100000 });
   });
 
+  // GCash prints some inbound bank transfers with no description at all. A row without one must
+  // keep its own amounts, and no later amount may shift onto the wrong row.
+  it("keeps a row with a blank description, without shifting later rows", () => {
+    const clean = gcashParser.parse(load());
+    const pages = load();
+    pages[0]!.items = pages[0]!.items.filter((i) => i.str !== "Payment to Sample Coffee Shop");
+    const r = gcashParser.parse(pages);
+    expect(r.transactions).toHaveLength(9);
+    expect(r.transactions[0]).toMatchObject({
+      description: "",
+      referenceNo: "1000000000001",
+      debit: 15000,
+      balance: 135000,
+    });
+    const amounts = (t: (typeof r.transactions)[number]) => [t.referenceNo, t.debit, t.credit];
+    expect(r.transactions.slice(1).map(amounts)).toEqual(clean.transactions.slice(1).map(amounts));
+    expect(r.checks).toEqual(clean.checks);
+  });
+
   it("reports text it can't place", () => {
     const pages = load();
     pages[1]!.items.push({ str: "Stray note", x: 125.7, y: 300, width: 30, height: 6 });
