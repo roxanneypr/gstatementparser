@@ -70,10 +70,11 @@ Category somewhere else, change `J:J` to match.
 To see a single month, add a date range. This totals March 2026:
 
 ```
-=SUMIFS(Transactions!E:E, Transactions!J:J, A2,
-        Transactions!A:A, ">="&DATE(2026,3,1),
-        Transactions!A:A, "<"&DATE(2026,4,1))
+=SUMIFS(Transactions!E:E, Transactions!J:J, A2, Transactions!A:A, ">="&DATE(2026,3,1), Transactions!A:A, "<"&DATE(2026,4,1))
 ```
+
+For another month, change the two dates: the first day of the month, and the first day of the
+next month.
 
 The same formulas work in Google Sheets.
 

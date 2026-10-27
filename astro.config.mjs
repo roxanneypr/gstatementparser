@@ -51,6 +51,9 @@ export default defineConfig({
     // Keep CSS and JS as external files so the strict CSP (style-src/script-src 'self') works.
     inlineStylesheets: "never",
   },
+  // No syntax highlighter: it colours code with inline style="" attributes, which the CSP
+  // (style-src 'self') blocks. Blog code blocks are styled in global.css instead.
+  markdown: { syntaxHighlight: false },
   vite: {
     build: { assetsInlineLimit: 0 },
     // pdf.js and SheetJS are loaded with dynamic import(); pre-bundle them when the dev server

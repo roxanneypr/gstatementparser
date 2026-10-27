@@ -1429,11 +1429,30 @@ main.page-top {
   vertical-align: top;
 }
 .prose code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   background: var(--subtle);
   border: 1px solid var(--line);
   padding: 1px 5px;
   border-radius: 5px;
   font-size: 0.875em;
+}
+.prose pre {
+  background: var(--subtle);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  line-height: 1.6;
+  /* Wrap on screen (phones) but copy as one line, so formulas paste into a single cell. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.prose pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+  color: var(--ink);
+  font-size: 0.875rem;
 }
 .prose {
   margin: 0 auto;
