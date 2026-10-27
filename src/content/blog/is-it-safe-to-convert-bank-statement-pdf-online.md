@@ -2,7 +2,7 @@
 title: "Is It Safe to Convert a Bank Statement PDF Online?"
 description: "Your GCash or bank statement shows who you pay and how much. Here's how to tell whether an online converter uploads it, and how to check for yourself."
 publishedDate: 2026-10-27
-draft: true
+draft: false
 related:
   - gcash-statement-to-excel-guide
 ---

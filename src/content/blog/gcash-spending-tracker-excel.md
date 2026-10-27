@@ -2,7 +2,7 @@
 title: "Track Your GCash Spending in Excel: A Simple Budget"
 description: "Turn your GCash transaction history into a monthly budget in Excel or Google Sheets: add categories, then total them with SUMIFS or a pivot table."
 publishedDate: 2026-10-27
-draft: true
+draft: false
 related:
   - gcash-statement-to-excel-guide
 ---
