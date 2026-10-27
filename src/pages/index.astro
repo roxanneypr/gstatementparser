@@ -10,6 +10,14 @@ import { CONTACT_EMAIL, SITE_NAME, SITE_TAGLINE } from "../site.ts";
 const postIds = new Set((await getPosts()).map((p) => p.id));
 
 const schema = [
+  // Tells Google the site name to show in results ("WalletToExcel", not the bare domain).
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    alternateName: ["Wallet to Excel", "wallettoexcel.com"],
+    url: Astro.site?.href,
+  },
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",

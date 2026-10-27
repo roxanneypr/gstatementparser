@@ -19,6 +19,6 @@ export function organization(site: URL | undefined) {
     "@type": "Organization",
     name: SITE_NAME,
     url: new URL("/", site).href,
-    logo: { "@type": "ImageObject", url: new URL("/favicon.svg", site).href },
+    logo: { "@type": "ImageObject", url: new URL("/icon-512.png", site).href },
   };
 }
