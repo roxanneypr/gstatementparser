@@ -1,0 +1,341 @@
+{
+  "_note": "Synthetic data from scripts/sample-bdo-statement.mjs. Mirrors the BDO Account Activities PDF layout (newest first, no balances); not a real statement.",
+  "pages": [
+    {
+      "pageNumber": 1,
+      "width": 595.3,
+      "height": 841.9,
+      "items": [
+        {
+          "str": "Exported date range",
+          "x": 450.4,
+          "y": 60.9,
+          "width": 72.5,
+          "height": 8
+        },
+        {
+          "str": "Dear Customer,",
+          "x": 72.6,
+          "y": 67.3,
+          "width": 56.5,
+          "height": 8
+        },
+        {
+          "str": "Sep 1, 2026",
+          "x": 474.8,
+          "y": 74.4,
+          "width": 43.1,
+          "height": 8
+        },
+        {
+          "str": "The transactions are listed below for the savings account, Account Number: 0000 0000 0000",
+          "x": 72.6,
+          "y": 87.9,
+          "width": 327.7,
+          "height": 8
+        },
+        {
+          "str": "Oct 31, 2026",
+          "x": 475.5,
+          "y": 87.9,
+          "width": 45.8,
+          "height": 8
+        },
+        {
+          "str": "Available balance",
+          "x": 376.9,
+          "y": 122.8,
+          "width": 62.7,
+          "height": 8
+        },
+        {
+          "str": "PHP 9,999.99",
+          "x": 448.8,
+          "y": 122.8,
+          "width": 49.8,
+          "height": 8
+        },
+        {
+          "str": "Account Number: 0000 0000 0000",
+          "x": 72.6,
+          "y": 126.4,
+          "width": 121.8,
+          "height": 8
+        },
+        {
+          "str": "Date",
+          "x": 78.6,
+          "y": 160.6,
+          "width": 16.9,
+          "height": 8
+        },
+        {
+          "str": "Reference",
+          "x": 143.9,
+          "y": 160.6,
+          "width": 36.9,
+          "height": 8
+        },
+        {
+          "str": "Description",
+          "x": 258.1,
+          "y": 160.6,
+          "width": 40,
+          "height": 8
+        },
+        {
+          "str": "Amount",
+          "x": 485.1,
+          "y": 160.6,
+          "width": 27.6,
+          "height": 8
+        },
+        {
+          "str": "Oct 20, 2026",
+          "x": 76.4,
+          "y": 185.8,
+          "width": 45.8,
+          "height": 8
+        },
+        {
+          "str": "PC-BDOPAY1-P-20261020-",
+          "x": 143.9,
+          "y": 185.8,
+          "width": 100.5,
+          "height": 8
+        },
+        {
+          "str": "Sent to ****1234",
+          "x": 258.1,
+          "y": 185.8,
+          "width": 57.8,
+          "height": 8
+        },
+        {
+          "str": "-PHP 1,500.00",
+          "x": 472.5,
+          "y": 185.8,
+          "width": 52.5,
+          "height": 8
+        },
+        {
+          "str": "00000001",
+          "x": 143.9,
+          "y": 199.3,
+          "width": 35.6,
+          "height": 8
+        },
+        {
+          "str": "Oct 15, 2026",
+          "x": 76.4,
+          "y": 212.1,
+          "width": 45.8,
+          "height": 8
+        },
+        {
+          "str": "IBTD",
+          "x": 143.9,
+          "y": 212.1,
+          "width": 18.2,
+          "height": 8
+        },
+        {
+          "str": "Received from Other Bank",
+          "x": 258.1,
+          "y": 212.1,
+          "width": 94.3,
+          "height": 8
+        },
+        {
+          "str": "PHP 18,500.00",
+          "x": 470.7,
+          "y": 212.1,
+          "width": 54.3,
+          "height": 8
+        },
+        {
+          "str": "Oct 14, 2026",
+          "x": 76.4,
+          "y": 238.4,
+          "width": 45.8,
+          "height": 8
+        },
+        {
+          "str": "W/D FR SAV BDO/000001",
+          "x": 143.9,
+          "y": 238.4,
+          "width": 95.1,
+          "height": 8
+        },
+        {
+          "str": "W/D FR SAV BDO/000001",
+          "x": 258.1,
+          "y": 238.4,
+          "width": 95.1,
+          "height": 8
+        },
+        {
+          "str": "-PHP 5,000.00",
+          "x": 472.5,
+          "y": 238.4,
+          "width": 52.5,
+          "height": 8
+        },
+        {
+          "str": "SAMPLE BRANCH BDO",
+          "x": 258.1,
+          "y": 251.9,
+          "width": 88,
+          "height": 8
+        },
+        {
+          "str": "Page 1 of 2",
+          "x": 273.1,
+          "y": 807.9,
+          "width": 40.9,
+          "height": 8
+        }
+      ]
+    },
+    {
+      "pageNumber": 2,
+      "width": 595.3,
+      "height": 841.9,
+      "items": [
+        {
+          "str": "Available balance",
+          "x": 376.1,
+          "y": 84.9,
+          "width": 62.7,
+          "height": 8
+        },
+        {
+          "str": "PHP 9,999.99",
+          "x": 448.1,
+          "y": 84.9,
+          "width": 49.8,
+          "height": 8
+        },
+        {
+          "str": "Account Number: 0000 0000 0000",
+          "x": 72.8,
+          "y": 88.5,
+          "width": 121.8,
+          "height": 8
+        },
+        {
+          "str": "Date",
+          "x": 78.6,
+          "y": 150.9,
+          "width": 16.9,
+          "height": 8
+        },
+        {
+          "str": "Reference",
+          "x": 143.9,
+          "y": 150.9,
+          "width": 36.9,
+          "height": 8
+        },
+        {
+          "str": "Description",
+          "x": 258.1,
+          "y": 150.9,
+          "width": 40,
+          "height": 8
+        },
+        {
+          "str": "Amount",
+          "x": 485.1,
+          "y": 150.9,
+          "width": 27.6,
+          "height": 8
+        },
+        {
+          "str": "Oct 3, 2026",
+          "x": 76.4,
+          "y": 176.1,
+          "width": 41.4,
+          "height": 8
+        },
+        {
+          "str": "IBTW",
+          "x": 258.1,
+          "y": 176.1,
+          "width": 20,
+          "height": 8
+        },
+        {
+          "str": "-PHP 1,000.00",
+          "x": 472.5,
+          "y": 176.1,
+          "width": 52.5,
+          "height": 8
+        },
+        {
+          "str": "Sep 30, 2026",
+          "x": 76.4,
+          "y": 202.4,
+          "width": 47.6,
+          "height": 8
+        },
+        {
+          "str": "INTEREST PAY SYS-GEN",
+          "x": 143.9,
+          "y": 202.4,
+          "width": 96,
+          "height": 8
+        },
+        {
+          "str": "INTEREST PAY SYS-GEN",
+          "x": 258.1,
+          "y": 202.4,
+          "width": 96,
+          "height": 8
+        },
+        {
+          "str": "PHP 4.20",
+          "x": 490.8,
+          "y": 202.4,
+          "width": 34.2,
+          "height": 8
+        },
+        {
+          "str": "Sep 5, 2026",
+          "x": 76.4,
+          "y": 228.7,
+          "width": 43.1,
+          "height": 8
+        },
+        {
+          "str": "QRPAY20260000000000027",
+          "x": 143.9,
+          "y": 228.7,
+          "width": 103.6,
+          "height": 8
+        },
+        {
+          "str": "Payment via QRPH",
+          "x": 258.1,
+          "y": 228.7,
+          "width": 69.4,
+          "height": 8
+        },
+        {
+          "str": "-PHP 642.75",
+          "x": 479.2,
+          "y": 228.7,
+          "width": 45.8,
+          "height": 8
+        },
+        {
+          "str": "Page 2 of 2",
+          "x": 273.1,
+          "y": 807.9,
+          "width": 40.9,
+          "height": 8
+        }
+      ]
+    }
+  ]
+}

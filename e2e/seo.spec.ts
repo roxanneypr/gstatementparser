@@ -13,6 +13,7 @@ test.describe("SEO", () => {
     expect(paths).toContain("/privacy");
     expect(paths).toContain("/maya-statement-to-excel");
     expect(paths).toContain("/bpi-statement-to-excel");
+    expect(paths).toContain("/bdo-statement-to-excel");
     expect(paths.some((p) => p.includes("404") || p.includes("/dev/"))).toBe(false);
   });
 
@@ -134,7 +135,7 @@ test("Maya landing page: own copy and share image, linked from home and footer",
     .evaluateAll((els) => els.map((e) => JSON.parse(e.textContent ?? "{}")["@type"]));
   expect(types).toEqual(["WebApplication", "FAQPage", "BreadcrumbList"]);
   // Back to the GCash page, and the footer lists every supported statement.
-  await expect(page.locator(".works-with a")).toHaveText(["GCash", "Maya", "BPI"]);
+  await expect(page.locator(".works-with a")).toHaveText(["GCash", "Maya", "BPI", "BDO"]);
   await page.locator(".also-supported a").click();
   await expect(page).toHaveURL(/\/$/);
 });
@@ -156,6 +157,22 @@ test("BPI landing page: own copy and share image, linked from home and footer", 
   await expect(page).toHaveURL(/\/maya-statement-to-excel$/);
 });
 
+test("BDO landing page: no balance claims in the example, linked from home", async ({ page }) => {
+  await page.goto("/");
+  await page.locator(".also-supported a", { hasText: "BDO" }).click();
+  await expect(page).toHaveURL(/\/bdo-statement-to-excel$/);
+  await expect(page).toHaveTitle("BDO Statement to Excel – Free & Private | WalletToExcel");
+  await expect(page.locator("h1")).toHaveText("BDO statement to Excel, in seconds.");
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    "content",
+    /\/og-bdo\.png$/,
+  );
+  // BDO doesn't print balances, so the example can't show or claim them.
+  await expect(page.locator(".example th")).toHaveText(["Date", "Description", "Amount"]);
+  await expect(page.locator(".example-checks")).not.toContainText("alance");
+  await expect(page.locator(".example-checks")).not.toContainText("Totals match");
+});
+
 test("one-tap bank vote sends only the bank name and says thanks", async ({ page }) => {
   const bodies: string[] = [];
   await page.route("**/api/vote", async (route) => {
@@ -164,7 +181,7 @@ test("one-tap bank vote sends only the bank name and says thanks", async ({ page
   });
   await page.goto("/");
   const chips = page.locator(".bank-chip");
-  await expect(chips).toHaveText(["GoTyme", "BDO", "Metrobank", "SeaBank", "UnionBank", "Other"]);
+  await expect(chips).toHaveText(["GoTyme", "Metrobank", "SeaBank", "UnionBank", "RCBC", "Other"]);
   await expect(page.locator(".cta-band")).not.toContainText("roadmap");
 
   await page.getByRole("button", { name: "GoTyme" }).click();
@@ -185,10 +202,10 @@ test("one-tap bank vote sends only the bank name and says thanks", async ({ page
 test("bank vote falls back to email when it can't be sent", async ({ page }) => {
   await page.route("**/api/vote", (route) => route.abort());
   await page.goto("/");
-  await page.getByRole("button", { name: "BDO" }).click();
+  await page.getByRole("button", { name: "SeaBank" }).click();
   await expect(page.locator("#vote-fallback")).toBeVisible();
   await expect(page.locator("#vote-fallback-link")).toHaveAttribute(
     "href",
-    "mailto:hello@wallettoexcel.com?subject=Please%20add%20BDO",
+    "mailto:hello@wallettoexcel.com?subject=Please%20add%20SeaBank",
   );
 });

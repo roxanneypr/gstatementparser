@@ -23,6 +23,8 @@ export interface WalletPage {
   features: { title: string; text: string }[];
   faq: FaqItem[];
   exampleRows: ExampleRow[];
+  /** Ticks under the example; set when the statement can't be checked against balances. */
+  exampleChecks?: string[];
   sampleUrl: string;
 }
 
@@ -135,5 +137,59 @@ export const walletPages: WalletPage[] = [
       ["May 18", "Purchase-MC @SAMPLE STORE", "−₱1,249.50", "₱30,675.75"],
     ],
     sampleUrl: "/sample/sample-bpi-statement.pdf",
+  },
+  {
+    slug: "bdo-statement-to-excel",
+    wallet: "BDO",
+    title: "BDO Statement to Excel – Free & Private | WalletToExcel",
+    description:
+      "Convert your BDO Account Activities PDF to Excel or CSV. Real dates, money in and out in separate columns, oldest first. Free, processed on your device.",
+    ogImage: "/og-bdo.png",
+    heading: "BDO statement to Excel,",
+    lead: "Turn your BDO Account Activities PDF into a clean spreadsheet for Excel, Google Sheets or CSV. Free to use, no sign-up.",
+    features: [
+      {
+        title: "Built for BDO Account Activities",
+        text: "Reads the Date, Reference, Description and Amount columns as printed, including references and descriptions that wrap onto a second line.",
+      },
+      {
+        title: "Money in and out, oldest first",
+        text: "Signed amounts become separate Debit and Credit columns, and rows are listed oldest first so monthly totals read naturally.",
+      },
+      {
+        title: "Ready for Excel and Sheets",
+        text: "Real dates, peso amounts, filters and a monthly summary in one workbook. Anything that can't be read confidently is flagged, never guessed.",
+      },
+    ],
+    faq: [
+      {
+        question: "Is my BDO statement uploaded anywhere?",
+        answer: `No. ${PRIVACY_ANSWER}`,
+      },
+      {
+        question: "Which BDO file works?",
+        answer:
+          "The Account Activities PDF: it starts with “Exported date range” and lists Date, Reference, Description and Amount. Other BDO statements, such as credit card statements, aren't supported yet.",
+      },
+      {
+        question: "Why isn't it checked against balances?",
+        answer:
+          "The Account Activities PDF lists amounts only, with no running balance, beginning balance or totals, so there's nothing from BDO to compare the rows with. Every row is still read exactly as printed, and anything unclear is flagged for you to check.",
+      },
+      {
+        question: "What order are the rows in?",
+        answer:
+          "BDO lists the newest transaction first. The spreadsheet lists them oldest first, like a bank statement. To see the newest first, sort the Date column in Excel or Google Sheets.",
+      },
+    ],
+    // Real BDO wording, fake amounts and references. No balance column: BDO doesn't print one.
+    exampleRows: [
+      ["Sep 2", "POS W/D SV SAMPLE STORE SAMPLE CITY POS", "−₱1,899.00"],
+      ["Sep 5", "Payment via QRPH", "−₱642.75"],
+      ["Sep 7", "Received from BDO Account", "+₱1,200.00"],
+      ["Sep 9", "Sent via Instapay GXI ****5678", "−₱3,500.00"],
+    ],
+    exampleChecks: ["Every row read as printed", "Unclear rows flagged"],
+    sampleUrl: "/sample/sample-bdo-statement.pdf",
   },
 ];

@@ -104,12 +104,13 @@ for (const link of document.querySelectorAll<HTMLAnchorElement>('a.nav-cta[href=
 
 // "Try a sample statement": loads a FAKE statement shipped with the site (same-origin GET,
 // no user data involved) and runs it through the exact same converter.
-// Each landing page picks its sample (GCash on the home page, Maya/BPI on their pages), but only
+// Each landing page picks its sample (GCash on the home page, the others on their own pages), but only
 // from this fixed list of the site's own files.
 const SAMPLE_URLS = [
   "/sample/sample-gcash-statement.pdf",
   "/sample/sample-maya-statement.pdf",
   "/sample/sample-bpi-statement.pdf",
+  "/sample/sample-bdo-statement.pdf",
 ];
 const sampleBtn = el<HTMLButtonElement>("sample-btn");
 const SAMPLE_URL =

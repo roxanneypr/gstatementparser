@@ -67,7 +67,11 @@ const icons = [
     <p class="lead">{page.lead}</p>
   </div>
 
-  <Converter exampleRows={page.exampleRows} sampleUrl={page.sampleUrl} />
+  <Converter
+    exampleRows={page.exampleRows}
+    sampleUrl={page.sampleUrl}
+    exampleChecks={page.exampleChecks}
+  />
 
   <div class="features">
     {page.features.map((f, i) => (

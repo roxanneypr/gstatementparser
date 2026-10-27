@@ -13,7 +13,7 @@ export const strings = {
     nav: { convert: "Convert PDF" },
     footer: {
       disclaimer:
-        "Independent tool. Not affiliated with, endorsed by, or sponsored by GCash, G-Xchange, Inc., Mynt, Maya, Maya Philippines, Inc., BPI, or the Bank of the Philippine Islands.",
+        "Independent tool. Not affiliated with, endorsed by, or sponsored by GCash, G-Xchange, Inc., Mynt, Maya, Maya Philippines, Inc., BPI, the Bank of the Philippine Islands, BDO, or BDO Unibank, Inc.",
       about: "About",
       blog: "Blog",
       privacy: "Privacy",
@@ -47,17 +47,17 @@ export const strings = {
       converted: "Your spreadsheet is ready",
       doneSummary: "{source} · {period} · {n} transactions",
       doneSummaryOne: "{source} · {period} · 1 transaction",
-      sources: { gcash: "GCash", maya: "Maya", bpi: "BPI" },
+      sources: { gcash: "GCash", maya: "Maya", bpi: "BPI", bdo: "BDO" },
       errors: {
-        notPdf: "That file isn't a PDF. Choose the PDF statement from GCash, Maya or BPI.",
+        notPdf: "That file isn't a PDF. Choose the PDF statement from GCash, Maya, BPI or BDO.",
         tooLarge: "That file is too large (over 25 MB). Statements are usually much smaller.",
         passwordEmpty: "Enter the PDF password.",
         wrongPassword: "Wrong password, try again.",
         invalidPdf: "This file couldn't be opened as a PDF. It may be damaged or incomplete.",
         noText:
-          "This PDF has no readable text (it may be a scanned image or a screenshot). Use the original PDF statement from GCash, Maya or BPI.",
+          "This PDF has no readable text (it may be a scanned image or a screenshot). Use the original PDF statement from GCash, Maya, BPI or BDO.",
         unsupported:
-          "This doesn't look like a GCash, Maya or BPI statement PDF. Only GCash, Maya and BPI statements are supported for now.",
+          "This doesn't look like a GCash, Maya, BPI or BDO statement PDF. Only GCash, Maya, BPI and BDO statements are supported for now.",
         generic: "Something went wrong while reading this file. Please try again.",
         sampleFailed:
           "The sample statement couldn't be loaded. Check your connection and try again.",

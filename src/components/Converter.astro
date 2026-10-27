@@ -1,13 +1,16 @@
 ---
 import { strings } from "../site.ts";
 
-export type ExampleRow = [date: string, description: string, amount: string, balance: string];
+/** The balance is left out for statements that don't print one (e.g. BDO Account Activities). */
+export type ExampleRow = [date: string, description: string, amount: string, balance?: string];
 
 export interface Props {
   /** "Example output" rows in the wallet's real statement wording, with fake amounts. */
   exampleRows?: ExampleRow[];
   /** FAKE statement that "Try a sample statement" converts (same-origin, under /sample/). */
   sampleUrl?: string;
+  /** Ticks under the example; only claim checks the statement makes possible. */
+  exampleChecks?: string[];
 }
 
 const t = strings.en.converter;
@@ -20,8 +23,12 @@ const gcashExample: ExampleRow[] = [
   ["Mar 2", "Transfer from 09170000001 to 09180000002", "−₱1,500.00", "₱4,564.00"],
   ["Mar 4", "Refund from Grab Philippines", "+₱75.00", "₱4,639.00"],
 ];
-const { exampleRows = gcashExample, sampleUrl = "/sample/sample-gcash-statement.pdf" } =
-  Astro.props;
+const {
+  exampleRows = gcashExample,
+  sampleUrl = "/sample/sample-gcash-statement.pdf",
+  exampleChecks = [ex.totals, ex.balances],
+} = Astro.props;
+const showBalance = exampleRows.some((row) => row[3] !== undefined);
 const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7 1.5V9h5.5L13 3.5Z";
 ---
 
@@ -83,9 +90,11 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
               <th scope="col" class="num">
                 {ex.amount}
               </th>
-              <th scope="col" class="num example-balance">
-                {ex.balance}
-              </th>
+              {showBalance && (
+                <th scope="col" class="num example-balance">
+                  {ex.balance}
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -94,24 +103,20 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
                 <td class="tabular">{date}</td>
                 <td class="example-desc">{desc}</td>
                 <td class:list={["num", { "is-in": amount.startsWith("+") }]}>{amount}</td>
-                <td class="num example-balance">{balance}</td>
+                {showBalance && <td class="num example-balance">{balance}</td>}
               </tr>
             ))}
           </tbody>
         </table>
         <p class="example-checks">
-          <span>
-            <span class="tick" aria-hidden="true">
-              ✓
+          {exampleChecks.map((check) => (
+            <span>
+              <span class="tick" aria-hidden="true">
+                ✓
+              </span>
+              {check}
             </span>
-            {ex.totals}
-          </span>
-          <span>
-            <span class="tick" aria-hidden="true">
-              ✓
-            </span>
-            {ex.balances}
-          </span>
+          ))}
         </p>
       </figure>
 

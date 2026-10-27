@@ -25,3 +25,5 @@
   Cache-Control: public, max-age=0, must-revalidate, no-transform
 /bpi-statement-to-excel
   Cache-Control: public, max-age=0, must-revalidate, no-transform
+/bdo-statement-to-excel
+  Cache-Control: public, max-age=0, must-revalidate, no-transform

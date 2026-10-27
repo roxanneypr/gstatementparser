@@ -13,11 +13,16 @@ export interface StatementSummary {
  * Shared by every parser: fill `checks`, statement-level warnings and each row's `balanceIssue`.
  * The statement's figures are never changed; gaps are only described.
  */
-export function reconcile(result: ParseResult, summary: StatementSummary): void {
+export function reconcile(
+  result: ParseResult,
+  summary: StatementSummary,
+  { printsBalances = true }: { printsBalances?: boolean } = {},
+): void {
   const { transactions: txs, warnings, checks } = result;
 
-  if (summary.opening === undefined) warnings.push("Starting balance not found.");
-  if (summary.closing === undefined) warnings.push("Ending balance not found.");
+  // Exports that never print balances (e.g. BDO Account Activities) don't warn about them.
+  if (printsBalances && summary.opening === undefined) warnings.push("Starting balance not found.");
+  if (printsBalances && summary.closing === undefined) warnings.push("Ending balance not found.");
   if (!txs.length) warnings.push("No transactions found.");
 
   // Running balance: previous balance + credit − debit must equal this row's balance.

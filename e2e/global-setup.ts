@@ -28,6 +28,12 @@ export default function globalSetup() {
   };
   writeFileSync(`${GENERATED}/bpi.pdf`, pagesToPdf(bpi.pages));
 
+  // FAKE BDO Account Activities (same layout as tests/fixtures/bdo-basic.json).
+  const bdo = JSON.parse(readFileSync("tests/fixtures/bdo-basic.json", "utf8")) as {
+    pages: PageText[];
+  };
+  writeFileSync(`${GENERATED}/bdo.pdf`, pagesToPdf(bdo.pages));
+
   // 45 transactions over two months, for pagination and the monthly view.
   writeFileSync(`${GENERATED}/two-months.pdf`, pagesToPdf(twoMonthStatement(45)));
   writeFileSync(

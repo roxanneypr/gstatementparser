@@ -179,6 +179,38 @@ test("the BPI page's sample runs the FAKE BPI statement", async ({ page }) => {
   );
 });
 
+test("converts BDO Account Activities: oldest first, no balance claims", async ({ page }) => {
+  await choose(page, pdf("bdo"));
+  await expect(page.locator("#state-done")).toBeVisible();
+  await expect(page.locator("#done-summary")).toHaveText(
+    "BDO · Sep 1 – Oct 31, 2026 · 6 transactions",
+  );
+  await expect(page.locator("#done-status")).toHaveClass(/is-na/);
+  await expect(page.locator("#done-status-text")).toHaveText(
+    "Your statement doesn't show balances to check against.",
+  );
+  await expect(page.locator("#review")).toBeHidden();
+
+  const [xlsx] = await Promise.all([page.waitForEvent("download"), page.click("#download-xlsx")]);
+  expect(xlsx.suggestedFilename()).toBe("bdo-statement_2026-09-01_to_2026-10-31.xlsx");
+  const wb = read(readFileSync((await xlsx.path())!));
+  const rows = utils.sheet_to_json<Record<string, unknown>>(wb.Sheets.Transactions!);
+  expect(rows).toHaveLength(6);
+  expect(rows[0]).toMatchObject({ Description: "Payment via QRPH", Debit: 642.75 });
+  expect(rows[5]).toMatchObject({
+    Description: "Sent to ****1234",
+    "Reference No.": "PC-BDOPAY1-P-20261020-00000001",
+  });
+});
+
+test("the BDO page's sample runs the FAKE BDO Account Activities", async ({ page }) => {
+  await page.goto("/bdo-statement-to-excel");
+  await page.getByRole("button", { name: "Try a sample statement" }).click();
+  await expect(page.locator("#done-summary")).toHaveText(
+    "BDO · Aug 27 – Oct 27, 2026 · 25 transactions",
+  );
+});
+
 test("a PDF without a password converts straight away", async ({ page }) => {
   await page.setInputFiles("#pdf-file", pdf("clean"));
   await expect(page.locator("#state-done")).toBeVisible();
@@ -219,7 +251,7 @@ test("explains files it can't convert and stays on the first step", async ({ pag
   const cases: [string, RegExp][] = [
     ["not-really", /couldn't be opened as a PDF/],
     ["no-text", /no readable text/],
-    ["not-gcash", /doesn't look like a GCash, Maya or BPI statement/],
+    ["not-gcash", /doesn't look like a GCash, Maya, BPI or BDO statement/],
   ];
   for (const [name, message] of cases) {
     await page.setInputFiles("#pdf-file", pdf(name));

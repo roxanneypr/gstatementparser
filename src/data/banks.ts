@@ -2,10 +2,10 @@
 // Shared by the page and the Worker so only these values can ever be stored.
 export const REQUESTABLE_BANKS = [
   "GoTyme",
-  "BDO",
   "Metrobank",
   "SeaBank",
   "UnionBank",
+  "RCBC",
   "Other",
 ] as const;
 export type RequestableBank = (typeof REQUESTABLE_BANKS)[number];

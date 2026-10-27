@@ -46,6 +46,16 @@ export function parseDayMonthYear(input: string): string | null {
   return `${y}-${String(month).padStart(2, "0")}-${d.padStart(2, "0")}`;
 }
 
+const MONTH_DAY_YEAR_RE = /^([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2}),?\s+(\d{4})$/;
+
+/** Parse "Oct 9, 2026" / "October 13, 2026" into ISO "2026-10-09". Returns null if invalid. */
+export function parseMonthDayYear(input: string): string | null {
+  const m = MONTH_DAY_YEAR_RE.exec(input.trim());
+  if (!m) return null;
+  const [, mon = "", d = "", y = ""] = m;
+  return parseDayMonthYear(`${d} ${mon} ${y}`);
+}
+
 const CLOCK_RE = /^(\d{1,2}):(\d{2})(?::\d{2})?\s*([AP]M)?$/i;
 
 /** Parse "10:12:13 PM" / "08:05 AM" / "22:12" into 24-hour "22:12". Returns null if invalid. */

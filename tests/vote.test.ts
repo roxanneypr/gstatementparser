@@ -35,9 +35,9 @@ describe("handleVote", () => {
     const { store, added } = fakeStore();
     expect((await handleVote(vote('{"bank":"Hackers Inc"}'), store)).status).toBe(400);
     expect((await handleVote(vote("not json"), store)).status).toBe(400);
-    expect((await handleVote(vote(`{"bank":"GoTyme","x":"${"a".repeat(300)}"}`), store)).status).toBe(
-      413,
-    );
+    expect(
+      (await handleVote(vote(`{"bank":"GoTyme","x":"${"a".repeat(300)}"}`), store)).status,
+    ).toBe(413);
     expect((await handleVote(vote("", { method: "GET" }), store)).status).toBe(405);
     expect(added).toEqual([]);
   });
@@ -45,9 +45,12 @@ describe("handleVote", () => {
   it("only accepts votes from our own pages", async () => {
     const { store, added } = fakeStore();
     expect(
-      (await handleVote(vote('{"bank":"BDO"}', { origin: "https://evil.example" }), store)).status,
+      (await handleVote(vote('{"bank":"SeaBank"}', { origin: "https://evil.example" }), store))
+        .status,
     ).toBe(403);
-    expect((await handleVote(vote('{"bank":"BDO"}', { origin: null }), store)).status).toBe(403);
+    expect((await handleVote(vote('{"bank":"SeaBank"}', { origin: null }), store)).status).toBe(
+      403,
+    );
     expect(added).toEqual([]);
   });
 });
