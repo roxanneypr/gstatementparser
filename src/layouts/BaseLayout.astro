@@ -1,6 +1,7 @@
 ---
 import Seo, { type Props as SeoProps } from "../components/Seo.astro";
 import { getPosts } from "../data/blog.ts";
+import { walletPages } from "../data/walletPages.ts";
 import { CONTACT_EMAIL, SITE_NAME, uiStrings, type Lang } from "../site.ts";
 import "../styles/global.css";
 
@@ -90,6 +91,15 @@ const year = new Date().getFullYear();
             </li>
           </ul>
         </nav>
+        <p class="works-with">
+          Works with: <a href="/">GCash</a>
+          {walletPages.map((p) => (
+            <>
+              {" · "}
+              <a href={`/${p.slug}`}>{p.wallet}</a>
+            </>
+          ))}
+        </p>
         <p class="disclaimer">
           © {year} {SITE_NAME}. {t.footer.disclaimer}
         </p>

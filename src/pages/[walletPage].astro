@@ -1,0 +1,108 @@
+---
+// Landing page for each supported wallet besides GCash, generated from src/data/walletPages.ts.
+// Same converter as the home page (it detects the statement type itself); copy is per wallet.
+import type { GetStaticPaths } from "astro";
+import Converter from "../components/Converter.astro";
+import { breadcrumbSchema } from "../data/schema.ts";
+import { walletPages, type WalletPage } from "../data/walletPages.ts";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE_NAME } from "../site.ts";
+
+export const getStaticPaths = (() =>
+  walletPages.map((page) => ({
+    params: { walletPage: page.slug },
+    props: { page },
+  }))) satisfies GetStaticPaths;
+
+const { page } = Astro.props as { page: WalletPage };
+const url = new URL(`/${page.slug}`, Astro.site).href;
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: SITE_NAME,
+    alternateName: `${page.wallet} Statement to Excel`,
+    url,
+    applicationCategory: "FinanceApplication",
+    operatingSystem: "Any",
+    browserRequirements: "Requires a modern web browser with JavaScript.",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "PHP" },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: page.faq.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: { "@type": "Answer", text: f.answer },
+    })),
+  },
+  breadcrumbSchema(Astro.site, [
+    { name: SITE_NAME, path: "/" },
+    { name: `${page.wallet} statement to Excel`, path: `/${page.slug}` },
+  ]),
+];
+
+// Line icons (24px grid, stroked), same set as the home page.
+const icons = [
+  "M7 3h7l5 5v13H7zM14 3v5h5M10 12h6M10 15.5h6M10 19h4",
+  "M4 19V5m0 14h16M8 15l3-3 3 2 5-6",
+  "M3 7h18v10H3zM3 11h18M8 7v10m8-10v10",
+];
+---
+
+<BaseLayout
+  title={page.title}
+  description={page.description}
+  image={page.ogImage}
+  imageAlt={`${SITE_NAME}: convert your ${page.wallet} statement PDF to Excel`}
+  schema={schema}
+  flush
+>
+  <div class="hero-wrap">
+    <h1>
+      {page.heading} <span class="soft">in seconds.</span>
+    </h1>
+    <p class="lead">{page.lead}</p>
+  </div>
+
+  <Converter exampleRows={page.exampleRows} sampleUrl={page.sampleUrl} />
+
+  <div class="features">
+    {page.features.map((f, i) => (
+      <section class="feature" aria-labelledby={`f-${i}`}>
+        <span class="feature-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18">
+            <path
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d={icons[i % icons.length]}
+            />
+          </svg>
+        </span>
+        <h2 id={`f-${i}`}>{f.title}</h2>
+        <p>{f.text}</p>
+      </section>
+    ))}
+  </div>
+
+  <section class="section faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">Questions</h2>
+    {page.faq.map((f) => (
+      <details>
+        <summary>
+          <h3>{f.question}</h3>
+        </summary>
+        <p>{f.answer}</p>
+      </details>
+    ))}
+  </section>
+
+  <p class="also-supported">
+    Have a GCash statement too? <a href="/">GCash statement to Excel →</a>
+  </p>
+</BaseLayout>

@@ -73,7 +73,8 @@ github.com/KazeFreeze/gcash-pdf-parser. If any code is adapted from it, keep its
 │   │   ├── Seo.astro         # reusable SEO head tags (props: title, description, image, schema)
 │   │   └── Converter.astro   # the upload/convert UI markup + client script
 │   ├── pages/
-│   │   ├── index.astro       # converter landing page (main keyword target)
+│   │   ├── index.astro       # converter landing page (main keyword target: GCash)
+│   │   ├── [walletPage].astro # one landing page per other wallet (from src/data/walletPages.ts)
 │   │   ├── about.astro
 │   │   ├── blog/             # [...index].astro (list) + [slug].astro (post)
 │   │   ├── privacy.astro
@@ -278,8 +279,11 @@ invent GCash app menu paths, passwords, fees, or BIR rules; mark anything unveri
 ### Future bank pages
 
 When new parsers are added, each gets its own landing page (`/bpi-statement-to-excel`,
-`/maya-statement-to-excel`, etc.) generated from a single data file, with unique copy per page
-(no duplicate boilerplate).
+`/maya-statement-to-excel`, etc.) generated from a single data file (`src/data/walletPages.ts`),
+with unique copy per page (no duplicate boilerplate). Each entry also needs: a FAKE sample PDF in
+`public/sample/` (`scripts/make-sample-pdf.mjs`) added to `SAMPLE_URLS` in `converter.ts`, a share
+image (`node scripts/make-og-image.mjs <Wallet> public/og-<wallet>.png`), and a `no-transform`
+Cache-Control rule in `public/_headers` (a test enforces this one).
 
 ### Technical
 

@@ -1,9 +1,11 @@
-// Renders public/og-image.png (1200x630 social share image) from HTML.
-//   node scripts/make-og-image.mjs
+// Renders a 1200x630 social share image from HTML.
+//   node scripts/make-og-image.mjs                              -> public/og-image.png (GCash, home)
+//   node scripts/make-og-image.mjs Maya public/og-maya.png      -> a bank landing page's image
 // Uses the site's own look (not GCash brand colours) and fake numbers only.
 import { chromium } from "@playwright/test";
 import { readFileSync } from "node:fs";
 
+const [wallet = "GCash", out = "public/og-image.png"] = process.argv.slice(2);
 const inter = readFileSync("public/fonts/inter-latin-wght-normal.woff2").toString("base64");
 const icon = `data:image/svg+xml;base64,${readFileSync("public/favicon.svg").toString("base64")}`;
 
@@ -45,7 +47,7 @@ const html = /* html */ `<!doctype html><html><head><meta charset="utf-8"><style
 </style></head><body>
   <div class="text">
     <p class="logo"><img src="${icon}" alt="">WalletToExcel</p>
-    <h1>GCash statement to Excel, <span>in seconds.</span></h1>
+    <h1>${wallet} statement to Excel, <span>in seconds.</span></h1>
     <p class="pill"><span class="dot"></span>Private by design. Nothing is uploaded.</p>
   </div>
   <div class="sheet">
@@ -59,6 +61,6 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
 await page.setContent(html);
 await page.evaluate(() => document.fonts.ready);
-await page.screenshot({ path: "public/og-image.png" });
+await page.screenshot({ path: out });
 await browser.close();
-console.log("Wrote public/og-image.png");
+console.log(`Wrote ${out}`);

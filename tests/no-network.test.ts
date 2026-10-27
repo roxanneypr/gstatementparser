@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { walletPages } from "../src/data/walletPages.ts";
 
 // Guard for the core promise: app code must never make network requests. (pdf.js is given the
 // file bytes directly, so it never fetches either; the e2e tests verify this in a real browser.)
@@ -25,7 +26,12 @@ describe("no network access in app code", () => {
     let code = readFileSync(file, "utf8").replace(/\/\/.*$|\/\*[\s\S]*?\*\//gm, "");
     // Single allowed exception: the converter GETs the FAKE sample statement from our own site.
     if (file.endsWith(join("scripts", "converter.ts"))) {
-      expect(code).toMatch(/const SAMPLE_URL = "\/sample\/[a-z0-9-]+\.pdf";/);
+      // The sample URL can only be one of a fixed list of the site's own /sample/*.pdf files.
+      const list = /const SAMPLE_URLS = \[([^\]]*)\];/.exec(code)?.[1] ?? "";
+      for (const url of list.split(",")) {
+        expect(url.trim()).toMatch(/^"\/sample\/[a-z0-9-]+\.pdf"$/);
+      }
+      expect(code).toMatch(/SAMPLE_URLS\.find\(\(u\) => u === sampleBtn\.dataset\.sampleUrl\)/);
       expect(code.match(/fetch\(/g)).toHaveLength(1);
       code = code.replace("fetch(SAMPLE_URL)", "");
     }
@@ -55,7 +61,8 @@ describe("no network access in app code", () => {
 
   it("HTML pages tell Cloudflare not to modify them (no injected scripts)", () => {
     const headers = readFileSync("public/_headers", "utf8");
-    for (const path of ["/", "/about", "/privacy", "/blog", "/blog/*"]) {
+    const walletPaths = walletPages.map((p) => `/${p.slug}`);
+    for (const path of ["/", "/about", "/privacy", "/blog", "/blog/*", ...walletPaths]) {
       const rule = new RegExp(
         `^${path.replace(/[*/]/g, "\\$&")}\\n\\s+Cache-Control:[^\\n]*no-transform`,
         "m",

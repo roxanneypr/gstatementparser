@@ -3,6 +3,7 @@ import Converter from "../components/Converter.astro";
 import { getPosts, postUrl } from "../data/blog.ts";
 import { REQUESTABLE_BANKS } from "../data/banks.ts";
 import { faq } from "../data/faq.ts";
+import { walletPages } from "../data/walletPages.ts";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { CONTACT_EMAIL, SITE_NAME, SITE_TAGLINE } from "../site.ts";
 
@@ -105,6 +106,12 @@ const icons = {
       </section>
     ))}
   </div>
+
+  {walletPages.map((p) => (
+    <p class="also-supported">
+      Using {p.wallet}? <a href={`/${p.slug}`}>{p.wallet} statement to Excel →</a>
+    </p>
+  ))}
 
   <section class="section faq" aria-labelledby="faq-heading">
     <h2 id="faq-heading">Questions</h2>

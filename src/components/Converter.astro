@@ -1,16 +1,27 @@
 ---
 import { strings } from "../site.ts";
 
+export type ExampleRow = [date: string, description: string, amount: string, balance: string];
+
+export interface Props {
+  /** "Example output" rows in the wallet's real statement wording, with fake amounts. */
+  exampleRows?: ExampleRow[];
+  /** FAKE statement that "Try a sample statement" converts (same-origin, under /sample/). */
+  sampleUrl?: string;
+}
+
 const t = strings.en.converter;
 const r = t.results;
 const ex = t.example;
 // Statement-style wording (as GCash prints it), fake amounts; balances add up.
-const exampleRows: [string, string, string, string][] = [
+const gcashExample: ExampleRow[] = [
   ["Mar 1", "Received GCash from BPI with account ending in 1234", "+₱5,000.00", "₱6,250.00"],
   ["Mar 1", "Payment to Angkas", "−₱186.00", "₱6,064.00"],
   ["Mar 2", "Transfer from 09170000001 to 09180000002", "−₱1,500.00", "₱4,564.00"],
   ["Mar 4", "Refund from Grab Philippines", "+₱75.00", "₱4,639.00"],
 ];
+const { exampleRows = gcashExample, sampleUrl = "/sample/sample-gcash-statement.pdf" } =
+  Astro.props;
 const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7 1.5V9h5.5L13 3.5Z";
 ---
 
@@ -106,7 +117,7 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
 
       <p class="sample-line">
         {t.noPdf}
-        <button type="button" id="sample-btn" class="btn-link">
+        <button type="button" id="sample-btn" class="btn-link" data-sample-url={sampleUrl}>
           {t.trySample}
         </button>
       </p>

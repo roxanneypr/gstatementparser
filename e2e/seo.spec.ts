@@ -11,6 +11,7 @@ test.describe("SEO", () => {
     const paths = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => new URL(m[1]!).pathname);
     expect(paths).toContain("/");
     expect(paths).toContain("/privacy");
+    expect(paths).toContain("/maya-statement-to-excel");
     expect(paths.some((p) => p.includes("404") || p.includes("/dev/"))).toBe(false);
   });
 
@@ -112,6 +113,31 @@ test.describe("content", () => {
   });
 });
 
+test("Maya landing page: own copy and share image, linked from home and footer", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.locator(".also-supported a").click();
+  await expect(page).toHaveURL(/\/maya-statement-to-excel$/);
+  await expect(page).toHaveTitle("Maya Statement to Excel – Free & Private | WalletToExcel");
+  await expect(page.locator("h1")).toHaveText("Maya statement to Excel, in seconds.");
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    "content",
+    /\/og-maya\.png$/,
+  );
+  await expect(page.locator(".example-desc").first()).toHaveText(
+    "Purchased · Pay with PayMaya Wallet QR On Us",
+  );
+  const types = await page
+    .locator('script[type="application/ld+json"]')
+    .evaluateAll((els) => els.map((e) => JSON.parse(e.textContent ?? "{}")["@type"]));
+  expect(types).toEqual(["WebApplication", "FAQPage", "BreadcrumbList"]);
+  // Back to the GCash page, and the footer lists both.
+  await expect(page.locator(".works-with a")).toHaveText(["GCash", "Maya"]);
+  await page.locator(".also-supported a").click();
+  await expect(page).toHaveURL(/\/$/);
+});
+
 test("one-tap bank vote sends only the bank name and says thanks", async ({ page }) => {
   const bodies: string[] = [];
   await page.route("**/api/vote", async (route) => {
@@ -125,7 +151,10 @@ test("one-tap bank vote sends only the bank name and says thanks", async ({ page
 
   await page.getByRole("button", { name: "GoTyme" }).click();
   await expect(page.locator("#vote-status")).toHaveText("Thanks! GoTyme noted ✓");
-  await expect(page.getByRole("button", { name: "GoTyme" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: "GoTyme" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
   expect(bodies).toEqual(['{"bank":"GoTyme"}']);
 
   // Remembered on this device: no second vote.

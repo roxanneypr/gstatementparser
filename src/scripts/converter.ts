@@ -104,15 +104,22 @@ for (const link of document.querySelectorAll<HTMLAnchorElement>('a.nav-cta[href=
 
 // "Try a sample statement": loads a FAKE statement shipped with the site (same-origin GET,
 // no user data involved) and runs it through the exact same converter.
-const SAMPLE_URL = "/sample/sample-gcash-statement.pdf";
-el<HTMLButtonElement>("sample-btn").addEventListener("click", async () => {
+// Each landing page picks its sample (GCash on the home page, Maya on the Maya page), but only
+// from this fixed list of the site's own files.
+const SAMPLE_URLS = ["/sample/sample-gcash-statement.pdf", "/sample/sample-maya-statement.pdf"];
+const sampleBtn = el<HTMLButtonElement>("sample-btn");
+const SAMPLE_URL =
+  SAMPLE_URLS.find((u) => u === sampleBtn.dataset.sampleUrl) ??
+  "/sample/sample-gcash-statement.pdf";
+sampleBtn.addEventListener("click", async () => {
   showError("");
   setState("working");
   try {
     const res = await fetch(SAMPLE_URL);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const blob = await res.blob();
-    await start(new File([blob], "sample-gcash-statement.pdf", { type: "application/pdf" }));
+    const name = SAMPLE_URL.split("/").pop() ?? "sample-statement.pdf";
+    await start(new File([blob], name, { type: "application/pdf" }));
   } catch (err) {
     console.error("Sample failed to load:", err);
     setState("idle");

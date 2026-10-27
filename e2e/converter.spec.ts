@@ -131,6 +131,17 @@ test("converts a Maya statement: detected, checked and labelled Maya in the down
   expect(summary[0]).toEqual(["Maya statement summary"]);
 });
 
+test("the Maya page's sample runs the FAKE Maya statement", async ({ page }) => {
+  await page.goto("/maya-statement-to-excel");
+  await page.getByRole("button", { name: "Try a sample statement" }).click();
+  await expect(page.locator("#done-summary")).toHaveText(
+    "Maya · Sep 1 – Sep 30, 2026 · 15 transactions",
+  );
+  await expect(page.locator("#done-status-text")).toHaveText(
+    "Checked against your statement. Every running balance matches.",
+  );
+});
+
 test("a PDF without a password converts straight away", async ({ page }) => {
   await page.setInputFiles("#pdf-file", pdf("clean"));
   await expect(page.locator("#state-done")).toBeVisible();

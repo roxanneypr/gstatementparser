@@ -21,3 +21,5 @@
   Cache-Control: public, max-age=0, must-revalidate, no-transform
 /blog/*
   Cache-Control: public, max-age=0, must-revalidate, no-transform
+/maya-statement-to-excel
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
