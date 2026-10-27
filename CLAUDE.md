@@ -17,7 +17,10 @@ Core promise: **"Your statement never leaves your device."** All parsing happens
 
 1. **Client-side only.** The PDF, its password, and the parsed transactions must never be uploaded,
    logged, sent to analytics, or stored on any server. No `fetch`/XHR with statement data. Ever.
-2. **No backend in the MVP.** The app is a static site (HTML/CSS/JS) deployable to Cloudflare Pages.
+2. **No backend for statements.** The site is static. The only server code is `worker/` for
+   `/api/vote` (the anonymous one-tap bank request): it stores a bank name from a fixed list plus
+   the date in a Durable Object, nothing else, and request logging is off. It must never receive
+   statement data, and the converter must never import `src/scripts/vote.ts` (tests enforce this).
 3. **Never commit real statements.** Real PDFs go in `samples/private/` which is git-ignored.
    Test fixtures must use fake/anonymized data only.
 4. **Not affiliated with GCash.** Do not use the GCash logo or brand colors in a way that implies

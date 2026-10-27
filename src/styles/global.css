@@ -1357,6 +1357,31 @@ tbody tr:last-child > * {
   border-color: #fff;
   color: var(--ink);
 }
+button.bank-chip {
+  background: none;
+  font-family: var(--font);
+  cursor: pointer;
+}
+.bank-chip.is-voted {
+  background: rgb(255 255 255 / 12%);
+  border-color: rgb(255 255 255 / 40%);
+}
+.bank-chip.is-voted::after {
+  content: "✓";
+  margin-left: 6px;
+  color: #4ade80;
+}
+.bank-chip.is-voted:hover {
+  background: rgb(255 255 255 / 16%);
+  color: #fff;
+}
+.bank-chip:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+.cta-band .bank-fallback a {
+  color: #fff;
+}
 .bank-chip:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 2px;

@@ -111,11 +111,36 @@ test.describe("content", () => {
   });
 });
 
-test("bank request chips open a pre-filled email (no backend)", async ({ page }) => {
+test("one-tap bank vote sends only the bank name and says thanks", async ({ page }) => {
+  const bodies: string[] = [];
+  await page.route("**/api/vote", async (route) => {
+    bodies.push(route.request().postData() ?? "");
+    await route.fulfill({ status: 200, contentType: "application/json", body: '{"ok":true}' });
+  });
   await page.goto("/");
   const chips = page.locator(".bank-chip");
   await expect(chips).toHaveText(["Maya", "BPI", "BDO", "SeaBank", "UnionBank", "Other"]);
-  const maya = await chips.first().getAttribute("href");
-  expect(maya).toMatch(/^mailto:hello@wallettoexcel\.com\?subject=Please%20add%20Maya&body=/);
   await expect(page.locator(".cta-band")).not.toContainText("roadmap");
+
+  await page.getByRole("button", { name: "Maya" }).click();
+  await expect(page.locator("#vote-status")).toHaveText("Thanks! Maya noted ✓");
+  await expect(page.getByRole("button", { name: "Maya" })).toHaveAttribute("aria-pressed", "true");
+  expect(bodies).toEqual(['{"bank":"Maya"}']);
+
+  // Remembered on this device: no second vote.
+  await page.reload();
+  await page.getByRole("button", { name: "Maya" }).click();
+  await expect(page.locator("#vote-status")).toHaveText("Thanks! Maya is already noted ✓");
+  expect(bodies).toHaveLength(1);
+});
+
+test("bank vote falls back to email when it can't be sent", async ({ page }) => {
+  await page.route("**/api/vote", (route) => route.abort());
+  await page.goto("/");
+  await page.getByRole("button", { name: "BDO" }).click();
+  await expect(page.locator("#vote-fallback")).toBeVisible();
+  await expect(page.locator("#vote-fallback-link")).toHaveAttribute(
+    "href",
+    "mailto:hello@wallettoexcel.com?subject=Please%20add%20BDO",
+  );
 });

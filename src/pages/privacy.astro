@@ -3,7 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { CONTACT_EMAIL, SITE_NAME } from "../site.ts";
 
 // Keep this page accurate to the code. Update it whenever analytics, hosting or features change.
-const updated = "2026-10-27";
+const updated = "2026-10-28";
 ---
 
 <BaseLayout
@@ -13,7 +13,7 @@ const updated = "2026-10-27";
   <div class="prose">
     <h1>Privacy Policy</h1>
     <p class="muted">
-      Last updated <time datetime={updated}>October 27, 2026</time>
+      Last updated <time datetime={updated}>October 28, 2026</time>
     </p>
 
     <h2>The short version</h2>
@@ -61,6 +61,12 @@ const updated = "2026-10-27";
         country and browser type. No analytics script runs on our pages, no cookies are set, and we
         don't build profiles of individual visitors. Your statement is never part of this, because
         it is never sent to us.
+      </li>
+      <li>
+        <strong>Bank requests.</strong> If you tap a bank or wallet under "Using another wallet or
+        bank?", we store that bank's name and the date, so we can count which ones people want next.
+        Nothing else is stored with it: no name, email, IP address or statement data. Your browser
+        also remembers which banks you tapped, so you aren't counted twice.
       </li>
       <li>
         <strong>Google Search Console.</strong> We use Google Search Console to see how the site

@@ -88,6 +88,19 @@ and clean URLs; `public/_headers` sets the CSP and security headers.
 3. Every push to `main` deploys to production.
 4. Check a config change without deploying: `npm run build && npx wrangler deploy --dry-run`.
 
+### Bank request votes
+
+The home page's bank chips POST `{"bank": "..."}` to `/api/vote`, handled by `worker/index.ts`
+(only `/api/*` runs Worker code; everything else is static). Votes are stored as bank + date in a
+SQLite-backed Durable Object, created automatically on deploy. No IP, name or email is stored, and
+Worker request logs are off (`observability.enabled: false`).
+
+**See the totals:** add a secret named `VOTES_KEY` (Worker → Settings → Variables and Secrets →
+Add → type _Secret_), then open `https://wallettoexcel.com/api/votes?key=<your secret>`. Without
+the secret the endpoint returns 404.
+
+**Test locally with the real Worker:** `npm run build && npx wrangler dev --var VOTES_KEY:test`.
+
 ### Custom domain
 
 1. Worker → **Settings → Domains & Routes → Add → Custom domain**. If the domain's DNS is on

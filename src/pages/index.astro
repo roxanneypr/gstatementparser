@@ -1,30 +1,13 @@
 ---
 import Converter from "../components/Converter.astro";
 import { getPosts, postUrl } from "../data/blog.ts";
+import { REQUESTABLE_BANKS } from "../data/banks.ts";
 import { faq } from "../data/faq.ts";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { CONTACT_EMAIL, SITE_NAME, SITE_TAGLINE } from "../site.ts";
 
 // FAQ "learn more" links only point at posts that exist in this build.
 const postIds = new Set((await getPosts()).map((p) => p.id));
-
-// "Which bank next?" chips: each opens an email with the request pre-filled. No backend, nothing
-// stored on the site; requests simply arrive in the contact inbox.
-const requestHref = (subject: string, body: string) =>
-  `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-const bankRequests = [
-  ...["Maya", "BPI", "BDO", "SeaBank", "UnionBank"].map((bank) => ({
-    label: bank,
-    href: requestHref(
-      `Please add ${bank}`,
-      `Hi! I'd like to convert my ${bank} statement to Excel.`,
-    ),
-  })),
-  {
-    label: "Other",
-    href: requestHref("Please add another bank or wallet", "Bank or wallet I'd like to convert: "),
-  },
-];
 
 const schema = [
   {
@@ -142,15 +125,27 @@ const icons = {
     </div>
     <div class="cta-band-vote">
       <ul class="bank-chips" aria-label="Request a bank or wallet">
-        {bankRequests.map((b) => (
+        {REQUESTABLE_BANKS.map((bank) => (
           <li>
-            <a class="bank-chip" href={b.href}>
-              {b.label}
-            </a>
+            <button type="button" class="bank-chip" data-bank={bank} aria-pressed="false">
+              {bank}
+            </button>
           </li>
         ))}
       </ul>
-      <p class="bank-note">Opens your email with the bank pre-filled.</p>
+      <p class="bank-note" id="vote-status" role="status" aria-live="polite">
+        One tap. We only count the bank's name.
+      </p>
+      <p class="bank-note bank-fallback" id="vote-fallback" hidden>
+        Couldn't send that.
+        <a id="vote-fallback-link" href={`mailto:${CONTACT_EMAIL}`}>
+          Email us instead
+        </a>
+        .
+      </p>
     </div>
   </section>
+  <script>
+    import "../scripts/vote.ts";
+  </script>
 </BaseLayout>

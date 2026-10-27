@@ -29,7 +29,21 @@ describe("no network access in app code", () => {
       expect(code.match(/fetch\(/g)).toHaveLength(1);
       code = code.replace("fetch(SAMPLE_URL)", "");
     }
+    // Second exception: the anonymous bank vote. One POST to our own /api/vote with only the bank
+    // name, from a script that can't see statement data (no converter/parser/pdf imports).
+    if (file.endsWith(join("scripts", "vote.ts"))) {
+      expect(code).toMatch(/const VOTE_URL = "\/api\/vote";/);
+      expect(code.match(/fetch\(/g)).toHaveLength(1);
+      expect(code).toMatch(/body: JSON\.stringify\(\{ bank \}\)/);
+      expect(code).not.toMatch(/from "\.\.\/(pdf|parsers|export|lib)\//);
+      code = code.replace("fetch(VOTE_URL", "");
+    }
     expect(code).not.toMatch(NETWORK_APIS);
+  });
+
+  it("the converter never loads the vote script", () => {
+    const converter = readFileSync(join("src", "scripts", "converter.ts"), "utf8");
+    expect(converter).not.toMatch(/vote/);
   });
 
   it("CSP blocks connections to other origins", () => {
