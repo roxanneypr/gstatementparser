@@ -1,0 +1,6 @@
+# Found a security or privacy issue on WalletToExcel? Please email us. Thank you.
+Contact: mailto:hello@wallettoexcel.com
+Expires: 2027-10-27T00:00:00.000Z
+Preferred-Languages: en, fil
+Canonical: https://wallettoexcel.com/.well-known/security.txt
+Policy: https://wallettoexcel.com/privacy
