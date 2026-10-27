@@ -13,7 +13,7 @@ export const strings = {
     nav: { convert: "Convert PDF" },
     footer: {
       disclaimer:
-        "Independent tool. Not affiliated with, endorsed by, or sponsored by GCash, G-Xchange, Inc., Mynt, Maya, or Maya Philippines, Inc.",
+        "Independent tool. Not affiliated with, endorsed by, or sponsored by GCash, G-Xchange, Inc., Mynt, Maya, Maya Philippines, Inc., BPI, or the Bank of the Philippine Islands.",
       about: "About",
       blog: "Blog",
       privacy: "Privacy",
@@ -47,17 +47,17 @@ export const strings = {
       converted: "Your spreadsheet is ready",
       doneSummary: "{source} · {period} · {n} transactions",
       doneSummaryOne: "{source} · {period} · 1 transaction",
-      sources: { gcash: "GCash", maya: "Maya" },
+      sources: { gcash: "GCash", maya: "Maya", bpi: "BPI" },
       errors: {
-        notPdf: "That file isn't a PDF. Choose the PDF statement from GCash or Maya.",
+        notPdf: "That file isn't a PDF. Choose the PDF statement from GCash, Maya or BPI.",
         tooLarge: "That file is too large (over 25 MB). Statements are usually much smaller.",
         passwordEmpty: "Enter the PDF password.",
         wrongPassword: "Wrong password, try again.",
         invalidPdf: "This file couldn't be opened as a PDF. It may be damaged or incomplete.",
         noText:
-          "This PDF has no readable text (it may be a scanned image or a screenshot). Use the original PDF statement from GCash or Maya.",
+          "This PDF has no readable text (it may be a scanned image or a screenshot). Use the original PDF statement from GCash, Maya or BPI.",
         unsupported:
-          "This doesn't look like a GCash or Maya statement PDF. Only GCash and Maya statements are supported for now.",
+          "This doesn't look like a GCash, Maya or BPI statement PDF. Only GCash, Maya and BPI statements are supported for now.",
         generic: "Something went wrong while reading this file. Please try again.",
         sampleFailed:
           "The sample statement couldn't be loaded. Check your connection and try again.",

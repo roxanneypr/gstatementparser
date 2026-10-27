@@ -28,8 +28,13 @@ describe("no network access in app code", () => {
     if (file.endsWith(join("scripts", "converter.ts"))) {
       // The sample URL can only be one of a fixed list of the site's own /sample/*.pdf files.
       const list = /const SAMPLE_URLS = \[([^\]]*)\];/.exec(code)?.[1] ?? "";
-      for (const url of list.split(",")) {
-        expect(url.trim()).toMatch(/^"\/sample\/[a-z0-9-]+\.pdf"$/);
+      const urls = list
+        .split(",")
+        .map((u) => u.trim())
+        .filter(Boolean);
+      expect(urls.length).toBeGreaterThan(0);
+      for (const url of urls) {
+        expect(url).toMatch(/^"\/sample\/[a-z0-9-]+\.pdf"$/);
       }
       expect(code).toMatch(/SAMPLE_URLS\.find\(\(u\) => u === sampleBtn\.dataset\.sampleUrl\)/);
       expect(code.match(/fetch\(/g)).toHaveLength(1);

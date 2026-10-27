@@ -22,6 +22,12 @@ export default function globalSetup() {
   };
   writeFileSync(`${GENERATED}/maya.pdf`, pagesToPdf(maya.pages, { password: PASSWORD }));
 
+  // FAKE BPI account statement (same layout as tests/fixtures/bpi-basic.json); BPI's has no password.
+  const bpi = JSON.parse(readFileSync("tests/fixtures/bpi-basic.json", "utf8")) as {
+    pages: PageText[];
+  };
+  writeFileSync(`${GENERATED}/bpi.pdf`, pagesToPdf(bpi.pages));
+
   // 45 transactions over two months, for pagination and the monthly view.
   writeFileSync(`${GENERATED}/two-months.pdf`, pagesToPdf(twoMonthStatement(45)));
   writeFileSync(

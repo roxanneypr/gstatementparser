@@ -83,4 +83,57 @@ export const walletPages: WalletPage[] = [
     ],
     sampleUrl: "/sample/sample-maya-statement.pdf",
   },
+  {
+    slug: "bpi-statement-to-excel",
+    wallet: "BPI",
+    title: "BPI Statement to Excel – Free & Private | WalletToExcel",
+    description:
+      "Convert your BPI account statement PDF to Excel or CSV. Real dates, debit and credit columns, checked totals. Free, and processed on your device.",
+    ogImage: "/og-bpi.png",
+    heading: "BPI statement to Excel,",
+    lead: "Turn your BPI account statement PDF into a clean, checked spreadsheet for Excel, Google Sheets or CSV. Free to use, no sign-up.",
+    features: [
+      {
+        title: "Built for BPI statements",
+        text: "Reads the description, REF, details, debit, credit and balance columns as printed, from the beginning balance to the balance this statement.",
+      },
+      {
+        title: "Real dates, not just “May 15”",
+        text: "BPI prints dates without a year. The year is taken from the statement's period covered, so sorting and monthly totals work, even across New Year.",
+      },
+      {
+        title: "Checked against the statement",
+        text: "Rows are compared with the statement's total debit and total credit, and every running balance is checked. Gaps are pointed out, never changed.",
+      },
+    ],
+    faq: [
+      {
+        question: "Is my BPI statement uploaded anywhere?",
+        answer: `No. ${PRIVACY_ANSWER}`,
+      },
+      {
+        question: "Which BPI statements work?",
+        answer:
+          "BPI account statements in PDF with the columns Date, Description, Ref, Details, Debit Amount, Credit Amount and Balance (tested with a payroll account statement). BPI credit card statements aren't supported yet.",
+      },
+      {
+        question: "BPI dates have no year. How does that work?",
+        answer:
+          "The statement prints dates like “May 15”. WalletToExcel reads the year from the period covered at the top of the statement, so a statement from December to February gets the right year on every row. A date outside that period is flagged for you to check.",
+      },
+      {
+        question: "Can I open the result in Google Sheets?",
+        answer:
+          "Yes. Download the Excel or CSV file, then in Google Sheets choose File → Import → Upload. The Excel file gives you both the Transactions and Summary sheets.",
+      },
+    ],
+    // Real BPI wording, fake amounts; balances add up (same rows as the sample statement).
+    exampleRows: [
+      ["May 15", "Bizlink Payroll · BIZLINK", "+₱28,500.00", "₱36,950.25"],
+      ["May 16", "InstaPay Transfer · TRANSFER TO OTHER BANK", "−₱5,000.00", "₱31,950.25"],
+      ["May 16", "InstaPay Transfer Fee · TRANSFER TO OTHER BANK", "−₱25.00", "₱31,925.25"],
+      ["May 18", "Purchase-MC @SAMPLE STORE", "−₱1,249.50", "₱30,675.75"],
+    ],
+    sampleUrl: "/sample/sample-bpi-statement.pdf",
+  },
 ];

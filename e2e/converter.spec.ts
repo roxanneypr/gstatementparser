@@ -142,6 +142,43 @@ test("the Maya page's sample runs the FAKE Maya statement", async ({ page }) => 
   );
 });
 
+test("converts a BPI statement: years from the period, labelled BPI in the downloads", async ({
+  page,
+}) => {
+  await choose(page, pdf("bpi"));
+  await expect(page.locator("#state-done")).toBeVisible();
+  await expect(page.locator("#done-summary")).toHaveText(
+    "BPI · May 13 – Aug 13, 2026 · 7 transactions",
+  );
+  await expect(page.locator("#done-status-text")).toHaveText(
+    "Checked against your statement. Every running balance matches.",
+  );
+
+  const [xlsx] = await Promise.all([page.waitForEvent("download"), page.click("#download-xlsx")]);
+  expect(xlsx.suggestedFilename()).toBe("bpi-statement_2026-05-13_to_2026-08-13.xlsx");
+  const wb = read(readFileSync((await xlsx.path())!));
+  const rows = utils.sheet_to_json<Record<string, unknown>>(wb.Sheets.Transactions!);
+  expect(rows).toHaveLength(7);
+  expect(rows[0]).toMatchObject({ Description: "Bizlink Payroll · BIZLINK", Credit: 25000 });
+  expect(rows[1]).toMatchObject({
+    Description: "InstaPay Transfer · TRANSFER TO OTHER BANK",
+    Debit: 10000,
+  });
+  const summary = utils.sheet_to_json<unknown[]>(wb.Sheets.Summary!, { header: 1 });
+  expect(summary[0]).toEqual(["BPI statement summary"]);
+});
+
+test("the BPI page's sample runs the FAKE BPI statement", async ({ page }) => {
+  await page.goto("/bpi-statement-to-excel");
+  await page.getByRole("button", { name: "Try a sample statement" }).click();
+  await expect(page.locator("#done-summary")).toHaveText(
+    "BPI · May 13 – Aug 13, 2026 · 22 transactions",
+  );
+  await expect(page.locator("#done-status-text")).toHaveText(
+    "Checked against your statement. Every running balance matches.",
+  );
+});
+
 test("a PDF without a password converts straight away", async ({ page }) => {
   await page.setInputFiles("#pdf-file", pdf("clean"));
   await expect(page.locator("#state-done")).toBeVisible();
@@ -182,7 +219,7 @@ test("explains files it can't convert and stays on the first step", async ({ pag
   const cases: [string, RegExp][] = [
     ["not-really", /couldn't be opened as a PDF/],
     ["no-text", /no readable text/],
-    ["not-gcash", /doesn't look like a GCash or Maya statement/],
+    ["not-gcash", /doesn't look like a GCash, Maya or BPI statement/],
   ];
   for (const [name, message] of cases) {
     await page.setInputFiles("#pdf-file", pdf(name));

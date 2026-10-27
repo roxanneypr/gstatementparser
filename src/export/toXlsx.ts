@@ -3,7 +3,11 @@ import { formatMoney } from "../lib/money.ts";
 import { balanceCheckLabel, notesLabel, summarize } from "../lib/summary.ts";
 import type { ParseResult } from "../parsers/types.ts";
 
-const SOURCE_NAMES: Record<ParseResult["source"], string> = { gcash: "GCash", maya: "Maya" };
+const SOURCE_NAMES: Record<ParseResult["source"], string> = {
+  gcash: "GCash",
+  maya: "Maya",
+  bpi: "BPI",
+};
 
 const PESO = '"₱"#,##0.00';
 const DATE = "yyyy-mm-dd";

@@ -12,6 +12,7 @@ test.describe("SEO", () => {
     expect(paths).toContain("/");
     expect(paths).toContain("/privacy");
     expect(paths).toContain("/maya-statement-to-excel");
+    expect(paths).toContain("/bpi-statement-to-excel");
     expect(paths.some((p) => p.includes("404") || p.includes("/dev/"))).toBe(false);
   });
 
@@ -117,7 +118,7 @@ test("Maya landing page: own copy and share image, linked from home and footer",
   page,
 }) => {
   await page.goto("/");
-  await page.locator(".also-supported a").click();
+  await page.locator(".also-supported a", { hasText: "Maya" }).click();
   await expect(page).toHaveURL(/\/maya-statement-to-excel$/);
   await expect(page).toHaveTitle("Maya Statement to Excel – Free & Private | WalletToExcel");
   await expect(page.locator("h1")).toHaveText("Maya statement to Excel, in seconds.");
@@ -132,10 +133,27 @@ test("Maya landing page: own copy and share image, linked from home and footer",
     .locator('script[type="application/ld+json"]')
     .evaluateAll((els) => els.map((e) => JSON.parse(e.textContent ?? "{}")["@type"]));
   expect(types).toEqual(["WebApplication", "FAQPage", "BreadcrumbList"]);
-  // Back to the GCash page, and the footer lists both.
-  await expect(page.locator(".works-with a")).toHaveText(["GCash", "Maya"]);
+  // Back to the GCash page, and the footer lists every supported statement.
+  await expect(page.locator(".works-with a")).toHaveText(["GCash", "Maya", "BPI"]);
   await page.locator(".also-supported a").click();
   await expect(page).toHaveURL(/\/$/);
+});
+
+test("BPI landing page: own copy and share image, linked from home and footer", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.locator(".also-supported a", { hasText: "BPI" }).click();
+  await expect(page).toHaveURL(/\/bpi-statement-to-excel$/);
+  await expect(page).toHaveTitle("BPI Statement to Excel – Free & Private | WalletToExcel");
+  await expect(page.locator("h1")).toHaveText("BPI statement to Excel, in seconds.");
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    "content",
+    /\/og-bpi\.png$/,
+  );
+  await expect(page.locator(".example-desc").first()).toHaveText("Bizlink Payroll · BIZLINK");
+  await page.locator(".works-with a", { hasText: "Maya" }).click();
+  await expect(page).toHaveURL(/\/maya-statement-to-excel$/);
 });
 
 test("one-tap bank vote sends only the bank name and says thanks", async ({ page }) => {
@@ -146,7 +164,7 @@ test("one-tap bank vote sends only the bank name and says thanks", async ({ page
   });
   await page.goto("/");
   const chips = page.locator(".bank-chip");
-  await expect(chips).toHaveText(["GoTyme", "BPI", "BDO", "SeaBank", "UnionBank", "Other"]);
+  await expect(chips).toHaveText(["GoTyme", "BDO", "Metrobank", "SeaBank", "UnionBank", "Other"]);
   await expect(page.locator(".cta-band")).not.toContainText("roadmap");
 
   await page.getByRole("button", { name: "GoTyme" }).click();

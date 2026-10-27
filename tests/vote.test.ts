@@ -45,9 +45,9 @@ describe("handleVote", () => {
   it("only accepts votes from our own pages", async () => {
     const { store, added } = fakeStore();
     expect(
-      (await handleVote(vote('{"bank":"BPI"}', { origin: "https://evil.example" }), store)).status,
+      (await handleVote(vote('{"bank":"BDO"}', { origin: "https://evil.example" }), store)).status,
     ).toBe(403);
-    expect((await handleVote(vote('{"bank":"BPI"}', { origin: null }), store)).status).toBe(403);
+    expect((await handleVote(vote('{"bank":"BDO"}', { origin: null }), store)).status).toBe(403);
     expect(added).toEqual([]);
   });
 });
