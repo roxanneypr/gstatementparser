@@ -79,7 +79,7 @@ test("one button: choose a protected PDF, enter the password, download — nothi
   await expect(page.locator("#review")).toBeHidden();
   await expect(page.locator("#months")).toBeHidden(); // single month
   await expect(page.locator("#tx-body tr")).toHaveCount(9);
-  await expect(page.locator("#tx-body tr").first()).toContainText("Ref. 1000000000001");
+  await expect(page.locator("#tx-body tr").first()).not.toContainText("1000000000001"); // ref no. not shown
   await expect(page.locator("#tx-range")).toHaveText("1–9 of 9");
   await expect(page.locator("#pager-buttons button")).toHaveCount(0);
 
@@ -220,7 +220,7 @@ test("statement details: pages of 20, filters, months, search and rows to review
 
   // "Show rows to review" jumps to just the flagged rows
   await expect(page.locator("#review-title")).toHaveText("3 rows need a look");
-  await page.click("#review-show");
+  await page.getByRole("button", { name: "Show them" }).click();
   await expect(page.locator("#tx-search")).toHaveValue("");
   await expect(page.locator('[data-filter="review"]')).toHaveAttribute("aria-pressed", "true");
   await expect(rows).toHaveCount(3);

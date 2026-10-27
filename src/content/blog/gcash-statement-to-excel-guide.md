@@ -69,17 +69,17 @@ balance.
 
 **Rows to review.** Sometimes a statement lists a transaction but its running balance doesn't
 change, or changes by a different amount. WalletToExcel keeps GCash's figures exactly as printed
-and points those rows out. Press **Show rows to review** to see only them, then compare them with
+and points those rows out. Press **Show them** to see only those rows, then compare them with
 the GCash app.
 
-![A highlighted note saying "1 row needs a look", explaining that the statement's running balance doesn't follow, with a "Show rows to review" button.](./images/gcash-statement-to-excel-guide/6-review.png)
+![A short note under the overview saying "1 row needs a look (1 unchanged)" with a "Show them" link](./images/gcash-statement-to-excel-guide/6-review.png)
 
 **Transactions.** Every row, 20 per page. Filter by **Money in**, **Money out** or **Needs review**,
 pick a month, or search by description or reference number to find a row from your PDF quickly.
 Turn on **Clean up** to leave out transactions that didn't change your balance; it also applies to
 your download.
 
-![The transactions table filtered to "Money in", showing date and time, description with reference number, amount and balance for each row.](./images/gcash-statement-to-excel-guide/7-transactions.png)
+![The transactions table filtered to "Money in", showing date and time, description, amount and balance for each row.](./images/gcash-statement-to-excel-guide/7-transactions.png)
 
 ## Step 5: Open it
 

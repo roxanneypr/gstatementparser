@@ -434,9 +434,6 @@ function txRow({ row, tx }: IndexedTx) {
   const desc = h("td", "col-desc");
   desc.dataset.label = c.description;
   desc.append(h("span", "cell-main", tx.description));
-  if (tx.referenceNo) {
-    desc.append(h("span", "cell-sub tabular", fill(r.table.ref, { ref: tx.referenceNo })));
-  }
 
   const amount = h(
     "td",

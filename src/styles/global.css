@@ -872,41 +872,39 @@ tbody tr:last-child > * {
   border-color: var(--line);
 }
 
-/* review callout */
+/* rows to review: one plain line under the overview */
 .review {
+  margin-top: 16px;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+.review-line {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 14px 24px;
-  margin-top: 20px;
-  padding: 18px 22px;
-  border-radius: var(--radius);
-  background: var(--warn-bg);
-  border: 1px solid var(--warn-line);
+  gap: 4px 6px;
+  margin: 0;
+}
+.review-icon {
+  flex: none;
   color: var(--warn-text);
 }
-.review-text {
-  flex: 1 1 420px;
-}
 .review-title {
-  margin: 0;
-  font-weight: 600;
+  font-weight: 500;
+  color: var(--text);
 }
-.review p {
-  margin: 4px 0 0;
-  font-size: 0.875rem;
+.review .btn-link {
+  padding: 2px 4px;
+  font-size: inherit;
+  font-weight: 500;
+  color: var(--text);
 }
 .review ul {
-  margin: 8px 0 0;
-  padding-left: 1.2em;
-  font-size: 0.875rem;
+  margin: 6px 0 0;
+  padding-left: 1.4em;
 }
 .review ul:empty {
   display: none;
-}
-.review .btn-secondary {
-  border-color: var(--warn-line);
 }
 
 /* transactions toolbar */

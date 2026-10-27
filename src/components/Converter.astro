@@ -301,14 +301,24 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
 
     <!-- Rows to review -->
     <div id="review" class="review" role="note" hidden>
-      <div class="review-text">
-        <p id="review-title" class="review-title"></p>
-        <p id="review-body"></p>
-        <ul id="review-notes"></ul>
-      </div>
-      <button type="button" id="review-show" class="btn-secondary">
-        {r.review.show}
-      </button>
+      <p class="review-line">
+        <svg class="review-icon" aria-hidden="true" viewBox="0 0 24 24" width="15" height="15">
+          <path
+            d="M12 3.5 2.5 20h19L12 3.5Zm0 6v5m0 2.6v.1"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></path>
+        </svg>
+        <span id="review-title" class="review-title"></span>
+        <span id="review-body"></span>
+        <button type="button" id="review-show" class="btn-link">
+          {r.review.show}
+        </button>
+      </p>
+      <ul id="review-notes"></ul>
     </div>
 
     <!-- By month -->

@@ -97,14 +97,14 @@ export const strings = {
         },
         review: {
           title: { one: "1 row needs a look", other: "{n} rows need a look" },
-          gaps: "On {n} of them the statement's running balance doesn't follow ({details}). We kept GCash's figures exactly as printed.",
+          gaps: "({details})",
           unchanged: "{n} unchanged",
           different: "{n} moved by a different amount",
           readProblems: {
-            one: "1 row couldn't be read confidently.",
-            other: "{n} rows couldn't be read confidently.",
+            one: "1 couldn't be read confidently.",
+            other: "{n} couldn't be read confidently.",
           },
-          show: "Show rows to review",
+          show: "Show them",
           notes: "Notes",
         },
         months: {
@@ -137,7 +137,6 @@ export const strings = {
             amount: "Amount",
             balance: "Balance",
           },
-          ref: "Ref. {ref}",
           warnUnchanged: "Balance didn't change",
           warnDifferent: "Balance off by {amount}",
           warnRead: "Check this row against your PDF",
