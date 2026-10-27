@@ -132,7 +132,12 @@ test("points out balance gaps without changing the figures", async ({ page }) =>
   const row5 = page.locator("#tx-body tr").nth(4);
   await expect(row5).toHaveClass(/flagged/);
   await expect(row5).toContainText("₱2,855.00");
-  await expect(row5.locator(".row-warn")).toHaveAttribute("title", "Balance didn't change");
+  const warn = row5.locator(".row-warn");
+  await expect(warn).toHaveAccessibleName("Balance didn't change");
+  await expect(warn.locator(".row-warn-tip")).toBeHidden();
+  await warn.hover();
+  await expect(warn.locator(".row-warn-tip")).toBeVisible();
+  await expect(warn.locator(".row-warn-tip")).toHaveText("Balance didn't change");
   await expect(page.locator("#tx-body .row-warn")).toHaveCount(2); // only the flagged rows
 });
 
@@ -214,7 +219,7 @@ test("statement details: pages of 20, filters, months, search and rows to review
   await page.selectOption("#month-filter", "");
   await page.fill("#tx-search", "4000000000031");
   await expect(rows).toHaveCount(1);
-  await expect(rows.first().locator(".row-warn")).toHaveAttribute("title", "Balance didn't change");
+  await expect(rows.first().locator(".row-warn")).toHaveAccessibleName("Balance didn't change");
   await page.fill("#tx-search", "no such thing");
   await expect(page.locator("#tx-empty")).toBeVisible();
 

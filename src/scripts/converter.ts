@@ -394,10 +394,14 @@ function rowWarning(tx: Transaction): string | null {
   return null;
 }
 
-/** Small warning sign (with an accessible reason) shown in the first column of flagged rows. */
+/**
+ * Small warning sign shown in the first column of flagged rows. The reason appears right away on
+ * hover, tap or keyboard focus (a native `title` tooltip is slow and never shows on phones).
+ */
 function warnIcon(reason: string) {
-  const wrap = h("span", "row-warn");
-  wrap.title = reason;
+  const wrap = h("button", "row-warn");
+  wrap.type = "button";
+  wrap.setAttribute("aria-label", reason); // the tip is hidden until shown, so name the button
   const svgNs = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(svgNs, "svg");
   svg.setAttribute("viewBox", "0 0 24 24");
@@ -412,7 +416,9 @@ function warnIcon(reason: string) {
   path.setAttribute("stroke-linecap", "round");
   path.setAttribute("stroke-linejoin", "round");
   svg.append(path);
-  wrap.append(svg, h("span", "visually-hidden", reason));
+  // Safari doesn't focus buttons on tap; focus explicitly so the reason shows on phones too.
+  wrap.addEventListener("click", () => wrap.focus());
+  wrap.append(svg, h("span", "row-warn-tip", reason));
   return wrap;
 }
 

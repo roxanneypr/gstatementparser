@@ -995,10 +995,45 @@ tbody tr:last-child > * {
   vertical-align: -3px;
 }
 .row-warn {
+  position: relative;
   display: inline-flex;
-  margin-left: 8px;
+  /* Bigger hit area for taps without taking more room than the 16px sign. */
+  margin: -4px -4px -4px 4px;
+  padding: 4px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
   color: var(--warn-text);
+  font: inherit;
   cursor: help;
+}
+/* The reason, shown to the right of the sign (the table clips anything above its first row). */
+.row-warn-tip {
+  position: absolute;
+  left: calc(100% + 6px);
+  top: 50%;
+  z-index: 5;
+  transform: translateY(-50%);
+  width: max-content;
+  max-width: 220px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  text-align: left;
+  white-space: normal;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.16);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+.row-warn:hover .row-warn-tip,
+.row-warn:focus .row-warn-tip {
+  opacity: 1;
+  visibility: visible;
 }
 .tx-table .col-date {
   white-space: nowrap;
