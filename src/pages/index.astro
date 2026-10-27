@@ -8,6 +8,24 @@ import { CONTACT_EMAIL, SITE_NAME, SITE_TAGLINE } from "../site.ts";
 // FAQ "learn more" links only point at posts that exist in this build.
 const postIds = new Set((await getPosts()).map((p) => p.id));
 
+// "Which bank next?" chips: each opens an email with the request pre-filled. No backend, nothing
+// stored on the site; requests simply arrive in the contact inbox.
+const requestHref = (subject: string, body: string) =>
+  `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+const bankRequests = [
+  ...["Maya", "BPI", "BDO", "SeaBank", "UnionBank"].map((bank) => ({
+    label: bank,
+    href: requestHref(
+      `Please add ${bank}`,
+      `Hi! I'd like to convert my ${bank} statement to Excel.`,
+    ),
+  })),
+  {
+    label: "Other",
+    href: requestHref("Please add another bank or wallet", "Bank or wallet I'd like to convert: "),
+  },
+];
+
 const schema = [
   {
     "@context": "https://schema.org",
@@ -118,12 +136,21 @@ const icons = {
   </section>
 
   <section class="section cta-band" aria-labelledby="need-more">
-    <div>
+    <div class="cta-band-text">
       <h2 id="need-more">Using another wallet or bank?</h2>
-      <p>Maya, BPI, BDO and more are on the roadmap. Tell us which statement you need next.</p>
+      <p>Tell us which one to add next.</p>
     </div>
-    <a class="btn-primary btn-light" href={`mailto:${CONTACT_EMAIL}?subject=Statement%20request`}>
-      Request a bank
-    </a>
+    <div class="cta-band-vote">
+      <ul class="bank-chips" aria-label="Request a bank or wallet">
+        {bankRequests.map((b) => (
+          <li>
+            <a class="bank-chip" href={b.href}>
+              {b.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p class="bank-note">Opens your email with the bank pre-filled.</p>
+    </div>
   </section>
 </BaseLayout>

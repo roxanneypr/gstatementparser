@@ -110,3 +110,12 @@ test.describe("content", () => {
     await expect(page.locator(".draft-banner")).toHaveCount(0);
   });
 });
+
+test("bank request chips open a pre-filled email (no backend)", async ({ page }) => {
+  await page.goto("/");
+  const chips = page.locator(".bank-chip");
+  await expect(chips).toHaveText(["Maya", "BPI", "BDO", "SeaBank", "UnionBank", "Other"]);
+  const maya = await chips.first().getAttribute("href");
+  expect(maya).toMatch(/^mailto:hello@wallettoexcel\.com\?subject=Please%20add%20Maya&body=/);
+  await expect(page.locator(".cta-band")).not.toContainText("roadmap");
+});

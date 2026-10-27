@@ -1321,14 +1321,50 @@ tbody tr:last-child > * {
   margin: 0;
   max-width: 52ch;
 }
-.cta-band .btn-light {
-  background: #fff;
-  color: var(--ink);
-  border: 1px solid #fff;
+.cta-band-text {
+  flex: 1 1 280px;
 }
-.cta-band .btn-light:hover {
-  background: #e9ebed;
+.cta-band-vote {
+  flex: 1 1 360px;
+  max-width: 520px;
+}
+.bank-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bank-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgb(255 255 255 / 22%);
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+.bank-chip:hover {
+  background: #fff;
+  border-color: #fff;
   color: var(--ink);
+}
+.bank-chip:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.cta-band .bank-note {
+  margin: 12px 0 0;
+  font-size: 0.8125rem;
+  color: #9aa1a8;
 }
 @media (max-width: 559px) {
   .cta-band {
