@@ -12,6 +12,8 @@ for (const line of readFileSync(join(root, "_headers"), "utf8").split("\n")) {
 }
 const types = {
   ".png": "image/png",
+  ".ico": "image/x-icon",
+  ".webmanifest": "application/manifest+json",
   ".json": "application/json",
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript",

@@ -55,6 +55,25 @@ test.describe("SEO", () => {
     }
   });
 
+  test("site icons are served and linked", async ({ request, page }) => {
+    for (const [path, type] of [
+      ["/favicon.ico", "image/"],
+      ["/favicon.svg", "image/svg+xml"],
+      ["/apple-touch-icon.png", "image/png"],
+      ["/icon-192.png", "image/png"],
+      ["/icon-512.png", "image/png"],
+      ["/site.webmanifest", ""],
+    ] as const) {
+      const res = await request.get(path);
+      expect(res.status(), path).toBe(200);
+      expect(res.headers()["content-type"] ?? "", path).toContain(type);
+    }
+    await page.goto("/");
+    await expect(page.locator('link[rel="icon"][href="/favicon.ico"]')).toHaveCount(1);
+    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveCount(1);
+    await expect(page.locator('link[rel="manifest"]')).toHaveCount(1);
+  });
+
   test("the share image exists", async ({ request }) => {
     const res = await request.get("/og-image.png");
     expect(res.status()).toBe(200);
