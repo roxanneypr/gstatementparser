@@ -120,18 +120,18 @@ test("one-tap bank vote sends only the bank name and says thanks", async ({ page
   });
   await page.goto("/");
   const chips = page.locator(".bank-chip");
-  await expect(chips).toHaveText(["Maya", "BPI", "BDO", "SeaBank", "UnionBank", "Other"]);
+  await expect(chips).toHaveText(["GoTyme", "BPI", "BDO", "SeaBank", "UnionBank", "Other"]);
   await expect(page.locator(".cta-band")).not.toContainText("roadmap");
 
-  await page.getByRole("button", { name: "Maya" }).click();
-  await expect(page.locator("#vote-status")).toHaveText("Thanks! Maya noted ✓");
-  await expect(page.getByRole("button", { name: "Maya" })).toHaveAttribute("aria-pressed", "true");
-  expect(bodies).toEqual(['{"bank":"Maya"}']);
+  await page.getByRole("button", { name: "GoTyme" }).click();
+  await expect(page.locator("#vote-status")).toHaveText("Thanks! GoTyme noted ✓");
+  await expect(page.getByRole("button", { name: "GoTyme" })).toHaveAttribute("aria-pressed", "true");
+  expect(bodies).toEqual(['{"bank":"GoTyme"}']);
 
   // Remembered on this device: no second vote.
   await page.reload();
-  await page.getByRole("button", { name: "Maya" }).click();
-  await expect(page.locator("#vote-status")).toHaveText("Thanks! Maya is already noted ✓");
+  await page.getByRole("button", { name: "GoTyme" }).click();
+  await expect(page.locator("#vote-status")).toHaveText("Thanks! GoTyme is already noted ✓");
   expect(bodies).toHaveLength(1);
 });
 

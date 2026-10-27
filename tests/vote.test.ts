@@ -5,7 +5,7 @@ function fakeStore() {
   const added: string[] = [];
   const store: VoteStore = {
     add: async (bank) => void added.push(bank),
-    totals: async () => [{ bank: "Maya", votes: added.filter((b) => b === "Maya").length }],
+    totals: async () => [{ bank: "GoTyme", votes: added.filter((b) => b === "GoTyme").length }],
   };
   return { store, added };
 }
@@ -24,10 +24,10 @@ const vote = (body: string, init: { origin?: string | null; method?: string } = 
 describe("handleVote", () => {
   it("stores a known bank and nothing else", async () => {
     const { store, added } = fakeStore();
-    const res = await handleVote(vote('{"bank":"Maya","name":"Juan","email":"x@y.z"}'), store);
+    const res = await handleVote(vote('{"bank":"GoTyme","name":"Juan","email":"x@y.z"}'), store);
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
-    expect(added).toEqual(["Maya"]); // only the bank name reaches storage
+    expect(added).toEqual(["GoTyme"]); // only the bank name reaches storage
     expect(res.headers.get("Cache-Control")).toBe("no-store");
   });
 
@@ -35,7 +35,7 @@ describe("handleVote", () => {
     const { store, added } = fakeStore();
     expect((await handleVote(vote('{"bank":"Hackers Inc"}'), store)).status).toBe(400);
     expect((await handleVote(vote("not json"), store)).status).toBe(400);
-    expect((await handleVote(vote(`{"bank":"Maya","x":"${"a".repeat(300)}"}`), store)).status).toBe(
+    expect((await handleVote(vote(`{"bank":"GoTyme","x":"${"a".repeat(300)}"}`), store)).status).toBe(
       413,
     );
     expect((await handleVote(vote("", { method: "GET" }), store)).status).toBe(405);
@@ -60,6 +60,6 @@ describe("handleTotals", () => {
     expect((await handleTotals(req("?key=wrong"), "abc", store)).status).toBe(404);
     const ok = await handleTotals(req("?key=abc"), "abc", store);
     expect(ok.status).toBe(200);
-    expect(await ok.json()).toEqual({ totals: [{ bank: "Maya", votes: 0 }] });
+    expect(await ok.json()).toEqual({ totals: [{ bank: "GoTyme", votes: 0 }] });
   });
 });

@@ -24,10 +24,10 @@ made-up statement. All the screenshots below come from that sample.
 
 ## Step 1: Choose your PDF
 
-Open the [converter](/) and press **Choose your GCash PDF**. On a computer you can also drag the
+Open the [converter](/) and press **Choose your statement**. On a computer you can also drag the
 file onto the box.
 
-![The converter card with the "Choose your GCash PDF" button, an example of the output, and the note "Processed on your device. Nothing is uploaded."](./images/gcash-statement-to-excel-guide/1-choose.png)
+![The converter card with the "Choose your statement" button, an example of the output, and the note "Processed on your device. Nothing is uploaded."](./images/gcash-statement-to-excel-guide/1-choose.png)
 
 ## Step 2: Enter the password
 

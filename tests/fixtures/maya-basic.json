@@ -1,0 +1,593 @@
+{
+  "_note": "Synthetic data. Mirrors the Maya Wallet Statement of Account layout; not a real statement. The 'Cash in' (+PHP) row is an assumption: no real money-in row has been seen yet.",
+  "pages": [
+    {
+      "pageNumber": 1,
+      "width": 595,
+      "height": 842,
+      "items": [
+        {
+          "str": "1 of 2",
+          "x": 526.4,
+          "y": 79.3,
+          "width": 25.8,
+          "height": 8
+        },
+        {
+          "str": "Account number:",
+          "x": 340,
+          "y": 121.0,
+          "width": 64.5,
+          "height": 8
+        },
+        {
+          "str": "+639170000000",
+          "x": 433,
+          "y": 121.0,
+          "width": 55.9,
+          "height": 8
+        },
+        {
+          "str": "JUAN DELA CRUZ",
+          "x": 20,
+          "y": 123.3,
+          "width": 60.2,
+          "height": 10
+        },
+        {
+          "str": "Coverage period:",
+          "x": 340,
+          "y": 143.0,
+          "width": 68.8,
+          "height": 8
+        },
+        {
+          "str": "1 Sep 2026 - 30 Sep 2026",
+          "x": 433,
+          "y": 143.0,
+          "width": 103.2,
+          "height": 8
+        },
+        {
+          "str": "Account summary",
+          "x": 21,
+          "y": 174.4,
+          "width": 64.5,
+          "height": 10
+        },
+        {
+          "str": "Starting balance",
+          "x": 42.3,
+          "y": 209.2,
+          "width": 68.8,
+          "height": 8
+        },
+        {
+          "str": "+ Total incoming",
+          "x": 162.3,
+          "y": 209.2,
+          "width": 68.8,
+          "height": 8
+        },
+        {
+          "str": "- Total outgoing",
+          "x": 304,
+          "y": 209.2,
+          "width": 68.8,
+          "height": 8
+        },
+        {
+          "str": "Ending balance",
+          "x": 450.9,
+          "y": 209.2,
+          "width": 60.2,
+          "height": 8
+        },
+        {
+          "str": "PHP 5,000.00",
+          "x": 49.1,
+          "y": 244.2,
+          "width": 51.6,
+          "height": 10
+        },
+        {
+          "str": "PHP 2,500.00",
+          "x": 184.7,
+          "y": 244.2,
+          "width": 51.6,
+          "height": 10
+        },
+        {
+          "str": "PHP 3,500.00",
+          "x": 309.1,
+          "y": 244.2,
+          "width": 51.6,
+          "height": 10
+        },
+        {
+          "str": "PHP 4,000.00",
+          "x": 457.6,
+          "y": 244.2,
+          "width": 51.6,
+          "height": 10
+        },
+        {
+          "str": "Transaction details",
+          "x": 21,
+          "y": 279.4,
+          "width": 81.7,
+          "height": 10
+        },
+        {
+          "str": "Date & Time",
+          "x": 42.8,
+          "y": 311.3,
+          "width": 47.3,
+          "height": 8
+        },
+        {
+          "str": "Transaction type & details",
+          "x": 149.5,
+          "y": 311.3,
+          "width": 111.8,
+          "height": 8
+        },
+        {
+          "str": "Reference ID",
+          "x": 322,
+          "y": 311.3,
+          "width": 51.6,
+          "height": 8
+        },
+        {
+          "str": "Amount",
+          "x": 423.5,
+          "y": 311.3,
+          "width": 25.8,
+          "height": 8
+        },
+        {
+          "str": "Running balance",
+          "x": 497.3,
+          "y": 311.3,
+          "width": 64.5,
+          "height": 8
+        },
+        {
+          "str": "Beginning Balance",
+          "x": 109,
+          "y": 340.8,
+          "width": 73.1,
+          "height": 8
+        },
+        {
+          "str": "PHP 5,000.00",
+          "x": 496.4,
+          "y": 340.8,
+          "width": 51.6,
+          "height": 8
+        },
+        {
+          "str": "1 Sep 2026",
+          "x": 29,
+          "y": 360.8,
+          "width": 43.0,
+          "height": 8
+        },
+        {
+          "str": "Purchased",
+          "x": 108,
+          "y": 360.8,
+          "width": 38.7,
+          "height": 8
+        },
+        {
+          "str": "1A2B3C4D5E6F",
+          "x": 298,
+          "y": 360.8,
+          "width": 51.6,
+          "height": 8
+        },
+        {
+          "str": "-PHP 150.00",
+          "x": 397.7,
+          "y": 360.8,
+          "width": 47.3,
+          "height": 8
+        },
+        {
+          "str": "PHP 4,850.00",
+          "x": 496.4,
+          "y": 360.8,
+          "width": 51.6,
+          "height": 8
+        },
+        {
+          "str": "08:15:30 AM",
+          "x": 29,
+          "y": 376.0,
+          "width": 47.3,
+          "height": 8
+        },
+        {
+          "str": "PWM Authorization",
+          "x": 108,
+          "y": 376.0,
+          "width": 73.1,
+          "height": 8
+        },
+        {
+          "str": "3 Sep 2026",
+          "x": 29,
+          "y": 415.8,
+          "width": 43.0,
+          "height": 8
+        },
+        {
+          "str": "Sent to bank",
+          "x": 108,
+          "y": 415.8,
+          "width": 51.6,
+          "height": 8
+        },
+        {
+          "str": "7G8H9J0K1L2M",
+          "x": 298,
+          "y": 415.8,
+          "width": 51.6,
+          "height": 8
+        },
+        {
+          "str": "-PHP 1,000.00",
+          "x": 389.1,
+          "y": 415.8,
+          "width": 55.9,
+          "height": 8
+        },
+        {
+          "str": "PHP 3,850.00",
+          "x": 496.4,
+          "y": 415.8,
+          "width": 51.6,
+          "height": 8
+        },
+        {
+          "str": "01:05:00 PM",
+          "x": 29,
+          "y": 431.0,
+          "width": 47.3,
+          "height": 8
+        },
+        {
+          "str": "Instapay Sending",
+          "x": 108,
+          "y": 431.0,
+          "width": 68.8,
+          "height": 8
+        },
+        {
+          "str": "5 Sep 2026",
+          "x": 29,
+          "y": 470.8,
+          "width": 43.0,
+          "height": 8
+        },
+        {
+          "str": "Cash in",
+          "x": 108,
+          "y": 470.8,
+          "width": 30.1,
+          "height": 8
+        },
+        {
+          "str": "3N4P5Q6R7S8T",
+          "x": 298,
+          "y": 470.8,
+          "width": 51.6,
+          "height": 8
+        },
+        {
+          "str": "+PHP 2,500.00",
+          "x": 389.1,
+          "y": 470.8,
+          "width": 55.9,
+          "height": 8
+        },
+        {
+          "str": "PHP 6,350.00",
+          "x": 496.4,
+          "y": 470.8,
+          "width": 51.6,
+          "height": 8
+        },
+        {
+          "str": "12:30:10 PM",
+          "x": 29,
+          "y": 486.0,
+          "width": 47.3,
+          "height": 8
+        },
+        {
+          "str": "Sample Bank",
+          "x": 108,
+          "y": 486.0,
+          "width": 47.3,
+          "height": 8
+        },
+        {
+          "str": "10 Sep 2026",
+          "x": 29,
+          "y": 525.8,
+          "width": 47.3,
+          "height": 8
+        },
+        {
+          "str": "Purchased",
+          "x": 108,
+          "y": 525.8,
+          "width": 38.7,
+          "height": 8
+        },
+        {
+          "str": "9U0V1W2X3Y4Z",
+          "x": 298,
+          "y": 525.8,
+          "width": 51.6,
+          "height": 8
+        },
+        {
+          "str": "-PHP 1,234.50",
+          "x": 389.1,
+          "y": 525.8,
+          "width": 55.9,
+          "height": 8
+        },
+        {
+          "str": "PHP 5,115.50",
+          "x": 496.4,
+          "y": 525.8,
+          "width": 51.6,
+          "height": 8
+        },
+        {
+          "str": "09:00:00 PM",
+          "x": 29,
+          "y": 541.0,
+          "width": 47.3,
+          "height": 8
+        },
+        {
+          "str": "SAMPLE STORE *Online",
+          "x": 108,
+          "y": 541.0,
+          "width": 86.0,
+          "height": 8
+        },
+        {
+          "str": "Order 12345",
+          "x": 108,
+          "y": 553.0,
+          "width": 47.3,
+          "height": 8
+        },
+        {
+          "str": "Makati,MetroMHPHL",
+          "x": 196.2,
+          "y": 541.0,
+          "width": 73.1,
+          "height": 8
+        }
+      ]
+    },
+    {
+      "pageNumber": 2,
+      "width": 595,
+      "height": 842,
+      "items": [
+        {
+          "str": "2 of 2",
+          "x": 526.4,
+          "y": 79.3,
+          "width": 25.8,
+          "height": 8
+        },
+        {
+          "str": "Account number:",
+          "x": 340,
+          "y": 121.0,
+          "width": 64.5,
+          "height": 8
+        },
+        {
+          "str": "+639170000000",
+          "x": 433,
+          "y": 121.0,
+          "width": 55.9,
+          "height": 8
+        },
+        {
+          "str": "JUAN DELA CRUZ",
+          "x": 20,
+          "y": 123.3,
+          "width": 60.2,
+          "height": 10
+        },
+        {
+          "str": "Coverage period:",
+          "x": 340,
+          "y": 143.0,
+          "width": 68.8,
+          "height": 8
+        },
+        {
+          "str": "1 Sep 2026 - 30 Sep 2026",
+          "x": 433,
+          "y": 143.0,
+          "width": 103.2,
+          "height": 8
+        },
+        {
+          "str": "Transaction details",
+          "x": 21,
+          "y": 176.4,
+          "width": 81.7,
+          "height": 10
+        },
+        {
+          "str": "Date & Time",
+          "x": 42.8,
+          "y": 208.3,
+          "width": 47.3,
+          "height": 8
+        },
+        {
+          "str": "Transaction type & details",
+          "x": 149.5,
+          "y": 208.3,
+          "width": 111.8,
+          "height": 8
+        },
+        {
+          "str": "Reference ID",
+          "x": 322,
+          "y": 208.3,
+          "width": 51.6,
+          "height": 8
+        },
+        {
+          "str": "Amount",
+          "x": 423.5,
+          "y": 208.3,
+          "width": 25.8,
+          "height": 8
+        },
+        {
+          "str": "Running balance",
+          "x": 497.3,
+          "y": 208.3,
+          "width": 64.5,
+          "height": 8
+        },
+        {
+          "str": "15 Sep 2026",
+          "x": 29,
+          "y": 237.8,
+          "width": 47.3,
+          "height": 8
+        },
+        {
+          "str": "Paid bill",
+          "x": 108,
+          "y": 237.8,
+          "width": 38.7,
+          "height": 8
+        },
+        {
+          "str": "5A6B7C8D9E0F",
+          "x": 298,
+          "y": 237.8,
+          "width": 51.6,
+          "height": 8
+        },
+        {
+          "str": "-PHP 615.50",
+          "x": 397.7,
+          "y": 237.8,
+          "width": 47.3,
+          "height": 8
+        },
+        {
+          "str": "PHP 4,500.00",
+          "x": 496.4,
+          "y": 237.8,
+          "width": 51.6,
+          "height": 8
+        },
+        {
+          "str": "07:45:00 AM",
+          "x": 29,
+          "y": 253.0,
+          "width": 47.3,
+          "height": 8
+        },
+        {
+          "str": "Pay with PayMaya Wallet Bills Pay",
+          "x": 108,
+          "y": 253.0,
+          "width": 141.9,
+          "height": 8
+        },
+        {
+          "str": "30 Sep 2026",
+          "x": 29,
+          "y": 292.8,
+          "width": 47.3,
+          "height": 8
+        },
+        {
+          "str": "Sent to Maya user",
+          "x": 108,
+          "y": 292.8,
+          "width": 73.1,
+          "height": 8
+        },
+        {
+          "str": "ACC12CD34567",
+          "x": 298,
+          "y": 292.8,
+          "width": 51.6,
+          "height": 8
+        },
+        {
+          "str": "-PHP 500.00",
+          "x": 397.7,
+          "y": 292.8,
+          "width": 47.3,
+          "height": 8
+        },
+        {
+          "str": "PHP 4,000.00",
+          "x": 496.4,
+          "y": 292.8,
+          "width": 51.6,
+          "height": 8
+        },
+        {
+          "str": "11:59:59 PM",
+          "x": 29,
+          "y": 308.0,
+          "width": 47.3,
+          "height": 8
+        },
+        {
+          "str": "Transfer to 639170******1234",
+          "x": 108,
+          "y": 308.0,
+          "width": 120.4,
+          "height": 8
+        },
+        {
+          "str": "Ending Balance",
+          "x": 109,
+          "y": 347.0,
+          "width": 60.2,
+          "height": 8
+        },
+        {
+          "str": "PHP 4,000.00",
+          "x": 496.4,
+          "y": 350.8,
+          "width": 51.6,
+          "height": 8
+        },
+        {
+          "str": "** Nothing follows **",
+          "x": 239.4,
+          "y": 374.4,
+          "width": 90.3,
+          "height": 8
+        }
+      ]
+    }
+  ]
+}

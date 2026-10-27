@@ -48,7 +48,7 @@ export interface BalanceIssue {
 }
 
 export interface ParseResult {
-  source: "gcash";
+  source: "gcash" | "maya";
   accountName?: string;
   /** mask in UI: show only last 4 digits */
   accountNumber?: string;

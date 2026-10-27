@@ -3,6 +3,8 @@ import { formatMoney } from "../lib/money.ts";
 import { balanceCheckLabel, notesLabel, summarize } from "../lib/summary.ts";
 import type { ParseResult } from "../parsers/types.ts";
 
+const SOURCE_NAMES: Record<ParseResult["source"], string> = { gcash: "GCash", maya: "Maya" };
+
 const PESO = '"₱"#,##0.00';
 const DATE = "yyyy-mm-dd";
 const TIME = "hh:mm";
@@ -74,7 +76,7 @@ function summarySheet(result: ParseResult): WorkSheet {
   const s = summarize(result);
   const money = (c: number | undefined) => (c === undefined ? text("Not shown") : peso(c));
   const rows: CellObject[][] = [
-    [text("GCash statement summary")],
+    [text(`${SOURCE_NAMES[result.source]} statement summary`)],
     [],
     [
       text("Period start"),

@@ -87,7 +87,9 @@ github.com/KazeFreeze/gcash-pdf-parser. If any code is adapted from it, keep its
 │   │   └── extractText.ts    # pdf.js: load (with password), return positioned text items per page
 │   ├── parsers/
 │   │   ├── types.ts          # Transaction, ParseResult, StatementParser interface
-│   │   ├── gcash.ts          # GCash-specific parser
+│   │   ├── gcash.ts          # GCash Transaction History parser
+│   │   ├── maya.ts           # Maya Wallet Statement of Account parser
+│   │   ├── reconcile.ts      # shared reconciliation checks (every parser uses it)
 │   │   └── index.ts          # registry: detect which parser fits a PDF
 │   ├── export/
 │   │   ├── toXlsx.ts
@@ -143,7 +145,7 @@ interface BalanceIssue {
 }
 
 interface ParseResult {
-  source: "gcash";
+  source: "gcash" | "maya";
   accountName?: string;
   accountNumber?: string; // mask in UI: show only last 4 digits
   periodStart?: string;

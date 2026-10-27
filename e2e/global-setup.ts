@@ -16,6 +16,12 @@ export default function globalSetup() {
   // Real GCash statements are password-protected; this one uses a fake password.
   writeFileSync(`${GENERATED}/protected.pdf`, pagesToPdf(pages, { password: PASSWORD }));
 
+  // FAKE Maya Wallet statement (same layout as tests/fixtures/maya-basic.json), password-protected.
+  const maya = JSON.parse(readFileSync("tests/fixtures/maya-basic.json", "utf8")) as {
+    pages: PageText[];
+  };
+  writeFileSync(`${GENERATED}/maya.pdf`, pagesToPdf(maya.pages, { password: PASSWORD }));
+
   // 45 transactions over two months, for pagination and the monthly view.
   writeFileSync(`${GENERATED}/two-months.pdf`, pagesToPdf(twoMonthStatement(45)));
   writeFileSync(

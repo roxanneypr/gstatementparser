@@ -41,7 +41,7 @@ test("one button: choose a protected PDF, enter the password, download — nothi
   page,
 }) => {
   const { requests, problems } = watch(page);
-  await expect(page.locator("#choose-btn")).toHaveText("Choose your GCash PDF");
+  await expect(page.locator("#choose-btn")).toHaveText("Choose your statement");
   await choose(page, pdf("protected"));
 
   // The PDF asks for a password, so the panel asks for one.
@@ -105,6 +105,32 @@ test("one button: choose a protected PDF, enter the password, download — nothi
   expect(problems).toEqual([]);
 });
 
+test("converts a Maya statement: detected, checked and labelled Maya in the downloads", async ({
+  page,
+}) => {
+  await choose(page, pdf("maya"));
+  await page.fill("#pdf-password", PASSWORD);
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#state-done")).toBeVisible();
+  await expect(page.locator("#done-summary")).toHaveText(
+    "Maya · Sep 1 – Sep 30, 2026 · 6 transactions",
+  );
+  await expect(page.locator("#done-status")).toHaveClass(/is-ok/);
+  await expect(page.locator("#done-status-text")).toHaveText(
+    "Checked against your statement. Every running balance matches.",
+  );
+
+  const [xlsx] = await Promise.all([page.waitForEvent("download"), page.click("#download-xlsx")]);
+  expect(xlsx.suggestedFilename()).toBe("maya-statement_2026-09-01_to_2026-09-30.xlsx");
+  const wb = read(readFileSync((await xlsx.path())!));
+  const rows = utils.sheet_to_json<Record<string, unknown>>(wb.Sheets.Transactions!);
+  expect(rows).toHaveLength(6);
+  expect(rows[1]).toMatchObject({ Description: "Sent to bank · Instapay Sending", Debit: 1000 });
+  expect(rows[2]).toMatchObject({ Credit: 2500 });
+  const summary = utils.sheet_to_json<unknown[]>(wb.Sheets.Summary!, { header: 1 });
+  expect(summary[0]).toEqual(["Maya statement summary"]);
+});
+
 test("a PDF without a password converts straight away", async ({ page }) => {
   await page.setInputFiles("#pdf-file", pdf("clean"));
   await expect(page.locator("#state-done")).toBeVisible();
@@ -145,7 +171,7 @@ test("explains files it can't convert and stays on the first step", async ({ pag
   const cases: [string, RegExp][] = [
     ["not-really", /couldn't be opened as a PDF/],
     ["no-text", /no readable text/],
-    ["not-gcash", /doesn't look like a GCash Transaction History/],
+    ["not-gcash", /doesn't look like a GCash or Maya statement/],
   ];
   for (const [name, message] of cases) {
     await page.setInputFiles("#pdf-file", pdf(name));

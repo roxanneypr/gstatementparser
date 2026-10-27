@@ -9,6 +9,8 @@ describe("parseMoney", () => {
     ["PHP 12", 1200],
     ["0.07", 7],
     ["-12.00", -1200],
+    ["-PHP 1,234.56", -123456],
+    ["+PHP 2,500.00", 250000],
     ["10000.00", 1000000],
   ])("%s -> %i centavos", (input, expected) => {
     expect(parseMoney(input)).toBe(expected);

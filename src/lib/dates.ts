@@ -15,16 +15,45 @@ export function parseDateTime(input: string): DateTime | null {
   if (!isValidDate(Number(y), Number(mo), Number(d))) return null;
   const result: DateTime = { date: `${y}-${mo}-${d}` };
   if (hh !== undefined && mm !== undefined) {
-    let hour = Number(hh);
-    const minute = Number(mm);
-    if (ampm) {
-      if (hour < 1 || hour > 12) return null;
-      hour = (hour % 12) + (ampm.toUpperCase() === "PM" ? 12 : 0);
-    }
-    if (hour > 23 || minute > 59) return null;
-    result.time = `${String(hour).padStart(2, "0")}:${mm}`;
+    const time = toTime(hh, mm, ampm);
+    if (!time) return null;
+    result.time = time;
   }
   return result;
+}
+
+/** "13", "05", "PM"? -> "13:05"; null if out of range. */
+function toTime(hh: string, mm: string, ampm?: string): string | null {
+  let hour = Number(hh);
+  const minute = Number(mm);
+  if (ampm) {
+    if (hour < 1 || hour > 12) return null;
+    hour = (hour % 12) + (ampm.toUpperCase() === "PM" ? 12 : 0);
+  }
+  if (hour > 23 || minute > 59) return null;
+  return `${String(hour).padStart(2, "0")}:${mm}`;
+}
+
+const DAY_MONTH_YEAR_RE = /^(\d{1,2})\s+([A-Za-z]{3})[a-z]*\.?\s+(\d{4})$/;
+
+/** Parse "9 Sep 2026" / "30 September 2026" into ISO "2026-09-09". Returns null if invalid. */
+export function parseDayMonthYear(input: string): string | null {
+  const m = DAY_MONTH_YEAR_RE.exec(input.trim());
+  if (!m) return null;
+  const [, d = "", mon = "", y = ""] = m;
+  const month = MONTHS.findIndex((name) => name.toLowerCase() === mon.toLowerCase()) + 1;
+  if (!month || !isValidDate(Number(y), month, Number(d))) return null;
+  return `${y}-${String(month).padStart(2, "0")}-${d.padStart(2, "0")}`;
+}
+
+const CLOCK_RE = /^(\d{1,2}):(\d{2})(?::\d{2})?\s*([AP]M)?$/i;
+
+/** Parse "10:12:13 PM" / "08:05 AM" / "22:12" into 24-hour "22:12". Returns null if invalid. */
+export function parseClockTime(input: string): string | null {
+  const m = CLOCK_RE.exec(input.trim());
+  if (!m) return null;
+  const [, hh = "", mm = "", ampm] = m;
+  return toTime(hh, mm, ampm);
 }
 
 function isValidDate(y: number, m: number, d: number): boolean {

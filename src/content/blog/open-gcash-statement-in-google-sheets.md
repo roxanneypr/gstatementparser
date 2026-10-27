@@ -16,7 +16,7 @@ perfectly. Here's the quickest way to get your GCash transactions into a sheet.
 ## Step 1: Convert the PDF
 
 1. Open the [GCash statement converter](/).
-2. Press **Choose your GCash PDF**, pick your Transaction History PDF, and type its password
+2. Press **Choose your statement**, pick your Transaction History PDF, and type its password
    when asked.
 3. Check the summary, then press **Download Excel** or **Download CSV**.
 
