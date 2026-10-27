@@ -228,6 +228,25 @@ test("statement details: pages of 20, filters, months, search and rows to review
   await expect(page.locator("#tx-body .row-n")).toHaveText(["8", "9", "31"]);
 });
 
+// The "Is it safe to convert a bank statement PDF online?" post tells readers to run the sample,
+// go offline, then convert their own file. Keep that advice true.
+test("after the sample has run, converts and downloads with no internet", async ({
+  page,
+  context,
+}) => {
+  await page.getByRole("button", { name: "Try a sample statement" }).click();
+  await expect(page.locator("#state-done")).toBeVisible();
+
+  await context.setOffline(true);
+  await page.click("#reset");
+  await choose(page, pdf("protected"));
+  await page.fill("#pdf-password", PASSWORD);
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#state-done")).toBeVisible();
+  const [xlsx] = await Promise.all([page.waitForEvent("download"), page.click("#download-xlsx")]);
+  expect(xlsx.suggestedFilename()).toMatch(/\.xlsx$/);
+});
+
 test("try a sample statement: runs the real converter on the bundled FAKE PDF", async ({
   page,
 }) => {

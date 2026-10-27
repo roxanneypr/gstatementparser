@@ -1,9 +1,14 @@
-import { getDocument, GlobalWorkerOptions, PasswordResponses } from "pdfjs-dist";
+import { getDocument, GlobalWorkerOptions, PasswordResponses, PDFWorker } from "pdfjs-dist";
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import type { PageText } from "../parsers/types.ts";
 import { toPageText } from "./pageText.ts";
 
 GlobalWorkerOptions.workerSrc = workerUrl;
+
+// One pdf.js worker for the whole visit. Without it, each conversion starts a new worker and
+// re-downloads its script, so a second file fails offline (the "try it offline" privacy check).
+let worker: PDFWorker | undefined;
+const sharedWorker = () => (worker && !worker.destroyed ? worker : (worker = new PDFWorker()));
 
 export type ExtractErrorKind = "password-required" | "wrong-password" | "invalid-pdf";
 
@@ -29,6 +34,7 @@ export async function extractText(data: ArrayBuffer, password?: string): Promise
     disableAutoFetch: true,
     disableStream: true,
     stopAtErrors: false,
+    worker: sharedWorker(),
   });
 
   let doc;
@@ -49,7 +55,7 @@ export async function extractText(data: ArrayBuffer, password?: string): Promise
     }
     return pages;
   } finally {
-    await task.destroy();
+    await task.destroy(); // closes this document; the shared worker keeps no data from it
   }
 }
 
