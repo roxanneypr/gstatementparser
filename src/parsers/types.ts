@@ -38,6 +38,8 @@ export interface Transaction {
    * The statement's own figures are kept as-is; this only describes the gap.
    */
   balanceIssue?: BalanceIssue;
+  /** Best-guess or user-chosen category (src/lib/categories.ts); a label only, never parsed. */
+  category?: string;
 }
 
 export interface BalanceIssue {

@@ -3,6 +3,13 @@
 import { formatPeriod } from "../lib/dates.ts";
 import { formatMoney } from "../lib/money.ts";
 import { cleanUp, countUnchanged } from "../lib/cleanUp.ts";
+import {
+  CATEGORIES,
+  categorize,
+  categoryKey,
+  isCategory,
+  type Category,
+} from "../lib/categories.ts";
 import { exportBaseName, summarize, type Summary } from "../lib/summary.ts";
 import {
   filterCounts,
@@ -47,8 +54,16 @@ const states: Record<State, HTMLElement> = {
 
 let file: File | null = null;
 let result: ParseResult | null = null;
-/** The statement exactly as parsed; `result` may be its cleaned-up copy. */
+/** The statement exactly as parsed; `result` is its categorized (and maybe cleaned-up) copy. */
 let original: ParseResult | null = null;
+/** Categories the user changed, by categoryKey(description). In memory only, never stored. */
+const categoryOverrides = new Map<string, Category>();
+
+/** Rebuild `result` from the original with the current clean-up and category choices. */
+function recompute() {
+  if (!original) return;
+  result = categorize(cleanupToggle.checked ? cleanUp(original) : original, categoryOverrides);
+}
 
 const peso = (centavos: number) =>
   centavos < 0 ? `−₱${formatMoney(-centavos)}` : `₱${formatMoney(centavos)}`;
@@ -70,6 +85,7 @@ function reset() {
   file = null;
   result = null;
   original = null;
+  categoryOverrides.clear();
   setCleanup(false);
   fileInput.value = "";
   passwordInput.value = "";
@@ -220,10 +236,12 @@ async function convert(password?: string) {
     if (!parser) return fail(t.errors.unsupported);
 
     original = parser.parse(pages);
-    result = original;
+    categoryOverrides.clear();
     setCleanup(false);
+    recompute();
     el("cleanup").hidden = countUnchanged(original) === 0;
     passwordInput.value = ""; // don't keep the password around once it's been used
+    if (!result) return;
     render(result);
     setState("done");
     el("done-title").focus();
@@ -245,7 +263,8 @@ function fail(message: string) {
 // ---- results ----------------------------------------------------------------
 
 const PAGE_SIZE = 20;
-let view: TxQuery & { page: number } = { filter: "all", month: "", search: "", page: 1 };
+const ALL_VIEW = { filter: "all", month: "", category: "", search: "", page: 1 } as const;
+let view: TxQuery & { page: number; category: string } = { ...ALL_VIEW };
 
 const signed = (centavos: number) => (centavos > 0 ? `+${peso(centavos)}` : peso(centavos));
 const monthName = (ym: string) =>
@@ -263,7 +282,7 @@ function h<K extends keyof HTMLElementTagNameMap>(tag: K, className = "", text =
   return node;
 }
 
-function render(res: ParseResult, { keepView = false } = {}) {
+function render(res: ParseResult, { keepView = false, keepPage = false } = {}) {
   const s = summarize(res);
   const period =
     res.periodStart && res.periodEnd ? formatPeriod(res.periodStart, res.periodEnd) : "";
@@ -279,15 +298,16 @@ function render(res: ParseResult, { keepView = false } = {}) {
   renderStatus(res);
 
   if (keepView) {
-    view.page = 1;
+    if (!keepPage) view.page = 1;
   } else {
-    view = { filter: "all", month: "", search: "", page: 1 };
+    view = { ...ALL_VIEW };
     el<HTMLInputElement>("tx-search").value = "";
   }
 
   renderOverview(res, s);
   renderReview(res);
   renderMonths(s);
+  renderCategories(s);
   renderTable();
   results.hidden = false;
 }
@@ -372,7 +392,8 @@ function renderMonths(s: Summary) {
       viewBtn.type = "button";
       viewBtn.setAttribute("aria-label", fill(m.viewLabel, { month: monthName(month.month) }));
       viewBtn.addEventListener("click", () => {
-        setView({ month: month.month, filter: "all", search: "" });
+        setView({ ...ALL_VIEW, month: month.month });
+        el<HTMLInputElement>("tx-search").value = "";
         focusTable();
       });
       const action = h("td");
@@ -392,6 +413,67 @@ function renderMonths(s: Summary) {
   select.replaceChildren(new Option(r.table.allMonths, ""));
   for (const month of s.months) select.append(new Option(monthName(month.month), month.month));
   select.hidden = s.months.length < 2;
+}
+
+function renderCategories(s: Summary) {
+  const c = r.categories;
+  el("categories").hidden = s.categories.length === 0;
+  el("categories-body").replaceChildren(
+    ...s.categories.map((cat) => {
+      const tr = h("tr");
+      const th = h("th", "", cat.category);
+      th.scope = "row";
+      const viewBtn = h("button", "btn-link", c.view);
+      viewBtn.type = "button";
+      viewBtn.setAttribute("aria-label", fill(c.viewLabel, { category: cat.category }));
+      viewBtn.addEventListener("click", () => {
+        setView({ ...ALL_VIEW, category: cat.category });
+        el<HTMLInputElement>("tx-search").value = "";
+        focusTable();
+      });
+      const action = h("td");
+      action.append(viewBtn);
+      tr.append(
+        th,
+        h("td", "num", cat.moneyOut ? peso(-cat.moneyOut) : ""),
+        h("td", "num is-in", cat.moneyIn ? `+${peso(cat.moneyIn)}` : ""),
+        h("td", "num", String(cat.count)),
+        action,
+      );
+      return tr;
+    }),
+  );
+  const select = el<HTMLSelectElement>("category-filter");
+  select.replaceChildren(new Option(r.table.allCategories, ""));
+  for (const cat of s.categories) {
+    select.append(new Option(`${cat.category} (${cat.count})`, cat.category));
+  }
+  // Keep a filter on a category that no longer has rows selectable, so the view stays explainable.
+  if (view.category && !s.categories.some((cat) => cat.category === view.category)) {
+    select.append(new Option(`${view.category} (0)`, view.category));
+  }
+}
+
+/** Category picker for one row; a change applies to every row with the same description. */
+function categorySelect({ row, tx }: IndexedTx) {
+  const select = h("select", "cat-select");
+  select.dataset.row = String(row);
+  select.setAttribute("aria-label", fill(r.table.categoryLabel, { n: row }));
+  for (const cat of CATEGORIES) select.append(new Option(cat, cat));
+  select.value = tx.category ?? "Other";
+  select.addEventListener("change", () => {
+    if (!original || !isCategory(select.value)) return;
+    const key = categoryKey(tx.description);
+    categoryOverrides.set(key, select.value);
+    recompute();
+    if (!result) return;
+    const same = result.transactions.filter((t) => categoryKey(t.description) === key).length;
+    render(result, { keepView: true, keepPage: true });
+    statusEl.textContent = plural(r.table.categoryChanged, same, { category: select.value });
+    // The table was rebuilt: put focus back on this row's picker if it's still shown.
+    document.querySelector<HTMLSelectElement>(`select.cat-select[data-row="${row}"]`)?.focus();
+  });
+  return select;
 }
 
 const WARN_ICON = "M12 3.5 2.5 20h19L12 3.5Zm0 6v5m0 2.6v.1";
@@ -451,7 +533,7 @@ function txRow({ row, tx }: IndexedTx) {
 
   const desc = h("td", "col-desc");
   desc.dataset.label = c.description;
-  desc.append(h("span", "cell-main", tx.description));
+  desc.append(h("span", "cell-main", tx.description), categorySelect({ row, tx }));
 
   const amount = h(
     "td",
@@ -481,6 +563,7 @@ function renderTable() {
     btn.hidden = f === "review" && counts.review === 0 && view.filter !== "review";
   }
   el<HTMLSelectElement>("month-filter").value = view.month;
+  el<HTMLSelectElement>("category-filter").value = view.category;
 
   const page = paginate(filterTransactions(txs, view), view.page, PAGE_SIZE);
   view.page = page.page;
@@ -534,12 +617,15 @@ for (const btn of document.querySelectorAll<HTMLButtonElement>(".segmented [data
 el<HTMLSelectElement>("month-filter").addEventListener("change", (e) =>
   setView({ month: (e.target as HTMLSelectElement).value }),
 );
+el<HTMLSelectElement>("category-filter").addEventListener("change", (e) =>
+  setView({ category: (e.target as HTMLSelectElement).value }),
+);
 el<HTMLInputElement>("tx-search").addEventListener("input", (e) =>
   setView({ search: (e.target as HTMLInputElement).value }),
 );
 el("review-show").addEventListener("click", () => {
   el<HTMLInputElement>("tx-search").value = "";
-  setView({ filter: "review", month: "", search: "" });
+  setView({ ...ALL_VIEW, filter: "review" });
   focusTable();
 });
 
@@ -557,8 +643,8 @@ function setCleanup(on: boolean) {
 // table and downloads (the Excel Summary sheet records how many were removed).
 cleanupToggle.addEventListener("change", () => {
   if (!original) return;
-  result = cleanupToggle.checked ? cleanUp(original) : original;
-  render(result, { keepView: true });
+  recompute();
+  if (result) render(result, { keepView: true });
 });
 
 function showInfo(show: boolean) {

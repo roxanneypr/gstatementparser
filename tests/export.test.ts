@@ -2,6 +2,7 @@ import { CFB, read, utils } from "xlsx";
 import { describe, expect, it } from "vitest";
 import { csvText, toCsv } from "../src/export/toCsv.ts";
 import { excelDate, excelTime, toXlsx } from "../src/export/toXlsx.ts";
+import { categorize } from "../src/lib/categories.ts";
 import { exportBaseName, summarize } from "../src/lib/summary.ts";
 import { gcashParser } from "../src/parsers/gcash.ts";
 import type { PageText, ParseResult } from "../src/parsers/types.ts";
@@ -31,7 +32,7 @@ describe("summarize", () => {
 });
 
 describe("toCsv", () => {
-  const csv = toCsv(parsed());
+  const csv = toCsv(categorize(parsed()));
   const lines = csv.slice(1).trimEnd().split("\r\n");
 
   it("starts with a UTF-8 BOM and uses CRLF", () => {
@@ -42,7 +43,7 @@ describe("toCsv", () => {
   it("writes one line per transaction with plain numeric amounts", () => {
     expect(lines).toHaveLength(10);
     expect(lines[1]).toBe(
-      "2026-03-01,08:15,Payment to Sample Coffee Shop,1000000000001,150.00,,1350.00,OK,",
+      "2026-03-01,08:15,Payment to Sample Coffee Shop,1000000000001,150.00,,1350.00,OK,,Food",
     );
     expect(lines[9]).toContain(",,10000.00,11021.50,OK,");
   });
@@ -68,7 +69,7 @@ describe("toCsv", () => {
 });
 
 describe("toXlsx", () => {
-  const bytes = toXlsx(withBalanceGap());
+  const bytes = toXlsx(categorize(withBalanceGap()));
   const wb = read(bytes, { type: "array", cellNF: true });
 
   it("has Transactions and Summary sheets", () => {
@@ -84,7 +85,9 @@ describe("toXlsx", () => {
     expect(ws.E2).toMatchObject({ t: "n", v: 150 });
     expect(ws.E2?.z).toBe('"₱"#,##0.00');
     expect(ws.H6?.v).toBe("Balance didn't change");
-    expect(ws["!autofilter"]?.ref).toBe("A1:I10");
+    expect(ws["!autofilter"]?.ref).toBe("A1:J10");
+    expect(ws.J1?.v).toBe("Category"); // column J: the budget blog post's SUMIFS uses J:J
+    expect(ws.J2?.v).toBe("Food");
     expect(utils.sheet_to_json(ws)).toHaveLength(9);
   });
 
@@ -112,6 +115,13 @@ describe("toXlsx", () => {
     expect(find("Rows where the balance didn't change")).toBe(1);
     const monthRow = rows.find((r) => r[0] === excelDate("2026-03-01") && r.length === 4);
     expect(monthRow?.slice(1)).toEqual([12505, 2983.5, 9521.5]);
+  });
+
+  it("totals each category in the Summary sheet", () => {
+    const rows = utils.sheet_to_json<unknown[]>(wb.Sheets.Summary!, { header: 1, raw: true });
+    const head = rows.findIndex((r) => r[0] === "Category");
+    expect(rows[head]).toEqual(["Category", "In", "Out", "Transactions"]);
+    expect(rows.slice(head + 1).find((r) => r[0] === "Food")).toEqual(["Food", 0, 499, 2]);
   });
 
   it("records clean-up in the Summary sheet", () => {

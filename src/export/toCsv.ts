@@ -12,6 +12,7 @@ const HEADERS = [
   "Balance",
   "Balance check",
   "Notes",
+  "Category",
 ];
 
 /** Plain number for spreadsheets: "1234.56" (no thousands separator so it parses as a number). */
@@ -42,6 +43,7 @@ export function toCsv(result: ParseResult): string {
         plain(t.balance),
         csvText(balanceCheckLabel(t, formatMoney)),
         csvText(notesLabel(t)),
+        csvText(t.category ?? ""),
       ].join(","),
     );
   }

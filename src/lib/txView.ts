@@ -9,6 +9,8 @@ export interface TxQuery {
   month: string;
   /** free-text search over description and reference no. */
   search: string;
+  /** category name, or "" / undefined for all categories */
+  category?: string;
 }
 
 /** A transaction plus its 1-based position in the statement (so rows can be found in the PDF). */
@@ -24,6 +26,7 @@ export function matches(t: Transaction, q: TxQuery): boolean {
   if (q.filter === "out" && !(t.debit > 0)) return false;
   if (q.filter === "review" && !needsReview(t)) return false;
   if (q.month && !t.date.startsWith(q.month)) return false;
+  if (q.category && t.category !== q.category) return false;
   const needle = q.search.trim().toLowerCase();
   if (needle) {
     const hay = `${t.description} ${t.referenceNo ?? ""}`.toLowerCase();

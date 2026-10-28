@@ -1,6 +1,6 @@
 ---
 title: "Track Your GCash Spending in Excel: A Simple Budget"
-description: "Turn your GCash transaction history into a monthly budget in Excel or Google Sheets: add categories, then total them with SUMIFS or a pivot table."
+description: "Turn your GCash transaction history into a monthly budget in Excel or Google Sheets: check the categories, then total them with SUMIFS or a pivot table."
 publishedDate: 2026-10-27
 draft: false
 related:
@@ -24,36 +24,32 @@ shows each screen.
 
 Open the Excel file. The **Transactions** sheet has one row per transaction:
 
-| Column | What it means                                   |
-| ------ | ----------------------------------------------- |
-| Date   | A real date, so you can sort and filter by it   |
-| Debit  | Money **out** of your wallet (what you spent)   |
-| Credit | Money **in** (cash in, payments you received)   |
+| Column | What it means                                 |
+| ------ | --------------------------------------------- |
+| Date   | A real date, so you can sort and filter by it |
+| Debit  | Money **out** of your wallet (what you spent) |
+| Credit | Money **in** (cash in, payments you received) |
 
 The **Summary** sheet already shows money in and out per month. The steps below break the
 "money out" part into categories.
 
-## Step 2: Add a Category column
+## Step 2: Check the Category column
 
-In the first empty column to the right of **Notes**, type the heading **Category**. Then give each
-row a short label, for example:
+The converter fills in a **Category** for each row (column J), guessed from the description: Food,
+Transport, Bills, Shopping, Money sent, Money received and so on. Rows it can't place are labelled
+**Other**. The Summary sheet already totals each category.
 
-- Food
-- Bills
-- Transport
-- Shopping
-- Family
-- Transfer (moving money between your own accounts)
+Guesses aren't always right, so check them before you convert:
 
-Keep the list short. Six to ten categories is enough to see where your money goes.
-
-**Fill many rows at once.** Turn on the filter (the Transactions sheet already has one), open the
-**Description** filter and search for a shop or a person's name. Type the category in the first
-visible row, then copy it down to the other visible rows. Clear the filter and repeat for the next
-name.
+- **In the converter:** change a row's category in the table. Every row with the same description
+  changes with it, and the download uses your choices.
+- **In the spreadsheet:** turn on the filter (the Transactions sheet already has one), open the
+  **Description** filter and search for a shop or a person's name. Type the category in the first
+  visible row, then copy it down to the other visible rows.
 
 **Don't count transfers as spending.** Money you send to your own bank account or another wallet
-of yours isn't an expense. Label it **Transfer** so you can leave it out of your totals.
+of yours isn't an expense. Rename those rows to something like **Transfer** so you can leave them
+out of your totals.
 
 ## Step 3: Total each category with SUMIFS
 
@@ -64,8 +60,7 @@ enter:
 =SUMIFS(Transactions!E:E, Transactions!J:J, A2)
 ```
 
-Then copy it down. Column E is **Debit** and column J is your new **Category** column. If you put
-Category somewhere else, change `J:J` to match.
+Then copy it down. Column E is **Debit** and column J is **Category**.
 
 To see a single month, add a date range. This totals March 2026:
 

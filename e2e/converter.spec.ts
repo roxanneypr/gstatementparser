@@ -105,6 +105,46 @@ test("one button: choose a protected PDF, enter the password, download — nothi
   expect(problems).toEqual([]);
 });
 
+test("categories: guessed per row, totalled, filterable, editable and exported", async ({
+  page,
+}) => {
+  const { requests, problems } = watch(page);
+  await choose(page, pdf("protected"));
+  await page.fill("#pdf-password", PASSWORD);
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#state-done")).toBeVisible();
+
+  const rows = page.locator("#tx-body tr");
+  const first = page.getByLabel("Category for row 1");
+  await expect(first).toHaveValue("Food"); // "Payment to Sample Coffee Shop"
+  await expect(page.locator("#categories")).toBeVisible();
+  await expect(page.locator("#categories-body tr").filter({ hasText: "Food" })).toContainText(
+    "−₱499.00",
+  );
+
+  await page.getByRole("button", { name: "View Food transactions" }).click();
+  await expect(page.locator("#category-filter")).toHaveValue("Food");
+  await expect(rows).toHaveCount(2);
+  await page.selectOption("#category-filter", "");
+  await expect(rows).toHaveCount(9);
+
+  // Changing a row applies to its description and is announced; focus stays on the picker.
+  await first.selectOption("Shopping");
+  await expect(page.locator("#status")).toHaveText("Category changed to Shopping.");
+  await expect(page.getByLabel("Category for row 1")).toBeFocused();
+  await expect(page.getByLabel("Category for row 1")).toHaveValue("Shopping");
+
+  const [xlsx] = await Promise.all([page.waitForEvent("download"), page.click("#download-xlsx")]);
+  const ws = read(readFileSync((await xlsx.path())!)).Sheets.Transactions!;
+  expect(ws.J1?.v).toBe("Category");
+  expect(ws.J2?.v).toBe("Shopping");
+  const [csv] = await Promise.all([page.waitForEvent("download"), page.click("#download-csv")]);
+  expect(readFileSync((await csv.path())!, "utf8").split("\r\n")[1]).toMatch(/,Shopping$/);
+
+  expect(requests.filter((r) => r.method !== "GET" || r.body > 0)).toEqual([]);
+  expect(problems).toEqual([]);
+});
+
 test("converts a Maya statement: detected, checked and labelled Maya in the downloads", async ({
   page,
 }) => {

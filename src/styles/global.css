@@ -1054,6 +1054,32 @@ tbody tr:last-child > * {
 .tx-table .col-amount {
   font-weight: 600;
 }
+/* Category picker under the description: a native select dressed as a quiet pill. */
+.cat-select {
+  display: block;
+  margin-top: 6px;
+  max-width: 100%;
+  height: 26px;
+  padding: 0 26px 0 10px;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--body);
+  background: var(--subtle)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m7 10 5 5 5-5' fill='none' stroke='%236b7177' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    no-repeat right 8px center / 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  appearance: none;
+  cursor: pointer;
+}
+.cat-select:hover {
+  border-color: var(--muted);
+}
+.cat-select:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
 .tx-table .col-balance {
   color: var(--body) !important;
 }
@@ -1183,6 +1209,28 @@ tbody tr:last-child > * {
   }
   .months-table td.num {
     font-size: 0.8125rem;
+  }
+  /* By category: name above its amounts (empty ones hidden), view on the right; no count. */
+  .cat-table tbody tr {
+    grid-template-columns: auto auto 1fr auto;
+    grid-template-areas: none;
+  }
+  .cat-table tbody th {
+    grid-area: 1 / 1 / 2 / 4;
+  }
+  .cat-table td:nth-of-type(1),
+  .cat-table td:nth-of-type(2) {
+    grid-area: auto;
+    grid-row: 2;
+  }
+  .cat-table td.num:empty,
+  .cat-table td:nth-of-type(3) {
+    display: none;
+  }
+  .cat-table td:nth-of-type(4) {
+    display: block;
+    grid-area: 1 / 4 / 3 / 5;
+    align-self: center;
   }
 
   .table-wrap:has(.tx-table) {

@@ -98,6 +98,7 @@ github.com/KazeFreeze/gcash-pdf-parser. If any code is adapted from it, keep its
 │   │   ├── toXlsx.ts
 │   │   └── toCsv.ts
 │   └── lib/
+│       ├── categories.ts     # auto-categorization rules + user overrides (pure)
 │       ├── money.ts          # parse "1,234.56" -> centavos (integer); never use floats for sums
 │       └── dates.ts          # normalize dates to ISO YYYY-MM-DD and keep time if present
 ├── tests/
@@ -138,6 +139,7 @@ interface Transaction {
   raw?: string; // original line(s), for debugging / flagged rows
   flags?: string[]; // problems READING this row (missing date, ambiguous amounts, ...)
   balanceIssue?: BalanceIssue; // set when this row's balance doesn't follow from the previous row
+  category?: string; // set by src/lib/categories.ts (guess or user's choice), never by parsers
 }
 
 interface BalanceIssue {
@@ -183,6 +185,13 @@ interface StatementParser {
 balance didn't change (`balanceIssue.kind === "unchanged"`) from the view, totals and downloads
 (`src/lib/cleanUp.ts`); the Excel Summary sheet records how many were removed. The done card's
 status line only says "Every running balance matches" when that is true.
+
+**Categories:** `categorize()` (`src/lib/categories.ts`) labels every row from ordered rules
+(first match wins; patterns use wording seen on real statements; "Other" when nothing fits, never a
+forced guess). The user can change a row's category in the table; the change applies to every row
+with the same `categoryKey(description)`. Changes live in memory only (reset per file; never
+stored). The results show a "By category" table and filter; exports add "Category" as column J
+(the budget blog post's SUMIFS relies on that position) and a by-category table on the Summary sheet.
 
 **Never alter the statement's figures.** A `balanceIssue` describes a gap; it doesn't "fix" it. Real
 GCash statements do contain such gaps (e.g. a payment listed while the balance stays the same),
@@ -345,7 +354,8 @@ npm run preview    # serve the production build locally
 
 ## Roadmap (not in MVP — do not build unless asked)
 
-1. Auto-categorization (Send Money, Cash In, Bills, Load, Shopping, etc.) with user-editable rules
+1. ~~Auto-categorization~~ (done; possible next steps: custom keyword rules, remembering
+   changes on the device with an opt-in and a privacy-page update first)
 2. Multiple statements merged into one workbook; duplicate detection
 3. More sources: Maya, BPI, BDO, SeaBank, UnionBank (each as a new `StatementParser`)
 4. Freemium limits + accounts (Supabase) + payments via PayMongo or HitPay (GCash/Maya)

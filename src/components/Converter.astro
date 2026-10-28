@@ -369,6 +369,36 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
       </div>
     </section>
 
+    <!-- By category -->
+    <section id="categories" class="block" aria-labelledby="categories-heading" hidden>
+      <div class="block-head">
+        <h3 id="categories-heading">{r.categories.heading}</h3>
+        <p>{r.categories.note}</p>
+      </div>
+      <div class="table-wrap">
+        <table class="months-table cat-table">
+          <thead>
+            <tr>
+              <th scope="col">{r.categories.category}</th>
+              <th scope="col" class="num">
+                {r.categories.moneyOut}
+              </th>
+              <th scope="col" class="num">
+                {r.categories.moneyIn}
+              </th>
+              <th scope="col" class="num">
+                {r.categories.count}
+              </th>
+              <th scope="col">
+                <span class="visually-hidden">{r.categories.view}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="categories-body"></tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- Transactions -->
     <section class="block" aria-labelledby="tx-heading">
       <div class="block-head">
@@ -424,6 +454,12 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
           </label>
           <select id="month-filter">
             <option value="">{r.table.allMonths}</option>
+          </select>
+          <label for="category-filter" class="visually-hidden">
+            {r.table.category}
+          </label>
+          <select id="category-filter">
+            <option value="">{r.table.allCategories}</option>
           </select>
           <label for="tx-search" class="visually-hidden">
             {r.table.search}

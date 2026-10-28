@@ -44,6 +44,7 @@ function transactionsSheet(result: ParseResult): WorkSheet {
       "Balance",
       "Balance check",
       "Notes",
+      "Category", // column J: the blog's SUMIFS examples rely on this position
     ].map(text),
   ];
   for (const t of result.transactions) {
@@ -57,6 +58,7 @@ function transactionsSheet(result: ParseResult): WorkSheet {
       t.balance !== undefined ? peso(t.balance) : empty(),
       text(balanceCheckLabel(t, formatMoney)),
       text(notesLabel(t)),
+      text(t.category ?? ""),
     ]);
   }
   const ws = utils.aoa_to_sheet(rows);
@@ -70,9 +72,10 @@ function transactionsSheet(result: ParseResult): WorkSheet {
     { wch: 13 },
     { wch: 22 },
     { wch: 30 },
+    { wch: 16 },
   ];
   ws["!autofilter"] = {
-    ref: utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length - 1, c: 8 } }),
+    ref: utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length - 1, c: 9 } }),
   };
   return ws;
 }
@@ -124,6 +127,18 @@ function summarySheet(result: ParseResult): WorkSheet {
       peso(m.moneyOut),
       peso(m.moneyIn - m.moneyOut),
     ]),
+    ...(s.categories.length
+      ? [
+          [],
+          [text("Category"), text("In"), text("Out"), text("Transactions")],
+          ...s.categories.map((c) => [
+            text(c.category),
+            peso(c.moneyIn),
+            peso(c.moneyOut),
+            { t: "n", v: c.count } as CellObject,
+          ]),
+        ]
+      : []),
   ];
   const ws = utils.aoa_to_sheet(rows);
   ws["!cols"] = [{ wch: 48 }, { wch: 16 }, { wch: 16 }, { wch: 16 }];

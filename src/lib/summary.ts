@@ -8,6 +8,13 @@ export interface MonthTotals {
   count: number;
 }
 
+export interface CategoryTotals {
+  category: string;
+  moneyIn: number;
+  moneyOut: number;
+  count: number;
+}
+
 export interface Summary {
   count: number;
   countIn: number;
@@ -17,6 +24,8 @@ export interface Summary {
   moneyOut: number;
   net: number;
   months: MonthTotals[];
+  /** Per category, biggest money out first (then money in). Empty when rows aren't categorized. */
+  categories: CategoryTotals[];
   /** rows the parser couldn't read confidently */
   rowsWithReadProblems: number;
   balanceUnchanged: number;
@@ -26,11 +35,24 @@ export interface Summary {
 export function summarize(result: ParseResult): Summary {
   const txs = result.transactions;
   const byMonth = new Map<string, MonthTotals>();
+  const byCategory = new Map<string, CategoryTotals>();
   let moneyIn = 0;
   let moneyOut = 0;
   for (const t of txs) {
     moneyIn += t.credit;
     moneyOut += t.debit;
+    if (t.category) {
+      const c = byCategory.get(t.category) ?? {
+        category: t.category,
+        moneyIn: 0,
+        moneyOut: 0,
+        count: 0,
+      };
+      c.moneyIn += t.credit;
+      c.moneyOut += t.debit;
+      c.count++;
+      byCategory.set(t.category, c);
+    }
     const month = t.date.slice(0, 7);
     if (!month) continue;
     const m = byMonth.get(month) ?? { month, moneyIn: 0, moneyOut: 0, count: 0 };
@@ -47,6 +69,9 @@ export function summarize(result: ParseResult): Summary {
     moneyOut,
     net: moneyIn - moneyOut,
     months: [...byMonth.values()].sort((a, b) => a.month.localeCompare(b.month)),
+    categories: [...byCategory.values()].sort(
+      (a, b) => b.moneyOut - a.moneyOut || b.moneyIn - a.moneyIn,
+    ),
     rowsWithReadProblems: txs.filter((t) => t.flags?.length).length,
     balanceUnchanged: txs.filter((t) => t.balanceIssue?.kind === "unchanged").length,
     balanceDifferent: txs.filter((t) => t.balanceIssue?.kind === "different").length,
