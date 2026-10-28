@@ -479,13 +479,19 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
               <th scope="col" class="col-row">
                 {r.table.columns.row}
               </th>
-              <th scope="col">{r.table.columns.date}</th>
-              <th scope="col">{r.table.columns.description}</th>
-              <th scope="col">{r.table.columns.category}</th>
-              <th scope="col" class="num">
+              <th scope="col" class="col-date">
+                {r.table.columns.date}
+              </th>
+              <th scope="col" class="col-desc">
+                {r.table.columns.description}
+              </th>
+              <th scope="col" class="col-cat">
+                {r.table.columns.category}
+              </th>
+              <th scope="col" class="num col-amount">
                 {r.table.columns.amount}
               </th>
-              <th scope="col" class="num">
+              <th scope="col" class="num col-balance">
                 {r.table.columns.balance}
               </th>
             </tr>

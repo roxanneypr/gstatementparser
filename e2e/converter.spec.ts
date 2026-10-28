@@ -337,8 +337,13 @@ test("statement details: pages of 20, filters, months, search and rows to review
   // Pagination
   await expect(rows).toHaveCount(20);
   await expect(range).toHaveText("1–20 of 45");
+  // Columns keep their width from page to page (fixed table layout).
+  const widths = () =>
+    page.$$eval(".tx-table thead th", (ths) => ths.map((th) => th.getBoundingClientRect().width));
+  const before = await widths();
   await page.getByRole("button", { name: "Page 3" }).click();
   await expect(range).toHaveText("41–45 of 45");
+  expect(await widths()).toEqual(before);
   await expect(rows).toHaveCount(5);
   await expect(page.getByRole("button", { name: "Page 3" })).toHaveAttribute(
     "aria-current",

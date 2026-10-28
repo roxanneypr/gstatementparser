@@ -1051,7 +1051,7 @@ tbody tr:last-child > * {
   overflow-wrap: anywhere;
   min-width: 240px;
 }
-.tx-table .col-amount {
+.tx-table td.col-amount {
   font-weight: 600;
 }
 /* Category picker under the description: a native select dressed as a quiet pill. */
@@ -1158,7 +1158,7 @@ tbody tr:last-child > * {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
-.tx-table .col-balance {
+.tx-table td.col-balance {
   color: var(--body) !important;
 }
 .tx-table tr.flagged > td {
@@ -2308,10 +2308,49 @@ main.page-top {
   }
 }
 
-/* Denser transactions table: 20 rows per page. */
+/* Denser transactions table: 20 rows per page. Fixed layout so the columns keep their width
+   from page to page; the description takes the remaining space and wraps. */
 @media (min-width: 720px) {
   .tx-table {
     font-size: 0.8125rem;
+    table-layout: fixed;
+  }
+  .tx-table .col-row {
+    width: 56px;
+  }
+  .tx-table .col-date {
+    width: 108px;
+  }
+  .tx-table .col-desc {
+    min-width: 0;
+  }
+  .tx-table .col-cat {
+    width: 168px;
+  }
+  .tx-table .col-amount,
+  .tx-table .col-balance {
+    width: 124px;
+  }
+}
+/* Tablets: tighter fixed columns so the description keeps room to read. */
+@media (min-width: 720px) and (max-width: 1023px) {
+  .tx-table .col-row {
+    width: 44px;
+  }
+  .tx-table .col-date {
+    width: 96px;
+  }
+  .tx-table .col-cat {
+    width: 162px;
+  }
+  .tx-table .col-amount,
+  .tx-table .col-balance {
+    width: 100px;
+  }
+  .tx-table thead th,
+  .tx-table td {
+    padding-left: 10px;
+    padding-right: 10px;
   }
   .tx-table thead th {
     padding: 9px 14px;
