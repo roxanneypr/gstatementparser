@@ -105,6 +105,25 @@ test("one button: choose a protected PDF, enter the password, download — nothi
   expect(problems).toEqual([]);
 });
 
+test("wide screens show 50 rows per page; resizing keeps the first visible row", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.setInputFiles("#pdf-file", pdf("two-months-gaps"));
+  const rows = page.locator("#tx-body tr");
+  const range = page.locator("#tx-range");
+  await expect(range).toHaveText("1–45 of 45");
+  await expect(rows).toHaveCount(45);
+  await expect(page.locator("#pager-buttons button")).toHaveCount(0);
+
+  await page.setViewportSize({ width: 800, height: 900 });
+  await expect(range).toHaveText("1–20 of 45");
+  await page.getByRole("button", { name: "Page 3" }).click();
+  await expect(range).toHaveText("41–45 of 45");
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await expect(range).toHaveText("1–45 of 45");
+});
+
 test("categories: guessed per row, totalled, filterable, editable and exported", async ({
   page,
 }) => {
@@ -329,6 +348,7 @@ test("explains when the converter code can't load (e.g. stale cache, offline)", 
 test("statement details: pages of 20, filters, months, search and rows to review", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 800, height: 900 }); // tablet: table layout, 20 per page
   await page.setInputFiles("#pdf-file", pdf("two-months-gaps"));
   await expect(page.locator("#results")).toBeVisible();
   const rows = page.locator("#tx-body tr");
@@ -452,7 +472,7 @@ test("home page: header Convert button jumps to the converter and keeps results"
   await cta.click();
   await expect(page.locator("#done-title")).toBeFocused();
   await expect(page.locator("#results")).toBeVisible();
-  await expect(page.locator("#tx-range")).toHaveText("1–20 of 45");
+  await expect(page.locator("#tx-range")).toHaveText(/^1–(20|45) of 45$/);
 
   // Other pages link to the converter on the home page.
   await page.goto("/about");
@@ -470,7 +490,7 @@ test("clean up (off by default) removes rows that didn't change the balance, inc
   const toggle = page.locator("#cleanup-toggle");
   await expect(page.locator("#cleanup")).toBeVisible();
   await expect(toggle).not.toBeChecked();
-  await expect(page.locator("#tx-range")).toHaveText("1–20 of 45");
+  await expect(page.locator("#tx-range")).toHaveText(/^1–(20|45) of 45$/);
 
   // The info icon explains it in one line; Escape closes it.
   await page.getByRole("button", { name: "What does clean up do?" }).click();
@@ -481,7 +501,7 @@ test("clean up (off by default) removes rows that didn't change the balance, inc
   await expect(page.locator("#cleanup-info")).toBeHidden();
 
   await toggle.check();
-  await expect(page.locator("#tx-range")).toHaveText("1–20 of 42");
+  await expect(page.locator("#tx-range")).toHaveText(/^1–(20|42) of 42$/);
   await expect(page.locator("#done-summary")).toContainText("42 transactions");
   await expect(page.locator("#done-status")).toHaveClass(/is-ok/);
   await page.fill("#tx-search", "Balance unchanged");
@@ -496,5 +516,5 @@ test("clean up (off by default) removes rows that didn't change the balance, inc
 
   // Turning it off brings every row back.
   await toggle.uncheck();
-  await expect(page.locator("#tx-range")).toHaveText("1–20 of 45");
+  await expect(page.locator("#tx-range")).toHaveText(/^1–(20|45) of 45$/);
 });

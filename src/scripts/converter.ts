@@ -262,7 +262,10 @@ function fail(message: string) {
 
 // ---- results ----------------------------------------------------------------
 
-const PAGE_SIZE = 20;
+// 50 rows per page on wide screens (fewer clicks), 20 on phones and tablets (short pages).
+const wideScreen = matchMedia("(min-width: 1024px)");
+const currentPageSize = () => (wideScreen.matches ? 50 : 20);
+let pageSize = currentPageSize();
 const ALL_VIEW = { filter: "all", month: "", category: "", search: "", page: 1 } as const;
 let view: TxQuery & { page: number; category: string } = { ...ALL_VIEW };
 
@@ -579,7 +582,7 @@ function renderTable() {
   el<HTMLSelectElement>("month-filter").value = view.month;
   el<HTMLSelectElement>("category-filter").value = view.category;
 
-  const page = paginate(filterTransactions(txs, view), view.page, PAGE_SIZE);
+  const page = paginate(filterTransactions(txs, view), view.page, pageSize);
   view.page = page.page;
   el("tx-body").replaceChildren(...page.items.map(txRow));
   el("tx-empty").hidden = page.total > 0;
@@ -613,6 +616,14 @@ function renderTable() {
   }
   el("pager-buttons").replaceChildren(...buttons);
 }
+
+// Crossing the breakpoint (rotating a tablet, resizing a window): keep the first visible row on screen.
+wideScreen.addEventListener("change", () => {
+  const firstRow = (view.page - 1) * pageSize;
+  pageSize = currentPageSize();
+  view.page = Math.floor(firstRow / pageSize) + 1;
+  if (result) renderTable();
+});
 
 function setView(change: Partial<typeof view>) {
   view = { ...view, page: 1, ...change };

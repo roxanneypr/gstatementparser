@@ -2308,7 +2308,7 @@ main.page-top {
   }
 }
 
-/* Denser transactions table: 20 rows per page. Fixed layout so the columns keep their width
+/* Denser transactions table: 20–50 rows per page. Fixed layout so the columns keep their width
    from page to page; the description takes the remaining space and wraps. */
 @media (min-width: 720px) {
   .tx-table {
