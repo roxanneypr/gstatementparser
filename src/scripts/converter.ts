@@ -421,7 +421,9 @@ function renderCategories(s: Summary) {
   el("categories-body").replaceChildren(
     ...s.categories.map((cat) => {
       const tr = h("tr");
-      const th = h("th", "", cat.category);
+      const th = h("th");
+      th.append(h("span", "cat-dot", ""), cat.category);
+      th.dataset.cat = categorySlug(cat.category);
       th.scope = "row";
       const viewBtn = h("button", "btn-link", c.view);
       viewBtn.type = "button";
@@ -454,6 +456,13 @@ function renderCategories(s: Summary) {
   }
 }
 
+/** CSS hook for a category's colour, e.g. "Fees & taxes" → "fees-taxes" (see global.css). */
+const categorySlug = (category: string) =>
+  category
+    .toLowerCase()
+    .replace(/[^a-z]+/g, "-")
+    .replace(/^-|-$/g, "");
+
 /** Category picker for one row; a change applies to every row with the same description. */
 function categorySelect({ row, tx }: IndexedTx) {
   const select = h("select", "cat-select");
@@ -461,6 +470,7 @@ function categorySelect({ row, tx }: IndexedTx) {
   select.setAttribute("aria-label", fill(r.table.categoryLabel, { n: row }));
   for (const cat of CATEGORIES) select.append(new Option(cat, cat));
   select.value = tx.category ?? "Other";
+  select.dataset.cat = categorySlug(select.value);
   select.addEventListener("change", () => {
     if (!original || !isCategory(select.value)) return;
     const key = categoryKey(tx.description);
@@ -533,7 +543,11 @@ function txRow({ row, tx }: IndexedTx) {
 
   const desc = h("td", "col-desc");
   desc.dataset.label = c.description;
-  desc.append(h("span", "cell-main", tx.description), categorySelect({ row, tx }));
+  desc.append(h("span", "cell-main", tx.description));
+
+  const category = h("td", "col-cat");
+  category.dataset.label = c.category;
+  category.append(categorySelect({ row, tx }));
 
   const amount = h(
     "td",
@@ -545,7 +559,7 @@ function txRow({ row, tx }: IndexedTx) {
   const balance = h("td", "num col-balance", tx.balance !== undefined ? peso(tx.balance) : "");
   balance.dataset.label = c.balance;
 
-  tr.append(num, date, desc, amount, balance);
+  tr.append(num, date, desc, category, amount, balance);
   return tr;
 }
 

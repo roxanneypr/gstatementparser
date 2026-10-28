@@ -1055,26 +1055,104 @@ tbody tr:last-child > * {
   font-weight: 600;
 }
 /* Category picker under the description: a native select dressed as a quiet pill. */
+/* Category colours: money-in categories share the green used for incoming amounts; each spending
+   category gets its own soft tint. Ink colours keep ≥ 4.5:1 contrast on their tint. */
+[data-cat] {
+  --cat-bg: #f3f4f5;
+  --cat-ink: #50565c;
+  --cat-dot: #9aa0a6;
+}
+[data-cat="salary"],
+[data-cat="money-received"],
+[data-cat="cash-in"],
+[data-cat="refunds"],
+[data-cat="interest"] {
+  --cat-bg: var(--green-tint);
+  --cat-ink: #166534;
+  --cat-dot: var(--green-bright);
+}
+[data-cat="money-sent"] {
+  --cat-bg: #f8eee9;
+  --cat-ink: #873b1d;
+  --cat-dot: #c2643c;
+}
+[data-cat="cash-withdrawal"] {
+  --cat-bg: #e8f3f1;
+  --cat-ink: #275a52;
+  --cat-dot: #3f8f82;
+}
+[data-cat="food"] {
+  --cat-bg: #fff3e5;
+  --cat-ink: #8f4400;
+  --cat-dot: #ea8a1f;
+}
+[data-cat="transport"] {
+  --cat-bg: #e6f5fa;
+  --cat-ink: #0a5a76;
+  --cat-dot: #2a9cc4;
+}
+[data-cat="shopping"] {
+  --cat-bg: #fdedf4;
+  --cat-ink: #941d52;
+  --cat-dot: #db4f8c;
+}
+[data-cat="bills"] {
+  --cat-bg: #fcf5d9;
+  --cat-ink: #6e5100;
+  --cat-dot: #d4a514;
+}
+[data-cat="load"] {
+  --cat-bg: #f0f7e0;
+  --cat-ink: #44600c;
+  --cat-dot: #84b02a;
+}
+[data-cat="subscriptions"] {
+  --cat-bg: #f2eefd;
+  --cat-ink: #5530a8;
+  --cat-dot: #8b67e0;
+}
+[data-cat="payments"] {
+  --cat-bg: #eef1f6;
+  --cat-ink: #36455e;
+  --cat-dot: #7584a0;
+}
+[data-cat="fees-taxes"] {
+  --cat-bg: #fdecea;
+  --cat-ink: #9b261e;
+  --cat-dot: #dc4b3f;
+}
+.cat-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 10px;
+  border-radius: 50%;
+  background: var(--cat-dot);
+  vertical-align: 1px;
+}
+.tx-table .col-cat {
+  width: 1%;
+  white-space: nowrap;
+}
 .cat-select {
   display: block;
-  margin-top: 6px;
   max-width: 100%;
   height: 26px;
   padding: 0 26px 0 10px;
   font: inherit;
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--body);
-  background: var(--subtle)
+  color: var(--cat-ink, var(--body));
+  background: var(--cat-bg, var(--subtle))
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m7 10 5 5 5-5' fill='none' stroke='%236b7177' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
     no-repeat right 8px center / 12px;
-  border: 1px solid var(--line-strong);
+  border: 1px solid transparent;
   border-radius: 999px;
   appearance: none;
   cursor: pointer;
 }
 .cat-select:hover {
-  border-color: var(--muted);
+  border-color: var(--cat-dot, var(--muted));
 }
 .cat-select:focus-visible {
   outline: 2px solid var(--focus);
@@ -1244,6 +1322,7 @@ tbody tr:last-child > * {
     grid-template-columns: 1fr auto;
     grid-template-areas:
       "desc amount"
+      "cat cat"
       "date balance";
     gap: 4px 12px;
     padding: 14px 16px;
@@ -1270,6 +1349,7 @@ tbody tr:last-child > * {
     grid-template-columns: auto 1fr auto;
     grid-template-areas:
       "flag desc amount"
+      "flag cat cat"
       "flag date balance";
   }
   .tx-table tr.flagged td.col-row {
@@ -1290,6 +1370,11 @@ tbody tr:last-child > * {
   }
   .tx-table td.col-amount {
     grid-area: amount;
+  }
+  .tx-table td.col-cat {
+    grid-area: cat;
+    width: auto;
+    padding: 2px 0 !important;
   }
   .tx-table td.col-date {
     grid-area: date;

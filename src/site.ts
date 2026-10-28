@@ -151,6 +151,7 @@ export const strings = {
             row: "#",
             date: "Date",
             description: "Description",
+            category: "Category",
             amount: "Amount",
             balance: "Balance",
           },
