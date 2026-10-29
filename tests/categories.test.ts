@@ -19,6 +19,10 @@ describe("guessCategory", () => {
     expect(out("Payment to Foodpanda")).toBe("Food");
     expect(out("Payment to Shopee")).toBe("Shopping");
     expect(out("Payment to Netflix")).toBe("Subscriptions");
+    // Wording seen on a real GCash statement
+    expect(out("Payment to 7 Eleven Sample Branch")).toBe("Shopping");
+    expect(out("Payment to TikTok Repayment")).toBe("Bills");
+    expect(out("Payment to Sample Loans Repayment")).toBe("Bills");
     expect(out("Payment to Sample Merchant, Merchant Transaction Number: abc")).toBe("Payments");
   });
 

@@ -68,12 +68,12 @@ const RULES: Rule[] = [
   {
     category: "Shopping",
     pattern:
-      /shopee|lazada|tiktok ?shop|zalora|uniqlo|\bzara\b|h&m|\bsm\b|robinsons|puregold|7-?eleven|ministop|alfamart|watsons|mercury drug|savemore|landers|s&r|ikea/i,
+      /shopee|lazada|tiktok ?shop|zalora|uniqlo|\bzara\b|h&m|\bsm\b|robinsons|puregold|7[- ]?eleven|ministop|alfamart|watsons|mercury drug|savemore|landers|s&r|ikea/i,
   },
   {
     category: "Bills",
     pattern:
-      /paid bill|bills? ?pay|bill payment|meralco|maynilad|manila water|pldt|converge|sky ?cable|insurance|loans? ?repayment/i,
+      /paid bill|bills? ?pay|bill payment|meralco|maynilad|manila water|pldt|converge|sky ?cable|insurance|repayment/i,
   },
   { category: "Load", pattern: /\b(re)?load\b/i, only: "out" },
 

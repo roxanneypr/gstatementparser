@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { redactText, toPageText } from "../src/pdf/pageText.ts";
 import { detectParser, parseStatement } from "../src/parsers/index.ts";
+import { categorize } from "../src/lib/categories.ts";
 
 const args = process.argv.slice(2);
 const file = args.find((a) => !a.startsWith("--"));
@@ -45,3 +46,19 @@ console.log(
 console.log(`checks: ${JSON.stringify(r.checks)}`);
 console.log(`warnings: ${r.warnings.length}`);
 for (const w of r.warnings) console.log("  - " + show(w));
+
+// Categories: counts, plus the wording of rows no rule matched ("Other"), so rules can be added.
+const categorized = categorize(r).transactions;
+const counts = new Map();
+for (const t of categorized) counts.set(t.category, (counts.get(t.category) ?? 0) + 1);
+console.log("categories:");
+for (const [c, n] of [...counts].sort((a, b) => b[1] - a[1]))
+  console.log(`  ${String(n).padStart(4)} ${c}`);
+const other = new Map();
+for (const t of categorized.filter((t) => t.category === "Other")) {
+  const key = `${t.credit ? "in " : "out"} ${show(t.description)}`;
+  other.set(key, (other.get(key) ?? 0) + 1);
+}
+if (other.size) console.log("uncategorized (Other):");
+for (const [k, n] of [...other].sort((a, b) => b[1] - a[1]))
+  console.log(`  ${String(n).padStart(4)} ${k}`);
