@@ -1,15 +1,15 @@
 ---
 title: "GCash Statement PDF Password: How to Open Your File"
 description: "Why your GCash statement PDF asks for a password, where to find it, and what to do if it won't open, without sharing your file with anyone."
-publishedDate: 2026-10-26
-draft: true
+publishedDate: 2026-10-29
+draft: false
 related:
   - how-to-download-gcash-transaction-history
   - gcash-statement-to-excel-guide
 ---
 
 <!-- Search intent: "gcash statement password", "gcash transaction history pdf password". -->
-<!-- Reviewer: do NOT publish a password format unless it is confirmed by GCash's official help pages. -->
+<!-- Password format confirmed against GCash Help Center and a real statement (2026-10-29). Example uses a fake name and number. -->
 
 GCash protects your transaction history PDF with a password so only you can open it. Here's how to
 open it, and what to do when it doesn't work.
@@ -19,11 +19,19 @@ open it, and what to do when it doesn't work.
 Your statement shows every transaction, the people and merchants you paid, and your balance. The
 password keeps that private if the file is forwarded or your email is accessed by someone else.
 
-## Where to find your password
+## What the password is
 
-**TODO: verify** how GCash tells you the password. Check the email or in-app message that came with
-the statement and GCash's official help centre, and describe it here exactly as GCash does. Do not
-guess a format (for example, parts of your name, birthday or mobile number) unless GCash publishes it.
+The password is your **last name** followed by the **last 4 digits of your mobile number**, all in
+lowercase with no spaces.
+
+For example, if your name is Juan Dela Cruz and your GCash number ends in 1234, the password is:
+
+```
+delacruz1234
+```
+
+If your last name has spaces (like "Dela Cruz") or capital letters, leave the spaces out and type
+it in lowercase.
 
 ## How to enter it
 
@@ -34,12 +42,11 @@ guess a format (for example, parts of your name, birthday or mobile number) unle
 
 ## If it says "Wrong password"
 
-- Check uppercase and lowercase letters. Passwords are case-sensitive.
+- Type it all in lowercase. Passwords are case-sensitive.
 - Make sure there are no extra spaces before or after the password.
 - Try typing it instead of pasting it, or use "Show" to see what you typed.
-- Make sure you're using the password for this statement. **TODO: verify** whether the password
-  changes between requests.
-- Still stuck? **TODO: verify** the official GCash support channel to link to.
+- Use the last name and mobile number on your GCash account.
+- Still stuck? Visit the GCash Help Center at [help.gcash.com](https://help.gcash.com).
 
 ## Can the password be removed?
 

@@ -103,7 +103,7 @@ test.describe("content", () => {
     await page.goto("/");
     await page.locator('footer a[href="/blog"]').click();
     await expect(page).toHaveURL(/\/blog$/);
-    await expect(page.locator(".post-card")).toHaveCount(4);
+    await expect(page.locator(".post-card")).toHaveCount(8);
     await expect(page.locator('a.post-card[href="/blog/why-track-your-money"]')).toBeVisible();
     await page.locator('a.post-card[href="/blog/gcash-statement-to-excel-guide"]').click();
     await expect(page.locator("h1")).toHaveText("GCash Statement to Excel: Step-by-Step Guide");

@@ -1,8 +1,8 @@
 ---
 title: How to Open Your GCash Statement in Google Sheets
 description: "Convert your GCash transaction history PDF and import it into Google Sheets with dates and peso amounts that sort, filter and add up correctly."
-publishedDate: 2026-10-26
-draft: true
+publishedDate: 2026-10-29
+draft: false
 related:
   - gcash-statement-to-excel-guide
   - track-gcash-income-freelancers-online-sellers
@@ -31,10 +31,12 @@ The conversion happens on your device. Your PDF is never uploaded.
 
 If you upload the Excel file, you get both the **Transactions** and **Summary** sheets.
 
-## Step 2 (alternative): On your phone
+## On a phone
 
-**TODO: verify** the current steps in the Google Drive and Google Sheets mobile apps for opening
-an uploaded .xlsx or .csv file, and add them here.
+The **File → Import** menu above is part of Google Sheets on a computer. If you converted your
+statement on your phone, the downloaded Excel file is in your phone's downloads. You can open it
+there with a spreadsheet app, or import it into Google Sheets later from a computer using the steps
+above.
 
 ## Excel or CSV: which should I use?
 
@@ -53,7 +55,8 @@ an uploaded .xlsx or .csv file, and add them here.
 
 ## Useful next steps
 
-- Add a **Category** column (Food, Transport, Bills, Income…) and use a pivot table to total each
-  category per month.
+- Use the **Category** column (Food, Transport, Bills, Money received…) that the converter fills in,
+  and a pivot table to total each category per month. The
+  [budget guide](/blog/gcash-spending-tracker-excel) shows how.
 - See [how freelancers and online sellers track GCash income](/blog/track-gcash-income-freelancers-online-sellers)
   for a ready-made layout.
