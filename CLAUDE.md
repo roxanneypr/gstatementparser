@@ -92,8 +92,9 @@ github.com/KazeFreeze/gcash-pdf-parser. If any code is adapted from it, keep its
 │   │   ├── maya.ts           # Maya Wallet Statement of Account parser
 │   │   ├── bpi.ts            # BPI account statement parser (letter-spaced text, dates without a year)
 │   │   ├── bdo.ts            # BDO Account Activities parser (newest first, no balances to check)
+│   │   ├── generic.ts        # general reader (beta): any statement with a table of dates and amounts
 │   │   ├── reconcile.ts      # shared reconciliation checks (every parser uses it)
-│   │   └── index.ts          # registry: detect which parser fits a PDF
+│   │   └── index.ts          # registry: bank parsers first, general reader as the fallback
 │   ├── export/
 │   │   ├── toXlsx.ts
 │   │   └── toCsv.ts
@@ -150,7 +151,7 @@ interface BalanceIssue {
 }
 
 interface ParseResult {
-  source: "gcash" | "maya" | "bpi" | "bdo";
+  source: "gcash" | "maya" | "bpi" | "bdo" | "generic";
   accountName?: string;
   accountNumber?: string; // mask in UI: show only last 4 digits
   periodStart?: string;
@@ -198,6 +199,17 @@ GCash statements do contain such gaps (e.g. a payment listed while the balance s
 so the UI shows them as rows to review, and the exports add a "Balance check" column.
 
 The parser registry exists so we can add Maya, BPI, BDO, SeaBank, etc. later without touching the UI.
+
+**General reader (beta), `src/parsers/generic.ts`:** used by `parseStatement()` only when no
+bank-specific parser recognises the PDF (or one does but finds no rows). It finds the table by
+column names (synonym lists), assigns text by left edge and amounts by right edge, joins wrapped
+lines, reads opening/closing/totals labels, and only accepts peso amounts with centavos. It never
+guesses quietly: day/month order is decided per statement (warning when ambiguous), unmarked amounts
+in a single column are placed by the running balance or flagged, and every result carries a beta
+notice. When nothing can be checked, the done card says so instead of "matches". Tests include a
+benchmark: on the GCash, Maya, BPI and BDO fixtures it must produce the same dates, amounts,
+balances and checks as the bank parsers. A bank only gets its own landing page/parser once a real
+statement has been checked.
 
 ## Parsing approach
 

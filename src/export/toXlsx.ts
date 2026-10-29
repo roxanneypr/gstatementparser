@@ -8,6 +8,7 @@ const SOURCE_NAMES: Record<ParseResult["source"], string> = {
   maya: "Maya",
   bpi: "BPI",
   bdo: "BDO",
+  generic: "Bank",
 };
 
 const PESO = '"₱"#,##0.00';

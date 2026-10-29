@@ -3,6 +3,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import type { PageText } from "../src/parsers/types.ts";
 import { pagesToPdf } from "../scripts/fake-pdf.mjs";
 import { twoMonthStatement } from "../scripts/fake-statement.mjs";
+import { sampleGenericStatementPages, tablePages } from "../scripts/fake-table.mjs";
 
 export const GENERATED = "e2e/.generated";
 export const PASSWORD = "fake-pass-123";
@@ -33,6 +34,25 @@ export default function globalSetup() {
     pages: PageText[];
   };
   writeFileSync(`${GENERATED}/bdo.pdf`, pagesToPdf(bdo.pages));
+
+  // FAKE statements from a bank without its own parser, for the general reader (beta).
+  writeFileSync(`${GENERATED}/other-bank.pdf`, pagesToPdf(sampleGenericStatementPages()));
+  writeFileSync(
+    `${GENERATED}/other-bank-unchecked.pdf`,
+    pagesToPdf(
+      tablePages({
+        columns: [
+          { label: "Date", x: 40 },
+          { label: "Description", x: 110 },
+          { label: "Amount", x: 400, align: "right" },
+        ],
+        rows: [
+          ["03/02/2026", "Salary", "30,000.00"],
+          ["03/15/2026", "Groceries", "-1,250.00"],
+        ],
+      }),
+    ),
+  );
 
   // 45 transactions over two months, for pagination and the monthly view.
   writeFileSync(`${GENERATED}/two-months.pdf`, pagesToPdf(twoMonthStatement(45)));

@@ -3,7 +3,7 @@
 import { readFile } from "node:fs/promises";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { redactText, toPageText } from "../src/pdf/pageText.ts";
-import { detectParser } from "../src/parsers/index.ts";
+import { detectParser, parseStatement } from "../src/parsers/index.ts";
 
 const args = process.argv.slice(2);
 const file = args.find((a) => !a.startsWith("--"));
@@ -26,12 +26,12 @@ for (let n = 1; n <= doc.numPages; n++) {
 }
 await task.destroy();
 
-const parser = detectParser(pages);
-if (!parser) {
+const r = parseStatement(pages);
+if (!r) {
   console.log("No parser recognised this PDF.");
   process.exit(1);
 }
-const r = parser.parse(pages);
+const parser = { id: detectParser(pages)?.id === r.source ? r.source : `${r.source} (fallback)` };
 const flagged = r.transactions.filter((t) => t.flags?.length).length;
 const unchanged = r.transactions.filter((t) => t.balanceIssue?.kind === "unchanged").length;
 const different = r.transactions.filter((t) => t.balanceIssue?.kind === "different").length;

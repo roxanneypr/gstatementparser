@@ -93,7 +93,7 @@ your download.
   **Unlock and convert**. If it says "Wrong password", check uppercase letters and extra spaces.
 - **"This PDF has no readable text":** screenshots and scanned images can't be converted. Use the
   original PDF from GCash.
-- **"This doesn't look like a GCash Transaction History PDF":** only GCash statements are supported
-  for now.
+- **"We couldn't find a transaction table in this PDF":** the file isn't a statement with a table
+  of dates and amounts. Use the Transaction History PDF that GCash sends you.
 - **Some rows have a ⚠ sign:** their running balance doesn't follow (hover it to see why); see Step 4. The figures come straight from your statement;
   nothing is changed.

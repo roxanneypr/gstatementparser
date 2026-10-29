@@ -164,6 +164,40 @@ test("categories: guessed per row, totalled, filterable, editable and exported",
   expect(problems).toEqual([]);
 });
 
+test("general reader (beta): another bank's statement converts, labelled and checked", async ({
+  page,
+}) => {
+  const { requests, problems } = watch(page);
+  await page.setInputFiles("#pdf-file", pdf("other-bank"));
+  await expect(page.locator("#state-done")).toBeVisible();
+  await expect(page.locator("#done-summary")).toHaveText(
+    "Bank statement (beta) · Mar 1 – Mar 31, 2026 · 8 transactions",
+  );
+  // Balances add up, so it says so; the beta note is listed with the statement notes.
+  await expect(page.locator("#done-status")).toHaveClass(/is-ok/);
+  await expect(page.locator("#review-notes")).toContainText("general reader (beta)");
+  await expect(page.locator("#ov-opening")).toHaveText("₱10,000.00");
+
+  const [xlsx] = await Promise.all([page.waitForEvent("download"), page.click("#download-xlsx")]);
+  expect(xlsx.suggestedFilename()).toBe("bank-statement_2026-03-01_to_2026-03-31.xlsx");
+  const wb = read(readFileSync((await xlsx.path())!));
+  expect(utils.sheet_to_json(wb.Sheets.Transactions!)).toHaveLength(8);
+  const summary = utils.sheet_to_json<unknown[]>(wb.Sheets.Summary!, { header: 1 });
+  expect(summary[0]?.[0]).toBe("Bank statement summary");
+
+  expect(requests.filter((r) => r.method !== "GET" || r.body > 0)).toEqual([]);
+  expect(problems).toEqual([]);
+});
+
+test("general reader (beta): says plainly when a statement can't be checked", async ({ page }) => {
+  await page.setInputFiles("#pdf-file", pdf("other-bank-unchecked"));
+  await expect(page.locator("#state-done")).toBeVisible();
+  await expect(page.locator("#done-status")).toHaveClass(/is-na/);
+  await expect(page.locator("#done-status-text")).toHaveText(
+    "We couldn't check this against your statement. Compare the totals with your PDF before using it.",
+  );
+});
+
 test("converts a Maya statement: detected, checked and labelled Maya in the downloads", async ({
   page,
 }) => {
@@ -310,7 +344,7 @@ test("explains files it can't convert and stays on the first step", async ({ pag
   const cases: [string, RegExp][] = [
     ["not-really", /couldn't be opened as a PDF/],
     ["no-text", /no readable text/],
-    ["not-gcash", /doesn't look like a GCash, Maya, BPI or BDO statement/],
+    ["not-gcash", /couldn't find a transaction table/],
   ];
   for (const [name, message] of cases) {
     await page.setInputFiles("#pdf-file", pdf(name));

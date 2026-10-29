@@ -218,7 +218,7 @@ async function convert(password?: string) {
     console.error("Converter modules failed to load:", err);
     return fail(t.errors.loadFailed);
   }
-  const [{ extractText, ExtractError }, { detectParser }] = modules;
+  const [{ extractText, ExtractError }, { parseStatement }] = modules;
   try {
     let pages;
     try {
@@ -232,10 +232,10 @@ async function convert(password?: string) {
       throw err;
     }
     if (!pages.some((p) => p.items.length)) return fail(t.errors.noText);
-    const parser = detectParser(pages);
-    if (!parser) return fail(t.errors.unsupported);
+    const parsed = parseStatement(pages);
+    if (!parsed) return fail(t.errors.unsupported);
 
-    original = parser.parse(pages);
+    original = parsed;
     categoryOverrides.clear();
     setCleanup(false);
     recompute();
@@ -332,7 +332,8 @@ function renderStatus(res: ParseResult) {
     text = st.ok;
   } else {
     ok = null;
-    text = st.none;
+    // The general reader can't vouch for a statement it couldn't check: say so plainly.
+    text = res.source === "generic" ? st.unchecked : st.none;
   }
   const box = el("done-status");
   box.className = `done-status ${ok === null ? "is-na" : ok ? "is-ok" : "is-warn"}`;

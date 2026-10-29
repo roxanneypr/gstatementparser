@@ -47,7 +47,13 @@ export const strings = {
       converted: "Your spreadsheet is ready",
       doneSummary: "{source} · {period} · {n} transactions",
       doneSummaryOne: "{source} · {period} · 1 transaction",
-      sources: { gcash: "GCash", maya: "Maya", bpi: "BPI", bdo: "BDO" },
+      sources: {
+        gcash: "GCash",
+        maya: "Maya",
+        bpi: "BPI",
+        bdo: "BDO",
+        generic: "Bank statement (beta)",
+      },
       errors: {
         notPdf: "That file isn't a PDF. Choose the PDF statement from GCash, Maya, BPI or BDO.",
         tooLarge: "That file is too large (over 25 MB). Statements are usually much smaller.",
@@ -57,7 +63,7 @@ export const strings = {
         noText:
           "This PDF has no readable text (it may be a scanned image or a screenshot). Use the original PDF statement from GCash, Maya, BPI or BDO.",
         unsupported:
-          "This doesn't look like a GCash, Maya, BPI or BDO statement PDF. Only GCash, Maya, BPI and BDO statements are supported for now.",
+          "We couldn't find a transaction table in this PDF. GCash, Maya, BPI and BDO statements are fully supported; other banks' statements are read when they have a clear table of dates and amounts.",
         generic: "Something went wrong while reading this file. Please try again.",
         sampleFailed:
           "The sample statement couldn't be loaded. Check your connection and try again.",
@@ -79,6 +85,8 @@ export const strings = {
           },
           totalsOff: "Some totals don't match your statement. Please compare with your PDF.",
           none: "Your statement doesn't show balances to check against.",
+          unchecked:
+            "We couldn't check this against your statement. Compare the totals with your PDF before using it.",
         },
         convertAnother: "Convert another",
         overview: {

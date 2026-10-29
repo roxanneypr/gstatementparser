@@ -96,5 +96,6 @@ export function notesLabel(t: Transaction): string {
 export function exportBaseName(result: ParseResult): string {
   const range =
     result.periodStart && result.periodEnd ? `_${result.periodStart}_to_${result.periodEnd}` : "";
-  return `${result.source}-statement${range}`;
+  const source = result.source === "generic" ? "bank" : result.source;
+  return `${source}-statement${range}`;
 }
