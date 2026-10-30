@@ -265,6 +265,51 @@ test("several statements: a file that can't be read is named and skipped", async
   await expect(page.locator("#statements")).toBeHidden(); // only one statement made it
 });
 
+test("accounting software: Xero, QuickBooks Online and OFX files, one account at a time", async ({
+  page,
+}) => {
+  const { requests, problems } = watch(page);
+  await choose(page, pdf("protected"));
+  await page.fill("#pdf-password", PASSWORD);
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#state-done")).toBeVisible();
+
+  await page.locator("#more-formats summary").click();
+  await expect(page.locator("#formats-account-field")).toBeHidden(); // one account
+  await page.selectOption("#formats-dates", "dmy");
+
+  const download = async (id: string) => {
+    const [file] = await Promise.all([page.waitForEvent("download"), page.click(id)]);
+    return { name: file.suggestedFilename(), text: readFileSync((await file.path())!, "utf8") };
+  };
+  const xero = await download("#download-xero");
+  expect(xero.name).toBe("gcash-statement_2026-03-01_to_2026-03-31_xero.csv");
+  expect(xero.text.split("\r\n")[1]).toBe(
+    "01/03/2026,-150.00,Payment to Sample Coffee Shop,Food,1000000000001",
+  );
+  const qbo = await download("#download-quickbooks");
+  expect(qbo.name).toBe("gcash-statement_2026-03-01_to_2026-03-31_quickbooks.csv");
+  expect(qbo.text.split("\r\n")[0]).toBe("Date,Description,Amount");
+  const ofx = await download("#download-ofx");
+  expect(ofx.name).toBe("gcash-statement_2026-03-01_to_2026-03-31.ofx");
+  expect(ofx.text.match(/<STMTTRN>/g)).toHaveLength(9);
+
+  // A workbook with two banks asks which account to export.
+  await page.click("#add-statement");
+  await page.setInputFiles("#pdf-file", pdf("bdo"));
+  await expect(page.locator("#statement-list li")).toHaveCount(2);
+  await expect(page.locator("#formats-account-field")).toBeVisible();
+  // The first account is selected (not a blank picker).
+  await expect(page.locator("#formats-account")).toHaveValue("0");
+  await page.selectOption("#formats-account", { label: "BDO · Sep 1 – Oct 31, 2026" });
+  const bdo = await download("#download-quickbooks");
+  expect(bdo.name).toBe("wallettoexcel_2026-03-01_to_2026-10-31_bdo_quickbooks.csv");
+  expect(bdo.text.trimEnd().split("\r\n")).toHaveLength(7);
+
+  expect(requests.filter((r) => r.method !== "GET" || r.body > 0)).toEqual([]);
+  expect(problems).toEqual([]);
+});
+
 test("converts a Maya statement: detected, checked and labelled Maya in the downloads", async ({
   page,
 }) => {

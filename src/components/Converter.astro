@@ -218,6 +218,37 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
         </button>
       </div>
 
+      <details id="more-formats" class="more-formats">
+        <summary>{r.formats.summary}</summary>
+        <div class="formats-body">
+          <div class="formats-options">
+            <p id="formats-account-field" class="formats-field" hidden>
+              <label for="formats-account">{r.formats.account}</label>
+              <select id="formats-account"></select>
+            </p>
+            <p class="formats-field">
+              <label for="formats-dates">{r.formats.dates}</label>
+              <select id="formats-dates">
+                <option value="mdy">MM/DD/YYYY</option>
+                <option value="dmy">DD/MM/YYYY</option>
+              </select>
+            </p>
+          </div>
+          <div class="formats-buttons">
+            <button type="button" id="download-xero" class="btn-secondary">
+              {r.formats.xero}
+            </button>
+            <button type="button" id="download-quickbooks" class="btn-secondary">
+              {r.formats.quickbooks}
+            </button>
+            <button type="button" id="download-ofx" class="btn-secondary">
+              {r.formats.ofx}
+            </button>
+          </div>
+          <p class="formats-note">{r.formats.note}</p>
+        </div>
+      </details>
+
       <div id="statements" class="statements" hidden>
         <p class="statements-title">{t.statements.heading}</p>
         <ul id="statement-list"></ul>

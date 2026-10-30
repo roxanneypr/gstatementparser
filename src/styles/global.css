@@ -2448,3 +2448,80 @@ main.page-top {
   font-size: 0.75rem;
   color: var(--muted);
 }
+
+/* ---- more download formats (accounting software) ---- */
+.more-formats {
+  margin-top: 16px;
+}
+.more-formats summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--body);
+  cursor: pointer;
+  list-style: none;
+}
+.more-formats summary::-webkit-details-marker {
+  display: none;
+}
+.more-formats summary::after {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin: 0 2px 0 4px;
+  border-right: 1.5px solid var(--muted);
+  border-bottom: 1.5px solid var(--muted);
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.15s;
+}
+.more-formats[open] summary::after {
+  transform: translateY(2px) rotate(-135deg);
+}
+.formats-body {
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+}
+.formats-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+.formats-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+.formats-field select {
+  height: 36px;
+  max-width: 100%;
+  padding: 0 12px;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+}
+.formats-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.formats-buttons button {
+  flex: 1 1 auto;
+  white-space: nowrap;
+}
+.formats-note {
+  margin: 12px 0 0;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}

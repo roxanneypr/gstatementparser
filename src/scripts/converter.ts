@@ -434,6 +434,7 @@ function render(res: Workbook, { keepView = false, keepPage = false } = {}) {
   }
 
   renderStatements(res);
+  renderFormats(res);
   renderOverview(res, s);
   renderReview(res);
   renderMonths(s);
@@ -921,5 +922,48 @@ el("download-csv").addEventListener("click", async () => {
     showError(t.errors.generic);
   }
 });
+
+// ---- accounting software ------------------------------------------------------
+
+const formatsAccount = el<HTMLSelectElement>("formats-account");
+const formatsDates = el<HTMLSelectElement>("formats-dates");
+
+/** Accounts in the current result: one import file per bank account. */
+function renderFormats(res: Workbook) {
+  void import("../export/accounting.ts").then(({ accountChoices }) => {
+    const choices = accountChoices(res, (s) => t.sources[s]);
+    el("formats-account-field").hidden = choices.length < 2;
+    const keep = formatsAccount.value;
+    formatsAccount.replaceChildren(...choices.map((c, i) => new Option(c.label, String(i))));
+    formatsAccount.value = keep && choices[Number(keep)] ? keep : "0";
+  });
+}
+
+async function downloadFor(kind: "xero" | "quickbooks" | "ofx") {
+  if (!result) return;
+  try {
+    const { accountChoices, toOfx, toQuickBooksCsv, toXeroCsv } =
+      await import("../export/accounting.ts");
+    const choices = accountChoices(result, (s) => t.sources[s]);
+    const choice = choices[Number(formatsAccount.value)] ?? choices[0];
+    if (!choice) return;
+    const order = formatsDates.value === "dmy" ? "dmy" : "mdy";
+    const base =
+      choices.length > 1 ? `${exportBaseName(result)}_${choice.slug}` : exportBaseName(result);
+    if (kind === "ofx") {
+      saveBlob(new Blob([toOfx(choice.account)], { type: "application/x-ofx" }), `${base}.ofx`);
+    } else {
+      const csv =
+        kind === "xero" ? toXeroCsv(choice.account, order) : toQuickBooksCsv(choice.account, order);
+      saveBlob(new Blob([csv], { type: "text/csv;charset=utf-8" }), `${base}_${kind}.csv`);
+    }
+  } catch (err) {
+    console.error("Download failed:", err);
+    showError(t.errors.generic);
+  }
+}
+el("download-xero").addEventListener("click", () => void downloadFor("xero"));
+el("download-quickbooks").addEventListener("click", () => void downloadFor("quickbooks"));
+el("download-ofx").addEventListener("click", () => void downloadFor("ofx"));
 
 el("view-transactions").addEventListener("click", () => focusTable());

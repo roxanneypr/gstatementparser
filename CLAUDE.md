@@ -97,7 +97,8 @@ github.com/KazeFreeze/gcash-pdf-parser. If any code is adapted from it, keep its
 │   │   └── index.ts          # registry: bank parsers first, general reader as the fallback
 │   ├── export/
 │   │   ├── toXlsx.ts
-│   │   └── toCsv.ts
+│   │   ├── toCsv.ts
+│   │   └── accounting.ts     # Xero CSV, QuickBooks Online 3-column CSV, OFX 1.0.2 (one account each)
 │   └── lib/
 │       ├── categories.ts     # auto-categorization rules + user overrides (pure)
 │       ├── combine.ts        # several statements -> one Workbook (duplicates, gaps, continuity)
@@ -207,6 +208,15 @@ statements of one account become warnings. Exports add "Statement" as column K (
 a per-statement table on Summary, and a "Spending by month" sheet when there are 2+ months. Free for
 now: the limit is `MAX_STATEMENTS` in `converter.ts`. A password that opened one file is tried on the
 next file of the batch (memory only, forgotten when the batch ends).
+
+**Accounting exports (`src/export/accounting.ts`):** "More formats" on the done card. One file per
+bank account (accounting tools import into one account at a time; a mixed workbook shows an account
+picker). The user picks MM/DD/YYYY or DD/MM/YYYY. Rows without an amount are left out. QuickBooks
+follows Intuit's "Format CSV files in Excel to get bank transactions into QuickBooks" (3-column).
+Xero's official template page couldn't be read when this was built: the CSV (Date, Amount, Payee,
+Description, Reference) relies on Xero's column mapping on import. OFX never invents a balance
+(LEDGERBAL only when printed). Don't claim "works with Xero/QuickBooks" in marketing copy until a
+test import in each product has been done.
 
 **Never alter the statement's figures.** A `balanceIssue` describes a gap; it doesn't "fix" it. Real
 GCash statements do contain such gaps (e.g. a payment listed while the balance stays the same),

@@ -93,6 +93,15 @@ export const strings = {
         period: "{start} to {end}",
         downloadXlsx: "Download Excel",
         downloadCsv: "Download CSV",
+        formats: {
+          summary: "More formats: Xero, QuickBooks, OFX",
+          account: "Account",
+          dates: "Date format",
+          xero: "Xero (.csv)",
+          quickbooks: "QuickBooks Online (.csv)",
+          ofx: "OFX bank file (.ofx)",
+          note: "Each file is for one bank account. Pick the date format your accounting software uses. Rows without an amount are left out. Xero and QuickBooks are trademarks of their owners; we're not affiliated with them.",
+        },
         viewAll: { one: "View 1 transaction", other: "View all {n} transactions" },
         privacyDone: "Processed on your device. Nothing was uploaded.",
         status: {
