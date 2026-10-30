@@ -1,4 +1,10 @@
-import type { ParseResult, Transaction } from "../parsers/types.ts";
+import type { ParseResult, Transaction, Workbook } from "../parsers/types.ts";
+
+/** The statements behind a result: several for a combined workbook, otherwise none listed. */
+export const statementsOf = (r: ParseResult) =>
+  "statements" in r ? (r as Workbook).statements : [];
+/** True when the result combines more than one statement. */
+export const isCombined = (r: ParseResult) => statementsOf(r).length > 1;
 
 export interface MonthTotals {
   /** "YYYY-MM" */
@@ -96,6 +102,7 @@ export function notesLabel(t: Transaction): string {
 export function exportBaseName(result: ParseResult): string {
   const range =
     result.periodStart && result.periodEnd ? `_${result.periodStart}_to_${result.periodEnd}` : "";
+  if (result.source === "mixed") return `wallettoexcel${range}`;
   const source = result.source === "generic" ? "bank" : result.source;
-  return `${source}-statement${range}`;
+  return `${source}-statement${isCombined(result) ? "s" : ""}${range}`;
 }

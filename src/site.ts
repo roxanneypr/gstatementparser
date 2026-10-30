@@ -53,6 +53,7 @@ export const strings = {
         bpi: "BPI",
         bdo: "BDO",
         generic: "Bank statement (beta)",
+        mixed: "Several statements",
       },
       errors: {
         notPdf: "That file isn't a PDF. Choose the PDF statement from GCash, Maya, BPI or BDO.",

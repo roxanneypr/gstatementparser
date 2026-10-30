@@ -40,6 +40,8 @@ export interface Transaction {
   balanceIssue?: BalanceIssue;
   /** Best-guess or user-chosen category (src/lib/categories.ts); a label only, never parsed. */
   category?: string;
+  /** Index into `Workbook.statements` when several statements are combined (src/lib/combine.ts). */
+  statement?: number;
 }
 
 export interface BalanceIssue {
@@ -50,8 +52,11 @@ export interface BalanceIssue {
 }
 
 export interface ParseResult {
-  /** "generic": read by the general reader (beta), not a bank-specific parser */
-  source: "gcash" | "maya" | "bpi" | "bdo" | "generic";
+  /**
+   * "generic": read by the general reader (beta), not a bank-specific parser.
+   * "mixed": a workbook combining statements from different sources.
+   */
+  source: "gcash" | "maya" | "bpi" | "bdo" | "generic" | "mixed";
   accountName?: string;
   /** mask in UI: show only last 4 digits */
   accountNumber?: string;
@@ -68,6 +73,28 @@ export interface ParseResult {
    *  Row-level problems live on each Transaction (`flags`, `balanceIssue`). */
   warnings: string[];
   checks: ReconciliationChecks;
+}
+
+/** One statement inside a workbook. */
+export interface WorkbookStatement {
+  /** e.g. "GCash · Mar 1 – Mar 31, 2026" (or the file name) */
+  label: string;
+  /** the statement as parsed (possibly cleaned up), before combining */
+  result: ParseResult;
+  /** rows of this statement left out because an earlier statement of the same account has them */
+  duplicates: number;
+}
+
+/**
+ * Several statements combined into one result (one statement is a workbook of one). The merged
+ * `transactions` carry `statement`; checks stay per statement and are summarised here.
+ */
+export interface Workbook extends ParseResult {
+  statements: WorkbookStatement[];
+  /** Rows that appear in two overlapping statements of the same account. */
+  duplicates: { found: number; removed: boolean };
+  /** How many different accounts the statements come from. */
+  accounts: number;
 }
 
 /** Each check is `null` when the statement doesn't give enough information to run it. */

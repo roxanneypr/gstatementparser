@@ -1,5 +1,5 @@
 import { formatMoney } from "../lib/money.ts";
-import { balanceCheckLabel, notesLabel } from "../lib/summary.ts";
+import { balanceCheckLabel, isCombined, notesLabel, statementsOf } from "../lib/summary.ts";
 import type { ParseResult } from "../parsers/types.ts";
 
 const HEADERS = [
@@ -30,7 +30,9 @@ export function csvText(value: string): string {
 
 /** CSV with a UTF-8 BOM (so Excel shows ₱ and ñ correctly) and CRLF line endings. */
 export function toCsv(result: ParseResult): string {
-  const lines = [HEADERS.join(",")];
+  const combined = isCombined(result);
+  const labels = statementsOf(result).map((s) => s.label);
+  const lines = [(combined ? [...HEADERS, "Statement"] : HEADERS).join(",")];
   for (const t of result.transactions) {
     lines.push(
       [
@@ -44,6 +46,7 @@ export function toCsv(result: ParseResult): string {
         csvText(balanceCheckLabel(t, formatMoney)),
         csvText(notesLabel(t)),
         csvText(t.category ?? ""),
+        ...(combined ? [csvText(labels[t.statement ?? 0] ?? "")] : []),
       ].join(","),
     );
   }
