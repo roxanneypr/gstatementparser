@@ -122,10 +122,10 @@ export function categoryKey(description: string): string {
 export type CategoryOverrides = ReadonlyMap<string, Category>;
 
 /** Copy of the result with `category` set on every transaction. */
-export function categorize(
-  result: ParseResult,
+export function categorize<T extends ParseResult>(
+  result: T,
   overrides: CategoryOverrides = new Map(),
-): ParseResult {
+): T {
   return {
     ...result,
     transactions: result.transactions.map((t) => ({

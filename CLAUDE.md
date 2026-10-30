@@ -100,6 +100,7 @@ github.com/KazeFreeze/gcash-pdf-parser. If any code is adapted from it, keep its
 │   │   └── toCsv.ts
 │   └── lib/
 │       ├── categories.ts     # auto-categorization rules + user overrides (pure)
+│       ├── combine.ts        # several statements -> one Workbook (duplicates, gaps, continuity)
 │       ├── money.ts          # parse "1,234.56" -> centavos (integer); never use floats for sums
 │       └── dates.ts          # normalize dates to ISO YYYY-MM-DD and keep time if present
 ├── tests/
@@ -141,6 +142,7 @@ interface Transaction {
   flags?: string[]; // problems READING this row (missing date, ambiguous amounts, ...)
   balanceIssue?: BalanceIssue; // set when this row's balance doesn't follow from the previous row
   category?: string; // set by src/lib/categories.ts (guess or user's choice), never by parsers
+  statement?: number; // index into Workbook.statements when statements are combined
 }
 
 interface BalanceIssue {
@@ -151,7 +153,7 @@ interface BalanceIssue {
 }
 
 interface ParseResult {
-  source: "gcash" | "maya" | "bpi" | "bdo" | "generic";
+  source: "gcash" | "maya" | "bpi" | "bdo" | "generic" | "mixed"; // mixed: combined workbook
   accountName?: string;
   accountNumber?: string; // mask in UI: show only last 4 digits
   periodStart?: string;
@@ -193,6 +195,18 @@ forced guess). The user can change a row's category in the table; the change app
 with the same `categoryKey(description)`. Changes live in memory only (reset per file; never
 stored). The results show a "By category" table and filter; exports add "Category" as column J
 (the budget blog post's SUMIFS relies on that position) and a by-category table on the Summary sheet.
+
+**Several statements (`src/lib/combine.ts`):** the converter always shows a `Workbook` (a
+`ParseResult` plus `statements`, `duplicates`, `accounts`); one file is a workbook of one. Rows are
+merged in date order. A row counts as a duplicate only when every printed field matches a row of
+an earlier, overlapping statement of the same account (`source` + account number); identical rows
+inside one statement are kept. Duplicates are left out by default and always reported ("Leave out
+duplicates" switch). Checks stay per statement and are combined (any false → false); balances never
+chain across accounts. Missing dates and balances that don't carry over between consecutive
+statements of one account become warnings. Exports add "Statement" as column K (Category stays J),
+a per-statement table on Summary, and a "Spending by month" sheet when there are 2+ months. Free for
+now: the limit is `MAX_STATEMENTS` in `converter.ts`. A password that opened one file is tried on the
+next file of the batch (memory only, forgotten when the batch ends).
 
 **Never alter the statement's figures.** A `balanceIssue` describes a gap; it doesn't "fix" it. Real
 GCash statements do contain such gaps (e.g. a payment listed while the balance stays the same),
@@ -368,7 +382,8 @@ npm run preview    # serve the production build locally
 
 1. ~~Auto-categorization~~ (done; possible next steps: custom keyword rules, remembering
    changes on the device with an opt-in and a privacy-page update first)
-2. Multiple statements merged into one workbook; duplicate detection
+2. ~~Multiple statements merged into one workbook; duplicate detection~~ (done; next: pair own
+   transfers between accounts so they aren't counted twice)
 3. More sources: Maya, BPI, BDO, SeaBank, UnionBank (each as a new `StatementParser`)
 4. Freemium limits + accounts (Supabase) + payments via PayMongo or HitPay (GCash/Maya)
 5. Bookkeeper features: batch upload, BIR-friendly income summaries

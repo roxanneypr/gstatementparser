@@ -41,11 +41,12 @@ const header = (y) => [
 ];
 
 /**
- * @param {{ period: [string, string], opening: number,
+ * @param {{ period: [string, string], opening: number, firstRef?: number,
  *   txs: { dt: string, desc: string, debit?: number, credit?: number, balanceOverride?: number | "previous" }[] }} spec
  *   amounts in centavos; `balanceOverride` prints a different balance (to simulate statement gaps)
+ *   `firstRef`: reference number of the first row minus one (so overlapping statements can share rows)
  */
-export function buildStatement({ period, opening, txs }) {
+export function buildStatement({ period, opening, txs, firstRef = 4000000000000 }) {
   const pages = [];
   let items = [
     item("GCash Transaction History", 183.9, 45.9, 19.21, "g_d0_f1"),
@@ -62,7 +63,7 @@ export function buildStatement({ period, opening, txs }) {
   y += PITCH;
 
   let balance = opening;
-  let ref = 4000000000000;
+  let ref = firstRef;
   let totalDebit = 0;
   let totalCredit = 0;
   for (let t of txs) {

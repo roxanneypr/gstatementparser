@@ -45,6 +45,7 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
         class="visually-hidden"
         type="file"
         accept="application/pdf,.pdf"
+        multiple
         tabindex="-1"
         aria-hidden="true"
       />
@@ -66,6 +67,7 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
         {t.chooseFile}
       </button>
       <p class="panel-hint drag-hint">{t.orDrag}</p>
+      <p class="panel-hint">{t.orSeveral}</p>
       <p class="panel-privacy">
         <svg aria-hidden="true" viewBox="0 0 24 24" width="15" height="15">
           <path
@@ -135,6 +137,7 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
           <path fill="currentColor" d={fileIcon}></path>
         </svg>
         <span class="file-name"></span>
+        <span id="file-of" class="file-of"></span>
       </p>
       <p id="password-prompt" class="panel-prompt">
         {t.passwordPrompt}
@@ -168,7 +171,7 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
       <button type="submit" class="btn-primary btn-wide">
         {t.unlock}
       </button>
-      <button type="button" class="btn-link" data-action="reset">
+      <button type="button" id="password-back" class="btn-link">
         {t.chooseDifferent}
       </button>
     </form>
@@ -214,6 +217,14 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
           {r.downloadCsv}
         </button>
       </div>
+
+      <div id="statements" class="statements" hidden>
+        <p class="statements-title">{t.statements.heading}</p>
+        <ul id="statement-list"></ul>
+      </div>
+      <button type="button" id="add-statement" class="btn-link add-statement">
+        + {t.statements.add}
+      </button>
 
       <p id="done-status" class="done-status">
         <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
@@ -405,39 +416,45 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
         <h3 id="tx-heading" tabindex="-1">
           {r.table.heading}
         </h3>
-        <div id="cleanup" class="cleanup" hidden>
-          <label class="cleanup-check">
-            <input type="checkbox" id="cleanup-toggle" />
-            <span>{r.cleanup.label}</span>
+        <div class="head-options">
+          <label id="dupes" class="cleanup-check" title={r.duplicates.info} hidden>
+            <input type="checkbox" id="dupes-toggle" checked />
+            <span>{r.duplicates.label}</span>
           </label>
-          <button
-            type="button"
-            id="cleanup-info-btn"
-            class="info-btn"
-            aria-label={r.cleanup.infoLabel}
-            aria-expanded="false"
-            aria-controls="cleanup-info"
-          >
-            <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16">
-              <circle
-                cx="12"
-                cy="12"
-                r="9"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.6"
-              ></circle>
-              <path
-                d="M12 11v5M12 8h.01"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-              ></path>
-            </svg>
-          </button>
-          <p id="cleanup-info" class="info-tip" role="tooltip" hidden>
-            {r.cleanup.info}
-          </p>
+          <div id="cleanup" class="cleanup" hidden>
+            <label class="cleanup-check">
+              <input type="checkbox" id="cleanup-toggle" />
+              <span>{r.cleanup.label}</span>
+            </label>
+            <button
+              type="button"
+              id="cleanup-info-btn"
+              class="info-btn"
+              aria-label={r.cleanup.infoLabel}
+              aria-expanded="false"
+              aria-controls="cleanup-info"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16">
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="9"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                ></circle>
+                <path
+                  d="M12 11v5M12 8h.01"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                ></path>
+              </svg>
+            </button>
+            <p id="cleanup-info" class="info-tip" role="tooltip" hidden>
+              {r.cleanup.info}
+            </p>
+          </div>
         </div>
       </div>
       <div class="tx-toolbar">
@@ -460,6 +477,12 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
           </label>
           <select id="category-filter">
             <option value="">{r.table.allCategories}</option>
+          </select>
+          <label for="statement-filter" class="visually-hidden">
+            {r.table.statement}
+          </label>
+          <select id="statement-filter" hidden>
+            <option value="">{r.table.allStatements}</option>
           </select>
           <label for="tx-search" class="visually-hidden">
             {r.table.search}

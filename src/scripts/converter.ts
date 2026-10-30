@@ -10,7 +10,8 @@ import {
   isCategory,
   type Category,
 } from "../lib/categories.ts";
-import { exportBaseName, summarize, type Summary } from "../lib/summary.ts";
+import { combine } from "../lib/combine.ts";
+import { exportBaseName, isCombined, summarize, type Summary } from "../lib/summary.ts";
 import {
   filterCounts,
   filterTransactions,
@@ -21,7 +22,7 @@ import {
   type TxFilter,
   type TxQuery,
 } from "../lib/txView.ts";
-import type { ParseResult, Transaction } from "../parsers/types.ts";
+import type { ParseResult, Transaction, Workbook } from "../parsers/types.ts";
 import { fill, plural, strings } from "../site.ts";
 
 const t = strings.en.converter;
@@ -42,6 +43,7 @@ const chooseBtn = el<HTMLButtonElement>("choose-btn");
 const passwordForm = el<HTMLFormElement>("state-password");
 const passwordInput = el<HTMLInputElement>("pdf-password");
 const togglePassword = el<HTMLButtonElement>("toggle-password");
+const passwordBack = el<HTMLButtonElement>("password-back");
 const statusEl = el<HTMLParagraphElement>("status");
 const errorEl = el<HTMLParagraphElement>("error");
 const results = el<HTMLDivElement>("results");
@@ -52,17 +54,44 @@ const states: Record<State, HTMLElement> = {
   done: el("state-done"),
 };
 
+/** Free for now; this one number is where a paid tier would set its own limit. */
+const MAX_STATEMENTS = 24;
+const MAX_BATCH_BYTES = 150 * 1024 * 1024;
+
+/** A statement read in this session, exactly as parsed. */
+interface Loaded {
+  label: string;
+  parsed: ParseResult;
+}
+
+/** Statements read so far; `result` is them combined, cleaned up (maybe) and categorized. */
+let loaded: Loaded[] = [];
+let result: Workbook | null = null;
+/** Files still to read in this batch, the one being read, and its position for "File 2 of 3". */
+let queue: File[] = [];
 let file: File | null = null;
-let result: ParseResult | null = null;
-/** The statement exactly as parsed; `result` is its categorized (and maybe cleaned-up) copy. */
-let original: ParseResult | null = null;
+let batch = { index: 0, total: 0 };
+/** How many statements were loaded before this batch (to announce how many it added). */
+let loadedBefore = 0;
+/** Problems with individual files in this batch ("name.pdf: not a PDF"), shown when it ends. */
+let problems: string[] = [];
+/** The last password that opened a file in this batch: tried first on the next file (several
+ *  statements from one account share a password). In memory only; forgotten when the batch ends. */
+let batchPassword: string | null = null;
 /** Categories the user changed, by categoryKey(description). In memory only, never stored. */
 const categoryOverrides = new Map<string, Category>();
 
-/** Rebuild `result` from the original with the current clean-up and category choices. */
+/** Rebuild `result` from the loaded statements with the current clean-up, duplicates and categories. */
 function recompute() {
-  if (!original) return;
-  result = categorize(cleanupToggle.checked ? cleanUp(original) : original, categoryOverrides);
+  if (!loaded.length) {
+    result = null;
+    return;
+  }
+  const inputs = loaded.map(({ label, parsed }) => ({
+    label,
+    result: cleanupToggle.checked ? cleanUp(parsed) : parsed,
+  }));
+  result = categorize(combine(inputs, { keepDuplicates: !dupesToggle.checked }), categoryOverrides);
 }
 
 const peso = (centavos: number) =>
@@ -73,7 +102,11 @@ const peso = (centavos: number) =>
 function setState(state: State) {
   panel.dataset.state = state;
   for (const [name, node] of Object.entries(states)) node.hidden = name !== state;
-  statusEl.textContent = state === "working" ? t.converting : "";
+  const working =
+    batch.total > 1 ? fill(t.convertingMany, { i: batch.index, n: batch.total }) : t.converting;
+  statusEl.textContent = state === "working" ? working : "";
+  const workingText = states.working.querySelector("p");
+  if (workingText) workingText.textContent = working;
   for (const n of panel.querySelectorAll(".file-name")) n.textContent = file?.name ?? "";
 }
 
@@ -82,11 +115,16 @@ function showError(message: string) {
 }
 
 function reset() {
+  loaded = [];
+  queue = [];
   file = null;
   result = null;
-  original = null;
+  problems = [];
+  batch = { index: 0, total: 0 };
+  batchPassword = null;
   categoryOverrides.clear();
   setCleanup(false);
+  dupesToggle.checked = true;
   fileInput.value = "";
   passwordInput.value = "";
   setPasswordVisible(false);
@@ -100,9 +138,10 @@ for (const btn of panel.querySelectorAll<HTMLButtonElement>('[data-action="reset
   btn.addEventListener("click", reset);
 }
 
-// ---- choosing a file ----------------------------------------------------------
+// ---- choosing files -----------------------------------------------------------
 
 chooseBtn.addEventListener("click", () => fileInput.click());
+el("add-statement").addEventListener("click", () => fileInput.click());
 
 // Header "Convert PDF" on this page: bring the converter into view without reloading, and put
 // focus on whatever the next step is (choose a file, enter the password, or download).
@@ -140,7 +179,7 @@ sampleBtn.addEventListener("click", async () => {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const blob = await res.blob();
     const name = SAMPLE_URL.split("/").pop() ?? "sample-statement.pdf";
-    await start(new File([blob], name, { type: "application/pdf" }));
+    start([new File([blob], name, { type: "application/pdf" })]);
   } catch (err) {
     console.error("Sample failed to load:", err);
     setState("idle");
@@ -148,32 +187,65 @@ sampleBtn.addEventListener("click", async () => {
   }
 });
 fileInput.addEventListener("change", () => {
-  const f = fileInput.files?.[0];
-  if (f) void start(f);
+  const files = [...(fileInput.files ?? [])];
+  fileInput.value = ""; // so choosing the same file again still fires "change"
+  if (files.length) start(files);
 });
 
 // Don't let a PDF dropped outside the panel open in the tab.
 for (const type of ["dragover", "drop"] as const) {
   window.addEventListener(type, (e) => e.preventDefault());
 }
+const canDrop = () => panel.dataset.state === "idle" || panel.dataset.state === "done";
 panel.addEventListener("dragover", (e) => {
   e.preventDefault();
-  if (panel.dataset.state === "idle") panel.classList.add("dragging");
+  if (canDrop()) panel.classList.add("dragging");
 });
 panel.addEventListener("dragleave", () => panel.classList.remove("dragging"));
 panel.addEventListener("drop", (e) => {
   e.preventDefault();
   panel.classList.remove("dragging");
-  const dropped = e.dataTransfer?.files[0];
-  if (dropped && panel.dataset.state === "idle") void start(dropped);
+  const dropped = [...(e.dataTransfer?.files ?? [])];
+  if (dropped.length && canDrop()) start(dropped);
 });
 
-function start(f: File) {
+/** Queue the chosen files (checked first) and read them one by one. */
+function start(files: File[]) {
   showError("");
-  if (f.type !== "application/pdf" && !/\.pdf$/i.test(f.name)) return showError(t.errors.notPdf);
-  if (f.size > MAX_BYTES) return showError(t.errors.tooLarge);
-  file = f;
-  return convert(); // try without a password first; ask only if the PDF needs one
+  problems = [];
+  const single = files.length === 1 && !loaded.length;
+  const problem = (f: File, message: string) =>
+    problems.push(single ? message : fill(t.errors.fileProblem, { name: f.name, message }));
+  const accepted: File[] = [];
+  let bytes = 0;
+  for (const f of files) {
+    if (f.type !== "application/pdf" && !/\.pdf$/i.test(f.name)) problem(f, t.errors.notPdf);
+    else if (f.size > MAX_BYTES || bytes + f.size > MAX_BATCH_BYTES) problem(f, t.errors.tooLarge);
+    else {
+      accepted.push(f);
+      bytes += f.size;
+    }
+  }
+  const room = MAX_STATEMENTS - loaded.length;
+  if (accepted.length > room) {
+    accepted.length = Math.max(0, room);
+    problems.push(fill(t.errors.tooMany, { max: MAX_STATEMENTS }));
+  }
+  if (!accepted.length) return showError(problems.join(" "));
+  queue = accepted;
+  loadedBefore = loaded.length;
+  batch = { index: 0, total: accepted.length };
+  batchPassword = null;
+  void next();
+}
+
+/** Read the next queued file, or show the results when the batch is done. */
+function next(): Promise<void> | void {
+  file = queue.shift() ?? null;
+  if (!file) return finish();
+  batch.index++;
+  // Try the password that opened the previous file first; ask only if it doesn't fit.
+  return convert(batchPassword ?? undefined, { remembered: batchPassword !== null });
 }
 
 // ---- password -----------------------------------------------------------------
@@ -198,8 +270,19 @@ passwordForm.addEventListener("submit", (e) => {
   void convert(passwordInput.value);
 });
 
+/** Several files (or results already shown): skip this one. Otherwise: start over. */
+const canSkip = () => batch.total > 1 || loaded.length > 0;
+passwordBack.addEventListener("click", () => {
+  if (!canSkip()) return reset();
+  passwordInput.value = "";
+  void next();
+});
+
 function askForPassword(message = "") {
   setState("password");
+  el("file-of").textContent =
+    batch.total > 1 ? fill(t.fileOf, { i: batch.index, n: batch.total }) : "";
+  passwordBack.textContent = canSkip() ? t.skipFile : t.chooseDifferent;
   showError(message);
   passwordInput.focus();
   passwordInput.select();
@@ -207,7 +290,19 @@ function askForPassword(message = "") {
 
 // ---- convert --------------------------------------------------------------------
 
-async function convert(password?: string) {
+/** Label for a statement in lists, filters and exports, e.g. "GCash · Mar 1 – Mar 31, 2026". */
+function statementLabel(parsed: ParseResult, name: string): string {
+  const what =
+    parsed.periodStart && parsed.periodEnd
+      ? formatPeriod(parsed.periodStart, parsed.periodEnd)
+      : name;
+  const base = `${t.sources[parsed.source]} · ${what}`;
+  let label = base;
+  for (let n = 2; loaded.some((l) => l.label === label); n++) label = `${base} (${n})`;
+  return label;
+}
+
+async function convert(password?: string, { remembered = false } = {}) {
   if (!file) return;
   showError("");
   setState("working");
@@ -216,7 +311,7 @@ async function convert(password?: string) {
     modules = await Promise.all([import("../pdf/extractText.ts"), import("../parsers/index.ts")]);
   } catch (err) {
     console.error("Converter modules failed to load:", err);
-    return fail(t.errors.loadFailed);
+    return fileFailed(t.errors.loadFailed);
   }
   const [{ extractText, ExtractError }, { parseStatement }] = modules;
   try {
@@ -226,38 +321,59 @@ async function convert(password?: string) {
     } catch (err) {
       if (err instanceof ExtractError) {
         if (err.kind === "password-required") return askForPassword();
-        if (err.kind === "wrong-password") return askForPassword(t.errors.wrongPassword);
-        return fail(t.errors.invalidPdf);
+        // A remembered password that doesn't fit this file isn't the user's mistake: just ask.
+        if (err.kind === "wrong-password") {
+          return askForPassword(remembered ? "" : t.errors.wrongPassword);
+        }
+        return fileFailed(t.errors.invalidPdf);
       }
       throw err;
     }
-    if (!pages.some((p) => p.items.length)) return fail(t.errors.noText);
+    if (!pages.some((p) => p.items.length)) return fileFailed(t.errors.noText);
     const parsed = parseStatement(pages);
-    if (!parsed) return fail(t.errors.unsupported);
+    if (!parsed) return fileFailed(t.errors.unsupported);
 
-    original = parsed;
-    categoryOverrides.clear();
-    setCleanup(false);
-    recompute();
-    el("cleanup").hidden = countUnchanged(original) === 0;
-    passwordInput.value = ""; // don't keep the password around once it's been used
-    if (!result) return;
-    render(result);
-    setState("done");
-    el("done-title").focus();
-    void import("../export/toXlsx.ts"); // warm up so the download is instant
+    if (password) batchPassword = password;
+    passwordInput.value = ""; // don't keep the typed password in the field once it's been used
+    loaded.push({ label: statementLabel(parsed, file.name), parsed });
+    return next();
   } catch (err) {
     // Log the error only (never file contents) so problems can be diagnosed locally.
     console.error("Conversion failed:", err);
-    fail(t.errors.generic);
+    return fileFailed(t.errors.generic);
   }
 }
 
-function fail(message: string) {
+/** This file couldn't be read: note it and carry on with the rest of the batch. */
+function fileFailed(message: string) {
+  const single = batch.total === 1 && !loaded.length;
+  problems.push(single ? message : fill(t.errors.fileProblem, { name: file?.name ?? "", message }));
+  return next();
+}
+
+/** Batch finished: show the combined results (or the problems, if nothing could be read). */
+function finish() {
+  const added = loaded.length - loadedBefore;
   file = null;
-  fileInput.value = "";
-  setState("idle");
-  showError(message);
+  queue = [];
+  batchPassword = null; // forget the password once the batch is done
+  passwordInput.value = "";
+  batch = { index: 0, total: 0 };
+  if (!loaded.length) {
+    setState("idle");
+    showError(problems.join(" "));
+    return;
+  }
+  const wasShowing = !results.hidden;
+  recompute();
+  if (!result) return;
+  el("cleanup").hidden = loaded.reduce((n, l) => n + countUnchanged(l.parsed), 0) === 0;
+  render(result, { keepView: false });
+  setState("done");
+  showError(problems.join(" "));
+  if (wasShowing && added > 0) statusEl.textContent = plural(t.statements.added, added);
+  el("done-title").focus();
+  void import("../export/toXlsx.ts"); // warm up so the download is instant
 }
 
 // ---- results ----------------------------------------------------------------
@@ -266,8 +382,15 @@ function fail(message: string) {
 const wideScreen = matchMedia("(min-width: 1024px)");
 const currentPageSize = () => (wideScreen.matches ? 50 : 20);
 let pageSize = currentPageSize();
-const ALL_VIEW = { filter: "all", month: "", category: "", search: "", page: 1 } as const;
-let view: TxQuery & { page: number; category: string } = { ...ALL_VIEW };
+const ALL_VIEW = {
+  filter: "all",
+  month: "",
+  category: "",
+  statement: "",
+  search: "",
+  page: 1,
+} as const;
+let view: TxQuery & { page: number; category: string; statement: string } = { ...ALL_VIEW };
 
 const signed = (centavos: number) => (centavos > 0 ? `+${peso(centavos)}` : peso(centavos));
 const monthName = (ym: string) =>
@@ -285,13 +408,16 @@ function h<K extends keyof HTMLElementTagNameMap>(tag: K, className = "", text =
   return node;
 }
 
-function render(res: ParseResult, { keepView = false, keepPage = false } = {}) {
+function render(res: Workbook, { keepView = false, keepPage = false } = {}) {
   const s = summarize(res);
   const period =
     res.periodStart && res.periodEnd ? formatPeriod(res.periodStart, res.periodEnd) : "";
   el("results-period").textContent = period;
-  el("done-summary").textContent = fill(s.count === 1 ? t.doneSummaryOne : t.doneSummary, {
+  const combined = isCombined(res);
+  const template = combined ? t.doneSummaryMany : s.count === 1 ? t.doneSummaryOne : t.doneSummary;
+  el("done-summary").textContent = fill(template, {
     source: t.sources[res.source],
+    count: res.statements.length,
     period,
     n: s.count,
   })
@@ -307,12 +433,57 @@ function render(res: ParseResult, { keepView = false, keepPage = false } = {}) {
     el<HTMLInputElement>("tx-search").value = "";
   }
 
+  renderStatements(res);
   renderOverview(res, s);
   renderReview(res);
   renderMonths(s);
   renderCategories(s);
   renderTable();
   results.hidden = false;
+}
+
+/** The statements behind the results, each with a Remove button (only when there are several). */
+function renderStatements(res: Workbook) {
+  const st = t.statements;
+  const combined = isCombined(res);
+  el("statements").hidden = !combined;
+  el("dupes").hidden = res.duplicates.found === 0;
+  const select = el<HTMLSelectElement>("statement-filter");
+  select.hidden = !combined;
+  select.replaceChildren(new Option(r.table.allStatements, ""));
+  res.statements.forEach((s, i) => select.append(new Option(s.label, String(i))));
+  if (view.statement && !res.statements[Number(view.statement)]) view.statement = "";
+  if (!combined) return;
+  el("statement-list").replaceChildren(
+    ...res.statements.map((s) => {
+      const li = h("li");
+      const text = h("span", "statement-text");
+      const count = s.result.transactions.length - (res.duplicates.removed ? s.duplicates : 0);
+      const details = [plural(st.rows, count)];
+      if (res.duplicates.removed && s.duplicates) details.push(plural(st.duplicates, s.duplicates));
+      text.append(
+        h("span", "statement-label", s.label),
+        h("span", "statement-meta", details.join(" · ")),
+      );
+      const remove = h("button", "btn-link statement-remove", st.remove);
+      remove.type = "button";
+      remove.setAttribute("aria-label", fill(st.removeLabel, { label: s.label }));
+      remove.addEventListener("click", () => removeStatement(s.label));
+      li.append(text, remove);
+      return li;
+    }),
+  );
+}
+
+function removeStatement(label: string) {
+  loaded = loaded.filter((l) => l.label !== label);
+  if (!loaded.length) return reset();
+  recompute();
+  if (!result) return;
+  el("cleanup").hidden = loaded.reduce((n, l) => n + countUnchanged(l.parsed), 0) === 0;
+  render(result, { keepView: true });
+  statusEl.textContent = fill(t.statements.removed, { label });
+  el("add-statement").focus();
 }
 
 /** One-line verdict on the done card. Only says "matches" when it's true. */
@@ -340,15 +511,17 @@ function renderStatus(res: ParseResult) {
   el("done-status-text").textContent = text;
 }
 
-function renderOverview(res: ParseResult, s: Summary) {
+function renderOverview(res: Workbook, s: Summary) {
   const o = r.overview;
+  // Balances from different accounts don't add up to one starting or ending balance.
+  const missing = res.accounts > 1 ? r.severalAccounts : o.notShown;
   const net = el("ov-net");
   net.textContent = signed(s.net);
   net.classList.toggle("is-in", s.net > 0);
   el("ov-opening").textContent =
-    res.openingBalance !== undefined ? peso(res.openingBalance) : o.notShown;
+    res.openingBalance !== undefined ? peso(res.openingBalance) : missing;
   el("ov-closing").textContent =
-    res.closingBalance !== undefined ? peso(res.closingBalance) : o.notShown;
+    res.closingBalance !== undefined ? peso(res.closingBalance) : missing;
   el("ov-in").textContent = `+${peso(s.moneyIn)}`;
   el("ov-out").textContent = peso(-s.moneyOut);
   const max = Math.max(s.moneyIn, s.moneyOut, 1);
@@ -476,7 +649,7 @@ function categorySelect({ row, tx }: IndexedTx) {
   select.value = tx.category ?? "Other";
   select.dataset.cat = categorySlug(select.value);
   select.addEventListener("change", () => {
-    if (!original || !isCategory(select.value)) return;
+    if (!loaded.length || !isCategory(select.value)) return;
     const key = categoryKey(tx.description);
     categoryOverrides.set(key, select.value);
     recompute();
@@ -548,6 +721,8 @@ function txRow({ row, tx }: IndexedTx) {
   const desc = h("td", "col-desc");
   desc.dataset.label = c.description;
   desc.append(h("span", "cell-main", tx.description));
+  const statement = result && isCombined(result) ? result.statements[tx.statement ?? 0] : undefined;
+  if (statement) desc.append(h("span", "cell-sub cell-statement", statement.label));
 
   const category = h("td", "col-cat");
   category.dataset.label = c.category;
@@ -582,6 +757,7 @@ function renderTable() {
   }
   el<HTMLSelectElement>("month-filter").value = view.month;
   el<HTMLSelectElement>("category-filter").value = view.category;
+  el<HTMLSelectElement>("statement-filter").value = view.statement;
 
   const page = paginate(filterTransactions(txs, view), view.page, pageSize);
   view.page = page.page;
@@ -643,6 +819,9 @@ for (const btn of document.querySelectorAll<HTMLButtonElement>(".segmented [data
 el<HTMLSelectElement>("month-filter").addEventListener("change", (e) =>
   setView({ month: (e.target as HTMLSelectElement).value }),
 );
+el<HTMLSelectElement>("statement-filter").addEventListener("change", (e) =>
+  setView({ statement: (e.target as HTMLSelectElement).value }),
+);
 el<HTMLSelectElement>("category-filter").addEventListener("change", (e) =>
   setView({ category: (e.target as HTMLSelectElement).value }),
 );
@@ -668,7 +847,15 @@ function setCleanup(on: boolean) {
 // Off by default. When on, rows that didn't change the balance are removed from the overview,
 // table and downloads (the Excel Summary sheet records how many were removed).
 cleanupToggle.addEventListener("change", () => {
-  if (!original) return;
+  if (!loaded.length) return;
+  recompute();
+  if (result) render(result, { keepView: true });
+});
+
+// On by default: rows in two overlapping statements of the same account are counted once.
+const dupesToggle = el<HTMLInputElement>("dupes-toggle");
+dupesToggle.addEventListener("change", () => {
+  if (!loaded.length) return;
   recompute();
   if (result) render(result, { keepView: true });
 });

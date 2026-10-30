@@ -2368,3 +2368,83 @@ main.page-top {
     padding-right: 10px;
   }
 }
+
+/* ---- several statements ---- */
+.statements {
+  margin-top: 28px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.statements-title {
+  margin: 0;
+  padding: 10px 16px;
+  background: var(--subtle);
+  border-bottom: 1px solid var(--line-strong);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.statements ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.statements li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+}
+.statements li:first-child {
+  border-top: 0;
+}
+.statement-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.statement-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.statement-meta {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+.statement-remove {
+  flex: none;
+  font-size: 0.8125rem;
+}
+.add-statement {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.file-of {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.file-of:not(:empty)::before {
+  content: "·";
+  margin-right: 8px;
+}
+.head-options {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+}
+.tx-table .cell-statement {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}

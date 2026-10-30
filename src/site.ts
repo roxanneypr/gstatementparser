@@ -22,6 +22,7 @@ export const strings = {
     converter: {
       heading: "Convert your statement",
       chooseFile: "Choose your statement",
+      orSeveral: "You can choose several statements to combine them into one file.",
       orDrag: "or drag and drop it here",
       noPdf: "No PDF handy?",
       trySample: "Try a sample statement",
@@ -44,9 +45,23 @@ export const strings = {
       unlock: "Unlock and convert",
       chooseDifferent: "Choose a different file",
       converting: "Reading your statement…",
+      convertingMany: "Reading statement {i} of {n}…",
+      fileOf: "File {i} of {n}",
+      skipFile: "Skip this file",
       converted: "Your spreadsheet is ready",
       doneSummary: "{source} · {period} · {n} transactions",
       doneSummaryOne: "{source} · {period} · 1 transaction",
+      doneSummaryMany: "{count} statements · {period} · {n} transactions",
+      statements: {
+        heading: "Statements in this file",
+        rows: { one: "1 transaction", other: "{n} transactions" },
+        duplicates: { one: "1 duplicate left out", other: "{n} duplicates left out" },
+        remove: "Remove",
+        removeLabel: "Remove {label}",
+        add: "Add another statement",
+        added: { one: "Added 1 statement.", other: "Added {n} statements." },
+        removed: "Removed {label}.",
+      },
       sources: {
         gcash: "GCash",
         maya: "Maya",
@@ -68,6 +83,8 @@ export const strings = {
         generic: "Something went wrong while reading this file. Please try again.",
         sampleFailed:
           "The sample statement couldn't be loaded. Check your connection and try again.",
+        tooMany: "You can combine up to {max} statements at a time.",
+        fileProblem: "{name}: {message}",
         loadFailed:
           "The converter couldn't finish loading. Check your connection, refresh the page, and try again.",
       },
@@ -99,6 +116,12 @@ export const strings = {
           notShown: "Not shown",
           count: { one: "1 transaction", other: "{n} transactions" },
         },
+        duplicates: {
+          label: "Leave out duplicates",
+          infoLabel: "What are duplicates?",
+          info: "Rows that appear in two overlapping statements of the same account are counted once.",
+        },
+        severalAccounts: "Several accounts",
         cleanup: {
           label: "Clean up",
           infoLabel: "What does clean up do?",
@@ -144,6 +167,8 @@ export const strings = {
           allMonths: "All months",
           category: "Category",
           allCategories: "All categories",
+          statement: "Statement",
+          allStatements: "All statements",
           categoryLabel: "Category for row {n}",
           categoryChanged: {
             one: "Category changed to {category}.",

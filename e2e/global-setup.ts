@@ -2,7 +2,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import type { PageText } from "../src/parsers/types.ts";
 import { pagesToPdf } from "../scripts/fake-pdf.mjs";
-import { twoMonthStatement } from "../scripts/fake-statement.mjs";
+import { buildStatement, twoMonthStatement } from "../scripts/fake-statement.mjs";
 import { sampleGenericStatementPages, tablePages } from "../scripts/fake-table.mjs";
 
 export const GENERATED = "e2e/.generated";
@@ -34,6 +34,39 @@ export default function globalSetup() {
     pages: PageText[];
   };
   writeFileSync(`${GENERATED}/bdo.pdf`, pagesToPdf(bdo.pages));
+
+  // Two FAKE GCash statements of one account that overlap (Mar 16–31 is in both), same password.
+  const rows = [
+    { dt: "2026-03-02 09:00 AM", desc: "Received GCash from Sample Client", credit: 500000 },
+    { dt: "2026-03-10 12:30 PM", desc: "Payment to Angkas", debit: 18600 },
+    { dt: "2026-03-16 08:15 AM", desc: "Payment to Foodpanda", debit: 38900 },
+    { dt: "2026-03-20 06:45 PM", desc: "Payment to Shopee", debit: 129900 },
+    { dt: "2026-03-28 07:00 PM", desc: "Payment to Netflix", debit: 54900 },
+  ];
+  const later = [
+    { dt: "2026-04-03 10:00 AM", desc: "Payment to Angkas", debit: 15400 },
+    { dt: "2026-04-09 01:20 PM", desc: "Received GCash from Sample Client", credit: 250000 },
+  ];
+  const opening = 100000;
+  const beforeMar16 = opening + 500000 - 18600;
+  writeFileSync(
+    `${GENERATED}/gcash-march.pdf`,
+    pagesToPdf(buildStatement({ period: ["2026-03-01", "2026-03-31"], opening, txs: rows }), {
+      password: PASSWORD,
+    }),
+  );
+  writeFileSync(
+    `${GENERATED}/gcash-overlap.pdf`,
+    pagesToPdf(
+      buildStatement({
+        period: ["2026-03-16", "2026-04-15"],
+        opening: beforeMar16,
+        txs: [...rows.slice(2), ...later],
+        firstRef: 4000000000002,
+      }),
+      { password: PASSWORD },
+    ),
+  );
 
   // FAKE statements from a bank without its own parser, for the general reader (beta).
   writeFileSync(`${GENERATED}/other-bank.pdf`, pagesToPdf(sampleGenericStatementPages()));

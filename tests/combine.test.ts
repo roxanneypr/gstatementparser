@@ -88,7 +88,7 @@ describe("combine", () => {
     const midMarchToApril = stmt(
       "gcash",
       ["2026-03-15", "2026-04-15"],
-      [march.transactions[1], ...april.transactions].map(
+      [march.transactions[1]!, ...april.transactions].map(
         (t) => [t.date, t.description, t.debit, t.credit, t.balance] as Row,
       ),
     );

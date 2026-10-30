@@ -198,6 +198,73 @@ test("general reader (beta): says plainly when a statement can't be checked", as
   );
 });
 
+test("several statements: one password for one account, duplicates left out, one workbook", async ({
+  page,
+}) => {
+  const { requests, problems } = watch(page);
+  await page.setInputFiles("#pdf-file", [pdf("gcash-march"), pdf("gcash-overlap"), pdf("bdo")]);
+
+  // Asked once: the same password opens the second GCash file; BDO's file has none.
+  await expect(page.locator("#state-password")).toBeVisible();
+  await expect(page.locator("#file-of")).toHaveText("File 1 of 3");
+  await expect(page.locator("#password-back")).toHaveText("Skip this file");
+  await page.fill("#pdf-password", PASSWORD);
+  await page.keyboard.press("Enter");
+
+  await expect(page.locator("#state-done")).toBeVisible();
+  await expect(page.locator("#done-summary")).toHaveText(
+    "3 statements · Mar 1 – Oct 31, 2026 · 13 transactions",
+  );
+  await expect(page.locator("#statement-list li")).toHaveCount(3);
+  await expect(page.locator("#statement-list")).toContainText("3 duplicates left out");
+  await expect(page.locator("#ov-opening")).toHaveText("Several accounts");
+  await expect(page.locator("#review-notes")).toContainText("also in an overlapping statement");
+
+  // Duplicates: on by default; turning it off counts them twice.
+  await expect(page.locator("#dupes-toggle")).toBeChecked();
+  await page.locator("#dupes-toggle").uncheck();
+  await expect(page.locator("#tx-range")).toHaveText(/of 16$/);
+  await page.locator("#dupes-toggle").check();
+  await expect(page.locator("#tx-range")).toHaveText(/of 13$/);
+
+  // Filter by statement; rows carry their statement's label.
+  await page.selectOption("#statement-filter", { label: "BDO · Sep 1 – Oct 31, 2026" });
+  await expect(page.locator("#tx-body tr")).toHaveCount(6);
+  await expect(page.locator("#tx-body tr").first()).toContainText("BDO · Sep 1 – Oct 31, 2026");
+  await page.selectOption("#statement-filter", "");
+
+  const [xlsx] = await Promise.all([page.waitForEvent("download"), page.click("#download-xlsx")]);
+  expect(xlsx.suggestedFilename()).toBe("wallettoexcel_2026-03-01_to_2026-10-31.xlsx");
+  const wb = read(readFileSync((await xlsx.path())!));
+  expect(wb.SheetNames).toEqual(["Transactions", "Summary", "Spending by month"]);
+  expect(wb.Sheets.Transactions!.K1?.v).toBe("Statement");
+  expect(utils.sheet_to_json(wb.Sheets.Transactions!)).toHaveLength(13);
+
+  // Remove one, then add it back with "Add another statement".
+  await page.getByRole("button", { name: "Remove BDO · Sep 1 – Oct 31, 2026" }).click();
+  await expect(page.locator("#status")).toHaveText("Removed BDO · Sep 1 – Oct 31, 2026.");
+  await expect(page.locator("#statement-list li")).toHaveCount(2);
+  const [chooser] = await Promise.all([
+    page.waitForEvent("filechooser"),
+    page.click("#add-statement"),
+  ]);
+  await chooser.setFiles(pdf("bdo"));
+  await expect(page.locator("#statement-list li")).toHaveCount(3);
+  await expect(page.locator("#status")).toHaveText("Added 1 statement.");
+
+  expect(requests.filter((r) => r.method !== "GET" || r.body > 0)).toEqual([]);
+  expect(problems).toEqual([]);
+});
+
+test("several statements: a file that can't be read is named and skipped", async ({ page }) => {
+  await page.setInputFiles("#pdf-file", [pdf("bdo"), pdf("not-gcash")]);
+  await expect(page.locator("#state-done")).toBeVisible();
+  await expect(page.locator("#error")).toHaveText(
+    /^not-gcash\.pdf: We couldn't find a transaction table/,
+  );
+  await expect(page.locator("#statements")).toBeHidden(); // only one statement made it
+});
+
 test("converts a Maya statement: detected, checked and labelled Maya in the downloads", async ({
   page,
 }) => {
