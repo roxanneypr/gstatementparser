@@ -79,7 +79,9 @@ template could tell you.
 - **Separate transfers from spending.** Money you move between your own accounts, or set aside for
   savings, isn't an expense. Give it its own category so it doesn't inflate your spending.
 - **Compare months, not days.** A single expensive day means little. The trend over a few months
-  tells you what's really happening.
+  tells you what's really happening. You can
+  [combine several statements into one Excel file](/blog/combine-gcash-statements-into-one-excel)
+  to see months side by side.
 - **Be kind to yourself.** The point is to see clearly, not to feel guilty. Every month you track
   is better information than the month before.
 
