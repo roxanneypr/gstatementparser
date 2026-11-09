@@ -38,6 +38,23 @@ describe("readReceiptText", () => {
     expect(readReceiptText("Sent to 09170000001").ref).toBeUndefined();
   });
 
+  // Regression (real GCash QR payment receipt, numbers replaced): a 9-digit "Reference No." in a
+  // two-column layout, where OCR reads the label and value apart and the copy icon after the
+  // number as a stray "0".
+  it("drops the copy icon read as a digit after a reference number", () => {
+    const text = "Amount 350.00\nTotal\n| 812345678 0\n045001 0\nReference No.\nDate";
+    expect(readReceiptText(text)).toEqual({ ref: "812345678", amount: 35000 });
+    expect(readReceiptText("Ref No. 812345678 0").ref).toBe("812345678");
+    // ...unless the statement has the joined number.
+    expect(readReceiptText(text, new Set(["8123456780"])).ref).toBe("8123456780");
+  });
+
+  it("reads a 13-digit reference printed next to its label, as on GCash 'Sent via GCash' receipts", () => {
+    const text =
+      "Amount\n1,000.00\nTotal Amount Sent\nP1000.00\nRef No. 7000000000001\nAug 31, 2026 6:54 PM";
+    expect(readReceiptText(text)).toEqual({ ref: "7000000000001", amount: 100000 });
+  });
+
   it("uses the 'Amount' line when the fee makes the total different", () => {
     const text = "Amount ₱1,000.00\nFee ₱15.00\nTotal ₱1,015.00\nRef No. 4000000000007";
     expect(readReceiptText(text).amount).toBe(100000);

@@ -19,30 +19,41 @@ const MIN_REF = 8;
 const LOOKALIKES: Record<string, string> = { O: "0", o: "0", l: "1", I: "1", "|": "1" };
 const REF_LABEL_RE =
   /\b(?:[Rr]ef(?:erence)?|REF(?:ERENCE)?)\.?\s*(?:[Nn]o\.?|NO\.?|[Nn]umber|#)?\s*[:.#]?\s*(\d[0-9OolI| -]{6,}[0-9OolI|])(?![A-Za-z0-9])/;
-const DIGIT_RUN_RE = /\d(?:[ -]?\d){9,}/g;
+const DIGIT_RUN_RE = /\d(?:[ -]?\d){7,}/g;
 // "₱500.00", "PHP 1,500.00", "P500.00" (OCR often drops the ₱ bar) or a bare "1,500.00".
 const AMOUNT_RE = /(?:₱|PHP\s?|\bP\s?)?(\d{1,3}(?:,\d{3})+|\d+)\.(\d{2})(?![\d])/gi;
 
 /** Mobile numbers aren't reference numbers: 09XXXXXXXXX or 639XXXXXXXXX. */
 const looksLikePhone = (digits: string) => /^(?:09\d{9}|639\d{9})$/.test(digits);
 
+/**
+ * Ways to read a number OCR saw as "722986942 0": GCash prints references without spaces and puts
+ * a copy icon right after them, which OCR often reads as a stray "0". So when the first group is
+ * already reference-length, it comes first; the joined digits stay as a second guess (for
+ * receipts that do group digits, e.g. "4000 000 000001").
+ */
+function readings(raw: string): string[] {
+  const first = normalizeRef(raw.split(/[ -]/)[0] ?? "");
+  const joined = normalizeRef(raw);
+  return first.length >= MIN_REF && first !== joined ? [first, joined] : [joined];
+}
+
 function readRef(text: string, knownRefs: ReadonlySet<string>): string | undefined {
   const candidates: string[] = [];
   const add = (ref: string) => {
-    if (ref.length >= MIN_REF && !candidates.includes(ref)) candidates.push(ref);
+    if (ref.length >= MIN_REF && !looksLikePhone(ref) && !candidates.includes(ref)) {
+      candidates.push(ref);
+    }
   };
   const labelled = REF_LABEL_RE.exec(text)?.[1];
   const fromLabel = labelled
-    ? normalizeRef(labelled.replace(/[OolI|]/g, (c) => LOOKALIKES[c] ?? c))
-    : undefined;
-  if (fromLabel) add(fromLabel);
-  for (const m of text.match(DIGIT_RUN_RE) ?? []) {
-    const digits = normalizeRef(m);
-    if (!looksLikePhone(digits)) add(digits);
-  }
+    ? readings(labelled.replace(/[OolI|]/g, (c) => LOOKALIKES[c] ?? c))
+    : [];
+  fromLabel.forEach(add);
+  for (const m of text.match(DIGIT_RUN_RE) ?? []) readings(m).forEach(add);
   // The statement's own reference numbers settle it; otherwise trust the "Ref No." label, then
   // the first long number.
-  return candidates.find((c) => knownRefs.has(c)) ?? fromLabel ?? candidates[0];
+  return candidates.find((c) => knownRefs.has(c)) ?? fromLabel[0] ?? candidates[0];
 }
 
 function readAmount(text: string): number | undefined {
