@@ -86,6 +86,8 @@ github.com/KazeFreeze/gcash-pdf-parser. If any code is adapted from it, keep its
 │   ├── styles/global.css
 │   ├── pdf/
 │   │   └── extractText.ts    # pdf.js: load (with password), return positioned text items per page
+│   ├── ocr/
+│   │   └── readImage.ts      # tesseract.js (self-hosted in public/ocr/): text of a receipt screenshot
 │   ├── parsers/
 │   │   ├── types.ts          # Transaction, ParseResult, StatementParser interface
 │   │   ├── gcash.ts          # GCash Transaction History parser
@@ -103,6 +105,7 @@ github.com/KazeFreeze/gcash-pdf-parser. If any code is adapted from it, keep its
 │       ├── categories.ts     # auto-categorization rules + user overrides (pure)
 │       ├── combine.ts        # several statements -> one Workbook (duplicates, gaps, continuity)
 │       ├── paymentCheck.ts   # look up pasted reference numbers/amounts in the transactions (pure)
+│       ├── receiptText.ts    # receipt OCR text -> "<ref> ₱<amount>" line for the checker (pure)
 │       ├── money.ts          # parse "1,234.56" -> centavos (integer); never use floats for sums
 │       └── dates.ts          # normalize dates to ISO YYYY-MM-DD and keep time if present
 ├── tests/
@@ -218,6 +221,14 @@ and looks each one up in the converted transactions: "Received" (money in, amoun
 and say a missing one may be newer than the statement. A matched row with a `balanceIssue` gets a
 "balance didn't change" note. Pasted text lives in memory only, is cleared by "Convert another",
 and is re-checked when statements are added or removed.
+"Add screenshots" reads receipt images on the device: `src/ocr/readImage.ts` (tesseract.js, LSTM
+only, English; grey + dark-mode inversion first) → `src/lib/receiptText.ts` (pure: reference after
+"Ref No.", else the first long non-phone number, preferring one the statement has; the amount only
+when unambiguous) → one line appended to the text box, so the user sees and can fix what was read.
+The OCR engine is self-hosted: `scripts/copy-ocr-assets.mjs` (predev/prebuild) copies it from
+node_modules to `public/ocr/` (git-ignored); never load it from a CDN. It needs `'wasm-unsafe-eval'`
+in `script-src` (WebAssembly only, not JS eval). New dependencies `tesseract.js` +
+`@tesseract.js-data/eng` (Apache-2.0) are justified by this feature and are lazy-loaded.
 
 **Accounting exports (`src/export/accounting.ts`):** "More formats" on the done card. One file per
 bank account (accounting tools import into one account at a time; a mixed workbook shows an account
@@ -360,7 +371,7 @@ Cache-Control rule in `public/_headers` (a test enforces this one).
 ## Security headers (`public/_headers`)
 
 Set for `/*`: a strict Content-Security-Policy (`default-src 'self'`, allow `worker-src 'self' blob:`
-as pdf.js needs, `connect-src 'self'` plus the analytics endpoint only if analytics is enabled),
+as pdf.js needs, `script-src 'self' 'wasm-unsafe-eval'` for the OCR engine's WebAssembly, `connect-src 'self'` plus the analytics endpoint only if analytics is enabled),
 `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`,
 `Permissions-Policy` disabling camera/microphone/geolocation. JSON-LD blocks
 (`type="application/ld+json"`) are data, not executable scripts, so they don't need a CSP exception.

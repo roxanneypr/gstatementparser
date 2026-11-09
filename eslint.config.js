@@ -6,7 +6,7 @@ import tseslint from "typescript-eslint";
 import { defineConfig } from "eslint/config";
 
 export default defineConfig(
-  { ignores: ["dist", "node_modules", "samples", ".astro"] },
+  { ignores: ["dist", "node_modules", "samples", ".astro", "public/ocr"] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...astro.configs.recommended,

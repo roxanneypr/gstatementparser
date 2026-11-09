@@ -398,8 +398,20 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
           placeholder={r.payments.placeholder}
           aria-describedby="payments-disclaimer"
         ></textarea>
+        <input
+          id="payments-images"
+          class="visually-hidden"
+          type="file"
+          accept="image/*"
+          multiple
+          tabindex="-1"
+          aria-hidden="true"
+        />
         <div class="payments-actions">
-          <button type="submit" class="btn-secondary">
+          <button type="button" id="payments-add-images" class="btn-secondary">
+            {r.payments.addImages}
+          </button>
+          <button type="submit" id="payments-check" class="btn-secondary">
             {r.payments.check}
           </button>
           <button type="button" id="payments-clear" class="btn-link" hidden>
@@ -408,6 +420,7 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
           <p id="payments-summary" class="payments-summary" aria-live="polite"></p>
         </div>
       </form>
+      <p id="payments-notes" class="payments-summary payments-notes"></p>
       <ul id="payments-results" class="payments-results" hidden></ul>
       <p id="payments-disclaimer" class="payments-disclaimer">
         {r.payments.disclaimer}

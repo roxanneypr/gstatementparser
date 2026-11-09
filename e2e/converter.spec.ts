@@ -640,6 +640,64 @@ test("check customer payments: pasted references looked up on the device, nothin
   expect(problems).toEqual([]);
 });
 
+/** A FAKE payment receipt drawn as a PNG (plain text, made-up numbers), like a phone screenshot. */
+async function fakeReceipt(page: Page, lines: string[], { dark = false } = {}) {
+  const shot = await page.context().newPage();
+  await shot.setViewportSize({ width: 390, height: 420 });
+  const bg = dark ? "#111" : "#fff";
+  const ink = dark ? "#eee" : "#111";
+  await shot.setContent(
+    `<body style="margin:0;padding:32px;background:${bg};color:${ink};font:20px/1.8 Arial,sans-serif">${lines
+      .map((l) => `<div>${l}</div>`)
+      .join("")}</body>`,
+  );
+  const buffer = await shot.screenshot();
+  await shot.close();
+  return buffer;
+}
+
+test("check customer payments: reads reference numbers from screenshots on the device", async ({
+  page,
+}) => {
+  test.setTimeout(90_000);
+  const { requests, problems } = watch(page);
+  await page.getByRole("button", { name: "Try a sample statement" }).click();
+  await expect(page.locator("#state-done")).toBeVisible();
+  const light = await fakeReceipt(page, [
+    "Sent via e-wallet",
+    "Amount",
+    "PHP 5,000.00",
+    "Ref No. 4000 000 000001",
+    "Mar 1, 2026 8:12 AM",
+  ]);
+  const dark = await fakeReceipt(
+    page,
+    ["Amount", "PHP 75.00", "Ref No. 4000 000 000004", "Mar 4, 2026 9:10 AM"],
+    { dark: true },
+  );
+  await page.locator("#payments-images").setInputFiles([
+    { name: "receipt-1.png", mimeType: "image/png", buffer: light },
+    { name: "receipt-2.png", mimeType: "image/png", buffer: dark },
+    { name: "notes.txt", mimeType: "text/plain", buffer: Buffer.from("hello") },
+  ]);
+  await expect(page.locator("#payments-notes")).toContainText("Read 2 screenshots", {
+    timeout: 60_000,
+  });
+  await expect(page.locator("#payments-notes")).toContainText("notes.txt: not an image.");
+  // What was read is put in the box, where it can be checked and corrected.
+  await expect(page.locator("#payments-input")).toHaveValue(
+    "4000000000001 ₱5,000.00\n4000000000004 ₱75.00",
+  );
+  await expect(page.locator("#payments-summary")).toHaveText("2 received");
+  // The OCR engine and its data come from this site only; nothing is sent.
+  const origin = new URL(page.url()).origin;
+  expect(requests.filter((r) => !r.url.startsWith(origin) && !/^(blob|data):/.test(r.url))).toEqual(
+    [],
+  );
+  expect(requests.filter((r) => r.method !== "GET" || r.body > 0)).toEqual([]);
+  expect(problems).toEqual([]);
+});
+
 test("home page: header Convert button jumps to the converter and keeps results", async ({
   page,
   isMobile,

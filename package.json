@@ -14,8 +14,10 @@
     "dump-pdf": "node scripts/dump-pdf.mjs",
     "check-parse": "node scripts/check-parse.mjs",
     "astro": "astro",
-    "test:e2e": "astro build && playwright test",
-    "test:all": "npm run lint && npm run test && npm run test:e2e"
+    "test:e2e": "node scripts/copy-ocr-assets.mjs && astro build && playwright test",
+    "test:all": "npm run lint && npm run test && npm run test:e2e",
+    "predev": "node scripts/copy-ocr-assets.mjs",
+    "prebuild": "node scripts/copy-ocr-assets.mjs"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.11",
@@ -34,8 +36,10 @@
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
+    "@tesseract.js-data/eng": "^1.0.0",
     "astro": "^7.4.1",
     "pdfjs-dist": "^6.4.299",
+    "tesseract.js": "^7.0.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "engines": {

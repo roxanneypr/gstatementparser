@@ -3,3 +3,4 @@ node_modules
 samples
 .astro
 package-lock.json
+public/ocr

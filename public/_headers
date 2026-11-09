@@ -1,5 +1,5 @@
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self'; worker-src 'self' blob:; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; style-src 'self'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
   X-Frame-Options: DENY
@@ -27,3 +27,7 @@
   Cache-Control: public, max-age=0, must-revalidate, no-transform
 /bdo-statement-to-excel
   Cache-Control: public, max-age=0, must-revalidate, no-transform
+
+# OCR engine for "Add screenshots" (file names aren't hashed, so cache for a day, not forever)
+/ocr/*
+  Cache-Control: public, max-age=86400

@@ -150,7 +150,18 @@ export const strings = {
         },
         payments: {
           heading: "Check customer payments",
-          note: "Paste reference numbers from your customers' payment screenshots, one per line. Add the amount to check it too.",
+          note: "Add your customers' payment screenshots, or paste reference numbers one per line (add the amount to check it too).",
+          addImages: "Add screenshots",
+          reading: "Reading screenshot {i} of {n}…",
+          readDone: {
+            one: "Read 1 screenshot. Check the numbers in the box against it.",
+            other: "Read {n} screenshots. Check the numbers in the box against them.",
+          },
+          imageNothing: "{name}: no reference number or amount found. Type it in the box instead.",
+          imageFailed: "{name}: this image couldn't be opened. Try a PNG or JPG screenshot.",
+          notImage: "{name}: not an image.",
+          ocrFailed:
+            "The screenshot reader couldn't load. Check your connection and try again, or type the reference number.",
           label: "Reference numbers or amounts, one per line",
           placeholder: "4000 000 000001\n4000000000003 ₱1,500.00\n₱500.00",
           check: "Check payments",
@@ -191,7 +202,7 @@ export const strings = {
           view: "View",
           viewLabel: "View row {row}",
           disclaimer:
-            "This checks the statement you converted, not GCash's or your bank's system. Checked on your device; nothing is saved.",
+            "This checks the statement you converted, not GCash's or your bank's system. Screenshots are read on your device; nothing is uploaded or saved.",
         },
         months: {
           heading: "By month",

@@ -2624,3 +2624,9 @@ main.page-top {
   font-size: 0.8125rem;
   color: var(--muted);
 }
+.payments-notes {
+  margin-top: 8px;
+}
+.payments-notes:empty {
+  display: none;
+}

@@ -18,3 +18,6 @@ samples/private/
 e2e/.generated/
 test-results/
 playwright-report/
+
+# OCR engine, copied from node_modules by scripts/copy-ocr-assets.mjs
+public/ocr/

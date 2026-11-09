@@ -14,10 +14,12 @@ import { combine } from "../lib/combine.ts";
 import {
   checkPayments,
   MAX_LINES,
+  normalizeRef,
   parsePaymentText,
   paymentCounts,
   type PaymentCheck,
 } from "../lib/paymentCheck.ts";
+import { readReceiptText, receiptLine } from "../lib/receiptText.ts";
 import { exportBaseName, isCombined, summarize, type Summary } from "../lib/summary.ts";
 import {
   filterCounts,
@@ -676,8 +678,84 @@ function renderPayments() {
 function clearPayments() {
   paymentsText = "";
   paymentsInput.value = "";
+  el("payments-notes").textContent = "";
   renderPayments();
 }
+
+// Screenshots of payment receipts: read on this device (OCR), each turned into one line in the
+// box ("<ref> ₱<amount>") so the user sees what was read and can fix it, then checked as usual.
+const imagesInput = el<HTMLInputElement>("payments-images");
+const addImagesBtn = el<HTMLButtonElement>("payments-add-images");
+const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
+const isImage = (f: File) =>
+  f.type.startsWith("image/") || /\.(png|jpe?g|webp|gif|bmp|heic|heif)$/i.test(f.name);
+let readingImages = false;
+
+async function addScreenshots(files: File[]) {
+  if (readingImages || !files.length) return;
+  const p = r.payments;
+  const notes: string[] = [];
+  const lines: string[] = [];
+  const images = files.filter((f) => {
+    if (isImage(f) && f.size <= MAX_IMAGE_BYTES) return true;
+    notes.push(fill(isImage(f) ? p.imageFailed : p.notImage, { name: f.name }));
+    return false;
+  });
+  const notesEl = el("payments-notes");
+  readingImages = true;
+  addImagesBtn.disabled = true;
+  el<HTMLButtonElement>("payments-check").disabled = true;
+  const known = new Set(
+    (result?.transactions ?? []).flatMap((t) =>
+      t.referenceNo ? [normalizeRef(t.referenceNo)] : [],
+    ),
+  );
+  let read = 0;
+  try {
+    const { readImageText, ImageError } = await import("../ocr/readImage.ts");
+    for (const [i, img] of images.entries()) {
+      notesEl.textContent = fill(p.reading, { i: i + 1, n: images.length });
+      try {
+        const line = receiptLine(readReceiptText(await readImageText(img), known));
+        if (line) {
+          lines.push(line);
+          read++;
+        } else notes.push(fill(p.imageNothing, { name: img.name }));
+      } catch (err) {
+        if (!(err instanceof ImageError)) throw err;
+        notes.push(fill(p.imageFailed, { name: img.name }));
+      }
+    }
+  } catch (err) {
+    console.error("Screenshot reader failed:", err);
+    notes.push(p.ocrFailed);
+  } finally {
+    readingImages = false;
+    addImagesBtn.disabled = false;
+    el<HTMLButtonElement>("payments-check").disabled = false;
+  }
+  if (lines.length) {
+    const current = paymentsInput.value.replace(/\s+$/, "");
+    paymentsInput.value = [current, ...lines].filter(Boolean).join("\n");
+    paymentsText = paymentsInput.value;
+    renderPayments();
+  }
+  notesEl.textContent = [read ? plural(p.readDone, read) : "", ...notes].filter(Boolean).join(" ");
+}
+
+addImagesBtn.addEventListener("click", () => imagesInput.click());
+imagesInput.addEventListener("change", () => {
+  const files = [...(imagesInput.files ?? [])];
+  imagesInput.value = "";
+  void addScreenshots(files);
+});
+// Screenshots dropped on this section are read too (the page ignores drops elsewhere).
+const paymentsSection = el("payments");
+paymentsSection.addEventListener("dragover", (e) => e.preventDefault());
+paymentsSection.addEventListener("drop", (e) => {
+  e.preventDefault();
+  void addScreenshots([...(e.dataTransfer?.files ?? [])]);
+});
 
 el<HTMLFormElement>("payments-form").addEventListener("submit", (e) => {
   e.preventDefault();
