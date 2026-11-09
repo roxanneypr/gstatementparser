@@ -153,3 +153,47 @@ describe("checkPayments", () => {
     expect(counts).toMatchObject({ found: 1, notFound: 1, unreadable: 1, amountOnly: 0 });
   });
 });
+
+describe("payment dates", () => {
+  const period = { start: "2026-03-01", end: "2026-03-31" };
+  const check = (text: string) => checkPayments(txs, parsePaymentText(text).queries, period);
+
+  it("reads a date on the line without taking it as a reference or amount", () => {
+    expect(parsePaymentLine("4000000000001 ₱500.00 Nov 5, 2026")).toMatchObject({
+      refs: ["4000000000001"],
+      amount: 50000,
+      date: "2026-11-05",
+    });
+    expect(parsePaymentLine("4000000000001 2026-11-05")).toMatchObject({
+      refs: ["4000000000001"],
+      date: "2026-11-05",
+    });
+    expect(parsePaymentLine("5 Nov 2026 4000000000001").date).toBe("2026-11-05");
+    // Number-only dates are ambiguous (day/month): not read as dates.
+    expect(parsePaymentLine("4000000000001 11/05/2026").date).toBeUndefined();
+  });
+
+  it("says whether a missing payment is after, before or within the statement's dates", () => {
+    const [after, before, within, noDate] = check(
+      "4999999999999 Apr 2, 2026\n4999999999999 Feb 27, 2026\n4999999999999 Mar 9, 2026\n4999999999999",
+    );
+    expect(after).toMatchObject({ status: "notFound", paidWhen: "after" });
+    expect(before?.paidWhen).toBe("before");
+    expect(within?.paidWhen).toBe("within");
+    expect(noDate?.paidWhen).toBeUndefined();
+  });
+
+  it("doesn't place a date when the statement period isn't known", () => {
+    const [c] = checkPayments(txs, parsePaymentText("4999999999999 Apr 2, 2026").queries);
+    expect(c?.paidWhen).toBeUndefined();
+  });
+
+  it("only offers amount-only matches around the receipt's date", () => {
+    // Rows 1 and 4 are ₱500 on 2026-03-01.
+    expect(check("₱500.00 Mar 2, 2026")[0]?.matches.map((m) => m.row)).toEqual([1, 4]);
+    expect(check("₱500.00 Mar 20, 2026")[0]).toMatchObject({
+      status: "notFound",
+      paidWhen: "within",
+    });
+  });
+});

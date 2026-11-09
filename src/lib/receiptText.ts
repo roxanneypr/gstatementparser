@@ -2,6 +2,7 @@
 // line the payment checker understands: "<reference no.> ₱<amount>". Pure; no guessing beyond
 // what the text shows. The line is put in the checker's text box, so the user sees exactly what
 // was read and can correct it before trusting the result.
+import { findDate, formatDate } from "./dates.ts";
 import { formatMoney, parseMoney } from "./money.ts";
 import { normalizeRef } from "./paymentCheck.ts";
 
@@ -10,6 +11,8 @@ export interface ReceiptRead {
   ref?: string;
   /** Amount in centavos, when the receipt shows one clear amount. */
   amount?: number;
+  /** ISO date of the payment, when the receipt shows one ("Nov 5, 2026 10:38 PM"). */
+  date?: string;
 }
 
 /** Shortest number taken as a reference (GCash prints 13 digits). */
@@ -81,12 +84,25 @@ export function readReceiptText(
 ): ReceiptRead {
   const ref = readRef(text, knownRefs);
   const amount = readAmount(text);
-  return { ...(ref ? { ref } : {}), ...(amount !== undefined ? { amount } : {}) };
+  const date = findDate(text)?.date;
+  return {
+    ...(ref ? { ref } : {}),
+    ...(amount !== undefined ? { amount } : {}),
+    ...(date ? { date } : {}),
+  };
 }
 
-/** The checker line for a receipt, e.g. "4000000000001 ₱500.00"; "" when nothing was found. */
-export function receiptLine({ ref, amount }: ReceiptRead): string {
-  return [ref ?? "", amount !== undefined ? `₱${formatMoney(amount)}` : ""]
+/**
+ * The checker line for a receipt, e.g. "4000000000001 ₱500.00 Nov 5, 2026"; "" when there's no
+ * reference number or amount (a date alone can't be checked).
+ */
+export function receiptLine({ ref, amount, date }: ReceiptRead): string {
+  if (!ref && amount === undefined) return "";
+  return [
+    ref ?? "",
+    amount !== undefined ? `₱${formatMoney(amount)}` : "",
+    date ? formatDate(date) : "",
+  ]
     .filter(Boolean)
     .join(" ");
 }

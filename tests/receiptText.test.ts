@@ -13,7 +13,11 @@ const receipt = [
 
 describe("readReceiptText", () => {
   it("reads the reference number after 'Ref No.' and the amount", () => {
-    expect(readReceiptText(receipt)).toEqual({ ref: "4000000000001", amount: 50000 });
+    expect(readReceiptText(receipt)).toEqual({
+      ref: "4000000000001",
+      amount: 50000,
+      date: "2026-11-09",
+    });
   });
 
   it("fixes look-alike letters inside the reference number", () => {
@@ -52,7 +56,16 @@ describe("readReceiptText", () => {
   it("reads a 13-digit reference printed next to its label, as on GCash 'Sent via GCash' receipts", () => {
     const text =
       "Amount\n1,000.00\nTotal Amount Sent\nP1000.00\nRef No. 7000000000001\nAug 31, 2026 6:54 PM";
-    expect(readReceiptText(text)).toEqual({ ref: "7000000000001", amount: 100000 });
+    expect(readReceiptText(text)).toEqual({
+      ref: "7000000000001",
+      amount: 100000,
+      date: "2026-08-31",
+    });
+  });
+
+  // Regression (real GCash receipts): OCR drops the space after the comma in the date.
+  it("reads a date written as 'Oct 14,2026'", () => {
+    expect(readReceiptText("Ref No. 7000000000002\nOct 14,2026 2:31 PM").date).toBe("2026-10-14");
   });
 
   it("uses the 'Amount' line when the fee makes the total different", () => {
@@ -72,6 +85,10 @@ describe("readReceiptText", () => {
 describe("receiptLine", () => {
   it("builds the checker line", () => {
     expect(receiptLine({ ref: "4000000000001", amount: 50000 })).toBe("4000000000001 ₱500.00");
+    expect(receiptLine({ ref: "4000000000001", amount: 50000, date: "2026-11-05" })).toBe(
+      "4000000000001 ₱500.00 Nov 5, 2026",
+    );
+    expect(receiptLine({ date: "2026-11-05" })).toBe("");
     expect(receiptLine({ amount: 7500 })).toBe("₱75.00");
     expect(receiptLine({})).toBe("");
   });

@@ -219,12 +219,14 @@ and looks each one up in the converted transactions: "Received" (money in, amoun
 "Amount differs", "Not money in", "Possible match" (amount only: lists candidates, never confirms),
 "Not in this statement". It checks the statement, not GCash's system: never call a payment "fake",
 and say a missing one may be newer than the statement. A matched row with a `balanceIssue` gets a
-"balance didn't change" note. Pasted text lives in memory only, is cleared by "Convert another",
+"balance didn't change" note. A line may carry the payment date ("Nov 5, 2026"; number-only dates
+are ignored as ambiguous): a missing payment is then explained as paid before/after the statement
+period, or within it (worth checking before shipping); amount-only matches must be within a day. Pasted text lives in memory only, is cleared by "Convert another",
 and is re-checked when statements are added or removed.
 "Add screenshots" reads receipt images on the device: `src/ocr/readImage.ts` (tesseract.js, LSTM
 only, English; grey + dark-mode inversion first) → `src/lib/receiptText.ts` (pure: reference after
 "Ref No.", else the first long non-phone number, preferring one the statement has; the amount only
-when unambiguous) → one line appended to the text box, so the user sees and can fix what was read.
+when unambiguous; the date) → one line appended to the text box, so the user sees and can fix what was read.
 The OCR engine is self-hosted: `scripts/copy-ocr-assets.mjs` (predev/prebuild) copies it from
 node_modules to `public/ocr/` (git-ignored); never load it from a CDN. It needs `'wasm-unsafe-eval'`
 in `script-src` (WebAssembly only, not JS eval). New dependencies `tesseract.js` +

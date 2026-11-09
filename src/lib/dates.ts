@@ -87,3 +87,41 @@ export function formatPeriod(start: string, end: string): string {
     ? `${a.m} ${a.d} – ${b.m} ${b.d}, ${b.y}`
     : `${a.m} ${a.d}, ${a.y} – ${b.m} ${b.d}, ${b.y}`;
 }
+
+/** "2026-03-01" -> "Mar 1, 2026". */
+export const formatDate = (iso: string): string => formatPeriod(iso, iso);
+
+/** Whole days from ISO date a to ISO date b (b − a). */
+export function daysBetween(a: string, b: string): number {
+  return Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86_400_000);
+}
+
+const FIND_DATE_RES: [RegExp, (m: RegExpExecArray) => string | null][] = [
+  [
+    /\b([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:,\s*|\s+)(\d{4})\b/,
+    (m) => parseMonthDayYear(`${m[1]} ${m[2]}, ${m[3]}`),
+  ],
+  [
+    /\b(\d{1,2})\s+([A-Za-z]{3,9})\.?,?\s+(\d{4})\b/,
+    (m) => parseDayMonthYear(`${m[1]} ${m[2]} ${m[3]}`),
+  ],
+  [/\b(\d{4})-(\d{2})-(\d{2})\b/, (m) => parseDateTime(m[0])?.date ?? null],
+];
+
+/**
+ * The first date written out in free text ("Nov 5, 2026", "5 Nov 2026" or "2026-11-05"), with the
+ * exact text it was read from. Number-only dates like 11/05/2026 are skipped: day and month order
+ * can't be told apart.
+ */
+export function findDate(text: string): { date: string; text: string } | null {
+  let best: { date: string; text: string; index: number } | null = null;
+  for (const [re, read] of FIND_DATE_RES) {
+    for (const m of text.matchAll(new RegExp(re.source, "g"))) {
+      const date = read(m as RegExpExecArray);
+      if (date && (!best || (m.index ?? 0) < best.index)) {
+        best = { date, text: m[0], index: m.index ?? 0 };
+      }
+    }
+  }
+  return best && { date: best.date, text: best.text };
+}

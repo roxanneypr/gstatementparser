@@ -686,9 +686,15 @@ test("check customer payments: reads reference numbers from screenshots on the d
   await expect(page.locator("#payments-notes")).toContainText("notes.txt: not an image.");
   // What was read is put in the box, where it can be checked and corrected.
   await expect(page.locator("#payments-input")).toHaveValue(
-    "4000000000001 ₱5,000.00\n4000000000004 ₱75.00",
+    "4000000000001 ₱5,000.00 Mar 1, 2026\n4000000000004 ₱75.00 Mar 4, 2026",
   );
   await expect(page.locator("#payments-summary")).toHaveText("2 received");
+  // A payment dated after the statement is explained, not just "not found".
+  await page.locator("#payments-input").fill("4999999999999 ₱500.00 May 3, 2026");
+  await page.getByRole("button", { name: "Check payments" }).click();
+  await expect(page.locator("#payments-results .pay-detail")).toHaveText(
+    "Paid May 3, 2026, after this statement ends (Apr 30, 2026). Check again with a newer statement.",
+  );
   // The OCR engine and its data come from this site only; nothing is sent.
   const origin = new URL(page.url()).origin;
   expect(requests.filter((r) => !r.url.startsWith(origin) && !/^(blob|data):/.test(r.url))).toEqual(

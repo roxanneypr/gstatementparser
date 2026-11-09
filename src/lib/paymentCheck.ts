@@ -3,6 +3,7 @@
 // Pure functions only. It checks the statement, not GCash's system: "not found" means "not in this
 // statement", never "fake". Nothing is stored or sent anywhere.
 import type { Transaction } from "../parsers/types.ts";
+import { daysBetween, findDate } from "./dates.ts";
 import { parseMoney } from "./money.ts";
 
 /** One pasted line, read into a reference number and/or an amount. */
@@ -13,6 +14,8 @@ export interface PaymentQuery {
   refs: string[];
   /** Amount in centavos, when the line has one. */
   amount?: number;
+  /** ISO date of the payment, when the line has one (e.g. "Nov 5, 2026" from a receipt). */
+  date?: string;
 }
 
 export interface PaymentRow {
@@ -44,7 +47,18 @@ export interface PaymentCheck {
   matches: PaymentRow[];
   /** The matched row's balance didn't move as expected (see Transaction.balanceIssue). */
   balanceIssue: boolean;
+  /** For "notFound" lines with a date: where that date falls against the statement period. */
+  paidWhen?: "before" | "within" | "after";
 }
+
+/** The dates the statement(s) cover, when printed. */
+export interface Period {
+  start?: string;
+  end?: string;
+}
+
+/** Days either side of the receipt's date an amount-only match may be on (posting near midnight). */
+const DATE_SLACK = 1;
 
 /** Most lines a single check reads; more is almost certainly a paste of something else. */
 export const MAX_LINES = 200;
@@ -66,17 +80,25 @@ const DIGITS_RE = /\d(?:[ -]?\d)+/g;
 
 /** Read one pasted line into a reference number and/or an amount. */
 export function parsePaymentLine(input: string): PaymentQuery {
+  const query = readLine(input);
+  const found = findDate(input);
+  return found ? { ...query, line: input.trim(), date: found.date } : query;
+}
+
+function readLine(input: string): PaymentQuery {
   const line = input.trim();
-  let rest = line;
+  // Take the date out first, so "2026-11-05" isn't read as a reference number.
+  const dateText = findDate(line)?.text;
+  let rest = dateText ? line.replace(dateText, " ") : line;
   let amount: number | undefined;
   // Prefer an amount marked with ₱/PHP over a plain "1,500.00" elsewhere on the line.
-  const found = line.match(AMOUNT_RE) ?? [];
+  const found = rest.match(AMOUNT_RE) ?? [];
   const amountMatch = found.find((m) => CURRENCY_RE.test(m)) ?? found[0];
   if (amountMatch) {
     const centavos = parseMoney(amountMatch.replace(CURRENCY_RE, ""));
     if (centavos !== null && centavos > 0) {
       amount = centavos;
-      rest = line.replace(amountMatch, " ");
+      rest = rest.replace(amountMatch, " ");
     }
   }
   // "4000000000001 500" or a row pasted from a spreadsheet: a reference and a whole-peso amount.
@@ -125,7 +147,15 @@ export function parsePaymentText(text: string): { queries: PaymentQuery[]; trunc
 }
 
 /** Look up each pasted payment in the transactions. Never guesses: amount-only lines list candidates. */
-export function checkPayments(txs: Transaction[], queries: PaymentQuery[]): PaymentCheck[] {
+export function checkPayments(
+  txs: Transaction[],
+  queries: PaymentQuery[],
+  period: Period = {},
+): PaymentCheck[] {
+  const paidWhen = (date?: string): PaymentCheck["paidWhen"] => {
+    if (!date || !period.start || !period.end) return undefined;
+    return date < period.start ? "before" : date > period.end ? "after" : "within";
+  };
   const byRef = new Map<string, PaymentRow[]>();
   txs.forEach((tx, i) => {
     if (!tx.referenceNo) return;
@@ -142,11 +172,14 @@ export function checkPayments(txs: Transaction[], queries: PaymentQuery[]): Paym
       if (query.amount === undefined) return { ...base, status: "unreadable" };
       const matches: PaymentRow[] = [];
       txs.forEach((tx, i) => {
-        if (tx.credit === query.amount) matches.push({ row: i + 1, tx });
+        // With the receipt's date, only payments of this amount around that day are candidates.
+        const near = !query.date || Math.abs(daysBetween(query.date, tx.date)) <= DATE_SLACK;
+        if (tx.credit === query.amount && near) matches.push({ row: i + 1, tx });
       });
       return {
         ...base,
         status: matches.length ? "amountOnly" : "notFound",
+        ...(matches.length ? {} : { paidWhen: paidWhen(query.date) }),
         matches,
         balanceIssue: matches.some((m) => m.tx.balanceIssue),
       };
@@ -155,7 +188,8 @@ export function checkPayments(txs: Transaction[], queries: PaymentQuery[]): Paym
     // the statement has.
     const ref = query.refs.find((r) => byRef.has(r)) ?? query.refs[0];
     const matches = (ref && byRef.get(ref)) || [];
-    if (!matches.length) return { ...base, ref, status: "notFound" };
+    if (!matches.length)
+      return { ...base, ref, status: "notFound", paidWhen: paidWhen(query.date) };
     const incoming = matches.filter((m) => m.tx.credit > 0);
     const balanceIssue = matches.some((m) => m.tx.balanceIssue);
     if (!incoming.length) return { ...base, ref, matches, balanceIssue, status: "notIncoming" };

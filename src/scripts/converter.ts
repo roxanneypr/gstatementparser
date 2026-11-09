@@ -610,6 +610,16 @@ function paymentDetail(c: PaymentCheck): string {
       return plural(d.amountOnly, c.matches.length, { rows: rows + more });
     }
     case "notFound":
+      if (c.paidWhen && c.query.date && result?.periodStart && result.periodEnd) {
+        const values = {
+          date: shortDate(c.query.date),
+          start: shortDate(result.periodStart),
+          end: shortDate(result.periodEnd),
+        };
+        if (c.paidWhen === "after") return fill(d.notFoundAfter, values);
+        if (c.paidWhen === "before") return fill(d.notFoundBefore, values);
+        return fill(c.ref ? d.notFoundWithin : d.notFoundWithinAmount, values);
+      }
       return result?.periodStart && result.periodEnd
         ? fill(d.notFound, {
             period: formatPeriod(result.periodStart, result.periodEnd),
@@ -660,7 +670,10 @@ function renderPayments() {
     return;
   }
   const { queries, truncated } = parsePaymentText(paymentsText);
-  const checks = checkPayments(result.transactions, queries);
+  const checks = checkPayments(result.transactions, queries, {
+    start: result.periodStart,
+    end: result.periodEnd,
+  });
   const counts = paymentCounts(checks);
   const look = checks.length - counts.found - counts.notFound;
   summary.textContent = [

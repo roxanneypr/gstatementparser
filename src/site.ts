@@ -192,6 +192,14 @@ export const strings = {
             },
             notFound:
               "This statement covers {period}. If it was paid after {end}, check again with a newer statement.",
+            notFoundAfter:
+              "Paid {date}, after this statement ends ({end}). Check again with a newer statement.",
+            notFoundBefore:
+              "Paid {date}, before this statement starts ({start}). Check with an older statement.",
+            notFoundWithin:
+              "Paid {date}, within this statement's dates, but no row has this reference number. Compare the number with the screenshot, and check your app before you ship the order.",
+            notFoundWithinAmount:
+              "Paid {date}, within this statement's dates, but no payment of this amount was received around that day. Check your app before you ship the order.",
             notFoundNoPeriod:
               "No row has this reference number. If it was paid recently, check again with a newer statement.",
             unreadable: "No reference number or amount found on this line.",
