@@ -594,6 +594,52 @@ test("try a sample statement: runs the real converter on the bundled FAKE PDF", 
   expect(problems).toEqual([]);
 });
 
+test("check customer payments: pasted references looked up on the device, nothing sent", async ({
+  page,
+}) => {
+  const { requests, problems } = watch(page);
+  await page.getByRole("button", { name: "Try a sample statement" }).click();
+  await expect(page.locator("#state-done")).toBeVisible();
+  const before = requests.length;
+  await page
+    .getByLabel("Reference numbers or amounts, one per line")
+    .fill(
+      ["4000 000 000001 ₱5,000.00", "4000000000002", "4999999999999", "₱3,000.00", "salamat"].join(
+        "\n",
+      ),
+    );
+  await page.getByRole("button", { name: "Check payments" }).click();
+  await expect(page.locator("#payments-summary")).toHaveText(
+    "1 received · 1 not in this statement · 3 to look at",
+  );
+  const items = page.locator("#payments-results li");
+  await expect(items).toHaveCount(5);
+  await expect(items.nth(0).locator(".pay-status")).toHaveText("Received");
+  await expect(items.nth(0).locator(".pay-detail")).toHaveText("₱5,000.00 on Mar 1, 2026 · row 1");
+  await expect(items.nth(1).locator(".pay-status")).toHaveText("Not money in");
+  await expect(items.nth(2).locator(".pay-detail")).toContainText("This statement covers Mar 1");
+  await expect(items.nth(3).locator(".pay-status")).toHaveText("Possible match");
+  await expect(items.nth(3).locator(".pay-detail")).toContainText("2 payments of this amount");
+  await expect(items.nth(4).locator(".pay-status")).toHaveText("Nothing to check");
+
+  // "View" jumps to that row in the table.
+  await items.nth(0).getByRole("button", { name: "View row 1" }).click();
+  await expect(page.locator("#tx-heading")).toBeFocused();
+  await expect(page.locator("#tx-search")).toHaveValue("4000000000001");
+  await expect(page.locator("#tx-body tr")).toHaveCount(1);
+
+  // Checking happens on the device: no requests at all.
+  expect(requests.slice(before)).toEqual([]);
+
+  // Starting over clears what was pasted.
+  await page.locator("#reset").click();
+  await page.getByRole("button", { name: "Try a sample statement" }).click();
+  await expect(page.locator("#state-done")).toBeVisible();
+  await expect(page.getByLabel("Reference numbers or amounts, one per line")).toHaveValue("");
+  await expect(items).toHaveCount(0);
+  expect(problems).toEqual([]);
+});
+
 test("home page: header Convert button jumps to the converter and keeps results", async ({
   page,
   isMobile,

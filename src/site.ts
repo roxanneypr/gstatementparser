@@ -148,6 +148,51 @@ export const strings = {
           show: "Show them",
           notes: "Notes",
         },
+        payments: {
+          heading: "Check customer payments",
+          note: "Paste reference numbers from your customers' payment screenshots, one per line. Add the amount to check it too.",
+          label: "Reference numbers or amounts, one per line",
+          placeholder: "4000 000 000001\n4000000000003 ₱1,500.00\n₱500.00",
+          check: "Check payments",
+          clear: "Clear",
+          empty: "Paste at least one reference number or amount.",
+          truncated: "Only the first {max} lines were checked.",
+          summary: {
+            found: { one: "1 received", other: "{n} received" },
+            missing: { one: "1 not in this statement", other: "{n} not in this statement" },
+            look: { one: "1 to look at", other: "{n} to look at" },
+          },
+          status: {
+            found: "Received",
+            amountDiffers: "Amount differs",
+            notIncoming: "Not money in",
+            amountOnly: "Possible match",
+            notFound: "Not in this statement",
+            unreadable: "Nothing to check",
+          },
+          detail: {
+            found: "{amount} on {date} · row {row}",
+            amountDiffers: "Your statement shows {amount} on {date} (row {row}), not {expected}.",
+            notIncoming: "This reference is money going out: {amount} on {date} (row {row}).",
+            amountOnly: {
+              one: "No reference number: 1 payment of this amount ({rows}). Ask for the reference number to be sure.",
+              other:
+                "No reference number: {n} payments of this amount ({rows}). Ask for the reference number to be sure.",
+            },
+            notFound:
+              "This statement covers {period}. If it was paid after {end}, check again with a newer statement.",
+            notFoundNoPeriod:
+              "No row has this reference number. If it was paid recently, check again with a newer statement.",
+            unreadable: "No reference number or amount found on this line.",
+            rowRef: "{date}, row {row}",
+            balance:
+              "Listed, but your balance didn't change. Check your app before you ship the order.",
+          },
+          view: "View",
+          viewLabel: "View row {row}",
+          disclaimer:
+            "This checks the statement you converted, not GCash's or your bank's system. Checked on your device; nothing is saved.",
+        },
         months: {
           heading: "By month",
           month: "Month",

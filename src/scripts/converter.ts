@@ -11,6 +11,13 @@ import {
   type Category,
 } from "../lib/categories.ts";
 import { combine } from "../lib/combine.ts";
+import {
+  checkPayments,
+  MAX_LINES,
+  parsePaymentText,
+  paymentCounts,
+  type PaymentCheck,
+} from "../lib/paymentCheck.ts";
 import { exportBaseName, isCombined, summarize, type Summary } from "../lib/summary.ts";
 import {
   filterCounts,
@@ -125,6 +132,7 @@ function reset() {
   categoryOverrides.clear();
   setCleanup(false);
   dupesToggle.checked = true;
+  clearPayments();
   fileInput.value = "";
   passwordInput.value = "";
   setPasswordVisible(false);
@@ -437,6 +445,7 @@ function render(res: Workbook, { keepView = false, keepPage = false } = {}) {
   renderFormats(res);
   renderOverview(res, s);
   renderReview(res);
+  renderPayments();
   renderMonths(s);
   renderCategories(s);
   renderTable();
@@ -556,6 +565,136 @@ function renderReview(res: ParseResult) {
   el("review-show").hidden = review === 0;
   el("review").hidden = review === 0 && res.warnings.length === 0;
 }
+
+// ---- check customer payments ------------------------------------------------------
+
+const paymentsInput = el<HTMLTextAreaElement>("payments-input");
+const paymentsClear = el<HTMLButtonElement>("payments-clear");
+/** The text last checked, re-checked when the statements change. In memory only. */
+let paymentsText = "";
+
+const shortDate = (iso: string) =>
+  new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-PH", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+
+/** One line of explanation under a checked payment. */
+function paymentDetail(c: PaymentCheck): string {
+  const d = r.payments.detail;
+  const first = c.matches.find((m) => m.tx.credit > 0) ?? c.matches[0];
+  const at = first
+    ? {
+        amount: first.tx.credit ? peso(first.tx.credit) : peso(first.tx.debit),
+        date: shortDate(first.tx.date),
+        row: first.row,
+      }
+    : { amount: "", date: "", row: 0 };
+  switch (c.status) {
+    case "found":
+      return fill(d.found, at);
+    case "amountDiffers":
+      return fill(d.amountDiffers, { ...at, expected: peso(c.query.amount ?? 0) });
+    case "notIncoming":
+      return fill(d.notIncoming, at);
+    case "amountOnly": {
+      const rows = c.matches
+        .slice(0, 5)
+        .map((m) => fill(d.rowRef, { date: shortDate(m.tx.date), row: m.row }))
+        .join("; ");
+      const more = c.matches.length > 5 ? "; …" : "";
+      return plural(d.amountOnly, c.matches.length, { rows: rows + more });
+    }
+    case "notFound":
+      return result?.periodStart && result.periodEnd
+        ? fill(d.notFound, {
+            period: formatPeriod(result.periodStart, result.periodEnd),
+            end: shortDate(result.periodEnd),
+          })
+        : d.notFoundNoPeriod;
+    case "unreadable":
+      return d.unreadable;
+  }
+}
+
+function paymentItem(c: PaymentCheck) {
+  const p = r.payments;
+  const li = h("li", `pay-item is-${c.status}`);
+  const text = h("div", "pay-text");
+  text.append(h("span", "pay-status", p.status[c.status]), h("span", "pay-line", c.query.line));
+  text.append(h("span", "pay-detail", paymentDetail(c)));
+  if (c.balanceIssue && c.status !== "notFound") {
+    text.append(h("span", "pay-detail pay-warn", p.detail.balance));
+  }
+  li.append(text);
+  const target = c.status === "amountOnly" ? undefined : c.matches[0];
+  if (target) {
+    const viewBtn = h("button", "btn-link", p.view);
+    viewBtn.type = "button";
+    viewBtn.setAttribute("aria-label", fill(p.viewLabel, { row: target.row }));
+    viewBtn.addEventListener("click", () => {
+      const search = target.tx.referenceNo ?? "";
+      el<HTMLInputElement>("tx-search").value = search;
+      setView({ ...ALL_VIEW, search });
+      focusTable();
+    });
+    li.append(viewBtn);
+  }
+  return li;
+}
+
+/** (Re)check the pasted payments against the current transactions. */
+function renderPayments() {
+  const p = r.payments;
+  const list = el<HTMLUListElement>("payments-results");
+  const summary = el("payments-summary");
+  paymentsClear.hidden = !paymentsText;
+  if (!paymentsText || !result) {
+    list.hidden = true;
+    list.replaceChildren();
+    summary.textContent = "";
+    return;
+  }
+  const { queries, truncated } = parsePaymentText(paymentsText);
+  const checks = checkPayments(result.transactions, queries);
+  const counts = paymentCounts(checks);
+  const look = checks.length - counts.found - counts.notFound;
+  summary.textContent = [
+    counts.found ? plural(p.summary.found, counts.found) : "",
+    counts.notFound ? plural(p.summary.missing, counts.notFound) : "",
+    look ? plural(p.summary.look, look) : "",
+    truncated ? fill(p.truncated, { max: MAX_LINES }) : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  list.replaceChildren(...checks.map(paymentItem));
+  list.hidden = checks.length === 0;
+}
+
+function clearPayments() {
+  paymentsText = "";
+  paymentsInput.value = "";
+  renderPayments();
+}
+
+el<HTMLFormElement>("payments-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (!parsePaymentText(paymentsInput.value).queries.length) {
+    paymentsText = "";
+    renderPayments();
+    el("payments-summary").textContent = r.payments.empty;
+    paymentsInput.focus();
+    return;
+  }
+  paymentsText = paymentsInput.value;
+  renderPayments();
+});
+paymentsClear.addEventListener("click", () => {
+  clearPayments();
+  paymentsInput.focus();
+});
 
 function renderMonths(s: Summary) {
   const m = r.months;

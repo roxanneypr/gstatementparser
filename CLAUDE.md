@@ -102,6 +102,7 @@ github.com/KazeFreeze/gcash-pdf-parser. If any code is adapted from it, keep its
 │   └── lib/
 │       ├── categories.ts     # auto-categorization rules + user overrides (pure)
 │       ├── combine.ts        # several statements -> one Workbook (duplicates, gaps, continuity)
+│       ├── paymentCheck.ts   # look up pasted reference numbers/amounts in the transactions (pure)
 │       ├── money.ts          # parse "1,234.56" -> centavos (integer); never use floats for sums
 │       └── dates.ts          # normalize dates to ISO YYYY-MM-DD and keep time if present
 ├── tests/
@@ -208,6 +209,15 @@ statements of one account become warnings. Exports add "Statement" as column K (
 a per-statement table on Summary, and a "Spending by month" sheet when there are 2+ months. Free for
 now: the limit is `MAX_STATEMENTS` in `converter.ts`. A password that opened one file is tried on the
 next file of the batch (memory only, forgotten when the batch ends).
+
+**Check customer payments (`src/lib/paymentCheck.ts`):** for sellers who get payment screenshots.
+A block in the results takes pasted lines (reference number, amount, or a whole receipt message)
+and looks each one up in the converted transactions: "Received" (money in, amount matches if given),
+"Amount differs", "Not money in", "Possible match" (amount only: lists candidates, never confirms),
+"Not in this statement". It checks the statement, not GCash's system: never call a payment "fake",
+and say a missing one may be newer than the statement. A matched row with a `balanceIssue` gets a
+"balance didn't change" note. Pasted text lives in memory only, is cleared by "Convert another",
+and is re-checked when statements are added or removed.
 
 **Accounting exports (`src/export/accounting.ts`):** "More formats" on the done card. One file per
 bank account (accounting tools import into one account at a time; a mixed workbook shows an account

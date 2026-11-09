@@ -379,6 +379,41 @@ const fileIcon = "M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7
       <ul id="review-notes"></ul>
     </div>
 
+    <!-- Check customer payments (sellers): pasted reference numbers looked up in the statement. -->
+    <section id="payments" class="block" aria-labelledby="payments-heading">
+      <div class="block-head">
+        <h3 id="payments-heading">{r.payments.heading}</h3>
+        <p>{r.payments.note}</p>
+      </div>
+      <form id="payments-form" class="payments-form" novalidate>
+        <label for="payments-input" class="visually-hidden">
+          {r.payments.label}
+        </label>
+        <textarea
+          id="payments-input"
+          rows="3"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder={r.payments.placeholder}
+          aria-describedby="payments-disclaimer"
+        ></textarea>
+        <div class="payments-actions">
+          <button type="submit" class="btn-secondary">
+            {r.payments.check}
+          </button>
+          <button type="button" id="payments-clear" class="btn-link" hidden>
+            {r.payments.clear}
+          </button>
+          <p id="payments-summary" class="payments-summary" aria-live="polite"></p>
+        </div>
+      </form>
+      <ul id="payments-results" class="payments-results" hidden></ul>
+      <p id="payments-disclaimer" class="payments-disclaimer">
+        {r.payments.disclaimer}
+      </p>
+    </section>
+
     <!-- By month -->
     <section id="months" class="block" aria-labelledby="months-heading" hidden>
       <div class="block-head">
